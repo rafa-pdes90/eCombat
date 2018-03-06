@@ -1,0 +1,43 @@
+﻿<mah:MetroWindow x:Class="rafapdes90.combate.View.Fin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:rafapdes90.combate.View"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        mc:Ignorable="d"
+        Title="Fin" Height="300" Width="724"
+        WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
+        Background="Azure" WindowTransitionsEnabled="False"
+        BorderThickness="0" GlowBrush="Black"
+        ShowInTaskbar="False">
+    <mah:MetroWindow.OverlayBrush>
+        <!--<SolidColorBrush Opacity="0.8" Color="{StaticResource Gray2}" />-->
+        <SolidColorBrush Opacity="0.7" Color="{StaticResource BlackColor}"/>
+    </mah:MetroWindow.OverlayBrush>
+    <Grid Background="Green"  DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,10,0,10" HorizontalAlignment="Center">
+            <Label Content="{Binding MensagemFinal}" FontSize="50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+
+        <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Command="{Binding ResetCommand}" Content="Retornar à tela de login"
+                    FontSize="20" MinHeight="50" MinWidth="200" Margin="10"
+                    VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+
+            <Button Grid.Column="1" Command="{Binding ExitCommand}" Content="Sair"
+                    FontSize="20" MinHeight="50" MinWidth="200" Margin="10"
+                    VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+        </Grid>
+    </Grid>
+</mah:MetroWindow>
