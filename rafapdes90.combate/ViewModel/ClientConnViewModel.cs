@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -98,6 +99,11 @@ namespace rafapdes90.combate.ViewModel
 
         private async void RequestConnectionMethod()
         {
+            var serverConn = ServiceLocator.Current.GetInstance<ServerConnViewModel>();
+            serverConn.SelfHost.Close();
+            Console.WriteLine(serverConn.SelfHost.State.ToString());
+            Console.WriteLine(serverConn.SelfHost.ChannelDispatchers.First().Listener?.Uri);
+
             Messenger.Default.Send(new NotificationMessage(string.Empty), "Toggle_Server");
             this.ConnectButtonContent = "Conectando..";
 
