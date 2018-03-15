@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.ServiceModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -62,8 +64,18 @@ namespace rafapdes90.combate.ViewModel
             Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
         }
 
+        public ServiceHost SelfHost { get; set; }
         private async void ListenConnectionMethod()
         {
+            if (this.ListenButtonContent != "Cancelar")
+            {
+                SelfHost = new ServiceHost(typeof(CombateSvc));
+                SelfHost.Open();
+                Console.WriteLine(SelfHost.State.ToString());
+                Console.WriteLine(SelfHost.ChannelDispatchers.First().Listener?.Uri);
+                Console.WriteLine(SelfHost.BaseAddresses.ToString());
+            }
+
             Messenger.Default.Send(new NotificationMessage(string.Empty), "Toggle_Client");
             if (this.ListenButtonContent == "Cancelar")
             {
