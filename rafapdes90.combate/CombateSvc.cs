@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using System.ServiceModel.Discovery;
 using System.Text;
+using System.Xml.Linq;
 
 namespace rafapdes90.combate
 {
@@ -12,7 +14,7 @@ namespace rafapdes90.combate
     {
         public void DoWork()
         {
-            Console.WriteLine(@"Teste");
+            Console.WriteLine(@"Teste Combate");
         }
     }
 }

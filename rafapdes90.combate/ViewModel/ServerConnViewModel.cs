@@ -69,6 +69,7 @@ namespace rafapdes90.combate.ViewModel
         }
 
         public ServiceHost SelfHost { get; set; }
+        public GameMasterClient GameMaster { get; set; }
         private async void ListenConnectionMethod()
         {
             if (this.ListenButtonContent != "Cancelar")
@@ -79,17 +80,34 @@ namespace rafapdes90.combate.ViewModel
                     var localBaseAddress = new Uri("net.tcp://" + GetLocalIp());
                     SelfHost = new ServiceHost(typeof(CombateSvc), localBaseAddress);
                     */
-                    SelfHost = new ServiceHost(typeof(CombateSvc));
-                    SelfHost.Open();
+                    this.SelfHost = new ServiceHost(typeof(CombateSvc));
+                    this.SelfHost.Open();
+
+                    /*
+                    IChannelListener channelListener = SelfHost.ChannelDispatchers[1].Listener;
+                    if (channelListener != null)
+                    {
+                        Uri myUri = channelListener.Uri;
+                        var myResolveCriteria = new ResolveCriteria(new EndpointAddress(myUri));
+                        ResolveResponse proxyResponse = discoveryClient.Resolve(myResolveCriteria);
+                        EndpointDiscoveryMetadata myMetadata = proxyResponse.EndpointDiscoveryMetadata;
+                        foreach (var uriDoida in myMetadata.ListenUris)
+                            Console.WriteLine(uriDoida);
+                        Console.WriteLine(myMetadata.Address);
+                        string myPublicName = myMetadata.Extensions.First(x => x.Name.LocalName == "Name").Value;
+                        Console.WriteLine(myPublicName);
+                    }
+                    */
+
+                    this.GameMaster = new GameMasterClient("Server_IGameMaster");
+                    await this.GameMaster.DoWorkAsync();
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    SelfHost.Abort();
-                }
 
-                var gameMaster = new GameMasterClient("Server_IGameMaster");
-                gameMaster.DoWork();
+                    this.SelfHost.Abort();
+                }
             }
 
             Messenger.Default.Send(new NotificationMessage(string.Empty), "Toggle_Client");
