@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.ServiceModel.Description;
+using System.ServiceModel.Discovery;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -69,11 +73,23 @@ namespace rafapdes90.combate.ViewModel
         {
             if (this.ListenButtonContent != "Cancelar")
             {
-                SelfHost = new ServiceHost(typeof(CombateSvc));
-                SelfHost.Open();
-                Console.WriteLine(SelfHost.State.ToString());
-                Console.WriteLine(SelfHost.ChannelDispatchers.First().Listener?.Uri);
-                Console.WriteLine(SelfHost.BaseAddresses.ToString());
+                try
+                {
+                    /*
+                    var localBaseAddress = new Uri("net.tcp://" + GetLocalIp());
+                    SelfHost = new ServiceHost(typeof(CombateSvc), localBaseAddress);
+                    */
+                    SelfHost = new ServiceHost(typeof(CombateSvc));
+                    SelfHost.Open();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    SelfHost.Abort();
+                }
+
+                var gameMaster = new GameMasterClient("Server_IGameMaster");
+                gameMaster.DoWork();
             }
 
             Messenger.Default.Send(new NotificationMessage(string.Empty), "Toggle_Client");
@@ -174,24 +190,14 @@ namespace rafapdes90.combate.ViewModel
             }
         }
 
-        private IPAddress GetLocalIp()
+        private static IPAddress GetLocalIp()
         {
-            IPAddress localIp;
-
-            using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
-            {
-                socket.Connect("8.8.8.8", 0);
-                var endPoint = socket.LocalEndPoint as IPEndPoint;
-                localIp = endPoint?.Address;
-                socket.Close();
-            }
+            IPAddress localIp = Array.Find(
+                Dns.GetHostEntry(string.Empty).AddressList,
+                x => x.AddressFamily == AddressFamily.InterNetwork
+                     && x.ToString().Split('.').Last() != "1");
 
             return localIp;
-            /*
-            IPAddress ipAddr = Array.Find(
-                Dns.GetHostEntry(string.Empty).AddressList,
-                    x => x.AddressFamily == AddressFamily.InterNetwork);
-            */
         }
 
         private void ToggleServer(NotificationMessage notificationMessage)

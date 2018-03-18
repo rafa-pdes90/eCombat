@@ -101,8 +101,6 @@ namespace rafapdes90.combate.ViewModel
         {
             var serverConn = ServiceLocator.Current.GetInstance<ServerConnViewModel>();
             serverConn.SelfHost.Close();
-            Console.WriteLine(serverConn.SelfHost.State.ToString());
-            Console.WriteLine(serverConn.SelfHost.ChannelDispatchers.First().Listener?.Uri);
 
             Messenger.Default.Send(new NotificationMessage(string.Empty), "Toggle_Server");
             this.ConnectButtonContent = "Conectando..";

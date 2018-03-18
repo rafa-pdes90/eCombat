@@ -12,6 +12,7 @@ namespace rafapdes90.combate
     {
         public void DoWork()
         {
+            Console.WriteLine(@"Teste");
         }
     }
 }
