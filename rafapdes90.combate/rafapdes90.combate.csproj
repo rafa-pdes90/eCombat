@@ -101,6 +101,7 @@
     <Compile Include="Control\IpMaskedTextBox.xaml.cs">
       <DependentUpon>IpMaskedTextBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GameMaster.cs" />
     <Compile Include="ICombateSvc.cs" />
     <Compile Include="Model\Army.cs" />
     <Compile Include="Model\BoardPiece.cs" />
