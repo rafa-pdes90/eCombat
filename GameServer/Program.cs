@@ -1,44 +1,67 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GameServer
 {
     class Program
     {
+        // ReSharper disable once UnusedParameter.Local
         static void Main(string[] args)
         {
             var selfHost = new ServiceHost(typeof(GameMaster));
-            selfHost.Open();
-
-            /*
-            // Create a DiscoveryClient that points to the DiscoveryProxy  
-            var probeEndpointAddress = new Uri("net.tcp://localhost:8001/Probe/");
-            var discoveryEndpoint = new DiscoveryEndpoint(new NetTcpBinding(SecurityMode.None), new EndpointAddress(probeEndpointAddress));
-            var discoveryClient = new DiscoveryClient(discoveryEndpoint);
-            IChannelListener channelListener = SelfHost.ChannelDispatchers[1].Listener;
-            if (channelListener != null)
+            try
             {
-                Uri myUri = channelListener.Uri;
-                var myResolveCriteria = new ResolveCriteria(new EndpointAddress(myUri));
-                ResolveResponse proxyResponse = discoveryClient.Resolve(myResolveCriteria);
-                EndpointDiscoveryMetadata myMetadata = proxyResponse.EndpointDiscoveryMetadata;
-                foreach (var uriDoida in myMetadata.ListenUris)
-                    Console.WriteLine(uriDoida);
-                Console.WriteLine(myMetadata.Address);
-                string myPublicName = myMetadata.Extensions.First(x => x.Name.LocalName == "Name").Value;
-                Console.WriteLine(myPublicName);
+                selfHost.Open();
             }
-            */
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.ReadLine();
+
+                selfHost.Abort();
+                return;
+            }
 
             Console.WriteLine("Game Server started.");
             Console.WriteLine();
             Console.WriteLine("Press <ENTER> to terminate the server.");
             Console.WriteLine();
             Console.ReadLine();
+
+            selfHost.Close();
         }
+
+        /*
+        static void FindServiceAsync()
+        {
+            DiscoveryClient dc = new DiscoveryClient(new UdpDiscoveryEndpoint());
+            dc.FindCompleted += new EventHandler<FindCompletedEventArgs>(discoveryClient_FindCompleted);
+            dc.FindProgressChanged += new EventHandler<FindProgressChangedEventArgs>(discoveryClient_FindProgressChanged);
+            dc.FindAsync(new FindCriteria(typeof(ICombateSvc)));
+        }
+        static void discoveryClient_FindProgressChanged(object sender, FindProgressChangedEventArgs e)
+        {
+            Console.WriteLine("Found service at: " + e.EndpointDiscoveryMetadata.Address);
+        }
+
+        static void async discoveryClient_FindCompleted(object sender, FindCompletedEventArgs e)
+        {
+            if (e.Result.Endpoints.Count > 0)
+            {
+                EndpointAddress ep = e.Result.Endpoints[0].Address;
+                var client = new CombateSvcClient();
+
+                // Connect to the discovered service endpoint  
+                client.Endpoint.Address = ep;
+                Console.WriteLine("Invoking CalculatorService at {0}", ep);
+
+                await client.DoWorkAsync();
+
+                client.Close(); //?
+            }
+            else
+                Console.WriteLine("No matching endpoints found");
+        }
+        */
     }
 }
