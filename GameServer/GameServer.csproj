@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CombateSvc.cs" />
+    <Compile Include="eCombatSvc.cs" />
     <Compile Include="GameMaster.cs" />
     <Compile Include="IGameMaster.cs" />
     <Compile Include="Program.cs" />

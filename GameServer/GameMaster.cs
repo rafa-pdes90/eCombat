@@ -26,15 +26,15 @@ namespace GameServer
 
             try
             {
-                // Find ICombateSvc endpoints
-                var combateSvcSearch = new FindCriteria(typeof(ICombateSvc));
-                var searchExtension = new XElement("Name", "CombateSvc0");
-                combateSvcSearch.Extensions.Add(searchExtension);
+                // Find IeCombatSvc endpoints
+                var eCombatSvcSearch = new FindCriteria(typeof(IeCombatSvc));
+                var searchExtension = new XElement("Name", "eCombatSvc0");
+                eCombatSvcSearch.Extensions.Add(searchExtension);
 
                 FindResponse searchResponse;
                 lock (discoveryClient)
                 {
-                    searchResponse = discoveryClient.Find(combateSvcSearch);
+                    searchResponse = discoveryClient.Find(eCombatSvcSearch);
                 }
 
                 // Check to see if endpoints were found, if so then invoke the service.
@@ -45,12 +45,12 @@ namespace GameServer
                 if (discoveredEndpoint.ListenUris.Count > 0 && discoveredEndpoint.Address.Uri != discoveredEndpoint.ListenUris[0])
                 {
                     // Since the service is using a unique ListenUri, it needs to be invoked at the correct ListenUri 
-                    InvokeCombateService(discoveredEndpoint.Address, discoveredEndpoint.ListenUris[0]);
+                    InvokeeCombatService(discoveredEndpoint.Address, discoveredEndpoint.ListenUris[0]);
                 }
                 else
                 {
                     // Endpoint was found, however it doesn't have a unique ListenUri, hence invoke the service with only the Address URI
-                    InvokeCombateService(discoveredEndpoint.Address, null);
+                    InvokeeCombatService(discoveredEndpoint.Address, null);
                 }
             }
             catch (TargetInvocationException)
@@ -59,10 +59,10 @@ namespace GameServer
             }
         }
 
-        private static async void InvokeCombateService(EndpointAddress endpointAddress, Uri viaUri)
+        private static async void InvokeeCombatService(EndpointAddress endpointAddress, Uri viaUri)
         {
             // Create a client  
-            var client = new CombateSvcClient(new NetTcpBinding(SecurityMode.None), endpointAddress);
+            var client = new eCombatSvcClient(new NetTcpBinding(SecurityMode.None), endpointAddress);
 
             // if viaUri is not null then add the approprate ClientViaBehavior.
             if (viaUri != null)

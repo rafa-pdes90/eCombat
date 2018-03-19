@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.ServiceModel.Discovery;
+using System.Text;
+using System.Xml.Linq;
+
+namespace eCombat
+{
+    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "eCombatSvc" in both code and config file together.
+    public class eCombatSvc : IeCombatSvc
+    {
+        public void DoWork()
+        {
+            Console.WriteLine(@"Teste eCombat");
+        }
+    }
+}
