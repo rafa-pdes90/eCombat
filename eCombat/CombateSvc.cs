@@ -9,8 +9,8 @@ using System.Xml.Linq;
 
 namespace eCombat
 {
-    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "eCombatSvc" in both code and config file together.
-    public class eCombatSvc : IeCombatSvc
+    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "CombateSvc" in both code and config file together.
+    public class CombateSvc : ICombateSvc
     {
         public void DoWork()
         {

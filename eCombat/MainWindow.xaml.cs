@@ -49,7 +49,7 @@ namespace eCombat
         private Rectangle LastMovedCell { get; set; }
         private List<Rectangle> EnabledFields { get; set; }
         private Queue<Tuple<int, int>> MoveLog { get; set; }
-        private IEnumerable<UIElement> eCombatGridChildren { get; set; }
+        private IEnumerable<UIElement> CombateGridChildren { get; set; }
 
         public ICommand BoardPieceSelectCommand { get; }
 
@@ -69,7 +69,7 @@ namespace eCombat
             LoadConnectionWindow();
             if (!this.KeepOn) return;
             this.KeepOn = false;
-            LoadeCombatUIElements();
+            LoadCombateUIElements();
         }
 
         public void LoadConnectionWindow()
@@ -92,7 +92,7 @@ namespace eCombat
         }
 
         // ReSharper disable once InconsistentNaming
-        private void LoadeCombatUIElements()
+        private void LoadCombateUIElements()
         {
             void AddNewCell(int r, int c)
             {
@@ -104,7 +104,7 @@ namespace eCombat
                 };
                 novaCell.MouseLeftButtonDown += CellMouseLeftButtonDown;
 
-                this.eCombatGrid.Children.Add(novaCell);
+                this.CombateGrid.Children.Add(novaCell);
                 Grid.SetRow(novaCell, r);
                 Grid.SetColumn(novaCell, c);
                 Panel.SetZIndex(novaCell, 1);
@@ -139,7 +139,7 @@ namespace eCombat
                     unit.CommandParameter = unit;
                 }
 
-                this.eCombatGrid.Children.Add(unit);
+                this.CombateGrid.Children.Add(unit);
                 Grid.SetRow(unit, r);
                 Grid.SetColumn(unit, c);
                 Panel.SetZIndex(unit, 2);
@@ -182,7 +182,7 @@ namespace eCombat
                 }
             }
 
-            this.eCombatGridChildren = this.eCombatGrid.Children.Cast<UIElement>();
+            this.CombateGridChildren = this.CombateGrid.Children.Cast<UIElement>();
         }
 
         private void ClearLastSelection()
@@ -198,9 +198,9 @@ namespace eCombat
                 this.LastSelectedUnit.Effect = null;
         }
 
-        private IEnumerable<UIElement> GeteCombatGridChildren(int r, int c)
+        private IEnumerable<UIElement> GetCombateGridChildren(int r, int c)
         {
-            return this.eCombatGridChildren.Where(e =>
+            return this.CombateGridChildren.Where(e =>
                 Grid.GetColumn(e) == c && Grid.GetRow(e) == r);
         }
 
@@ -228,7 +228,7 @@ namespace eCombat
                     Rectangle moveRect = null;
                     bool hasEnemy = false;
 
-                    foreach (UIElement element in GeteCombatGridChildren(r, c))
+                    foreach (UIElement element in GetCombateGridChildren(r, c))
                     {
                         switch (element)
                         {
@@ -323,7 +323,7 @@ namespace eCombat
                 BoardPiece piece = Combatentes.Dequeue();
                 if (piece.Foreground.Equals(Brushes.Red))
                 {
-                    this.eCombatGrid.Children.Remove(piece);
+                    this.CombateGrid.Children.Remove(piece);
                 }
                 else
                 {
@@ -372,7 +372,7 @@ namespace eCombat
 
             if (isEnemy || rect.Fill.Equals(Brushes.Red))
             {
-                foreach (UIElement element in GeteCombatGridChildren(cellRow, cellColumn))
+                foreach (UIElement element in GetCombateGridChildren(cellRow, cellColumn))
                 {
                     if (!(element is BoardPiece piece)) continue;
                     enemy = piece;
@@ -489,7 +489,7 @@ namespace eCombat
                 {
                     int steps = cellRow - unitRow;
                     int tempo = (int)Math.Ceiling(0.1 + Math.Log(Math.Abs(steps))) * 500;
-                    double moveHeight = eCombatGrid.RenderSize.Height / 10;
+                    double moveHeight = CombateGrid.RenderSize.Height / 10;
                     var moveAnimation = new DoubleAnimation(moveHeight * steps, new TimeSpan(0, 0, 0, 0, tempo));
                     moveAnimation.Completed += MoveAnimationCompleted;
                     movingUnit.RenderTransform.BeginAnimation(TranslateTransform.YProperty, moveAnimation);
@@ -498,7 +498,7 @@ namespace eCombat
                 {
                     int steps = cellColumn - unitColumn;
                     int tempo = (int)Math.Ceiling(0.1 + Math.Log(Math.Abs(steps))) * 500;
-                    double moveWidth = eCombatGrid.RenderSize.Width / 10;
+                    double moveWidth = CombateGrid.RenderSize.Width / 10;
                     var moveAnimation = new DoubleAnimation(moveWidth * steps, new TimeSpan(0, 0, 0, 0, tempo));
                     moveAnimation.Completed += MoveAnimationCompleted;
                     movingUnit.RenderTransform.BeginAnimation(TranslateTransform.XProperty, moveAnimation);
@@ -536,7 +536,7 @@ namespace eCombat
             BoardPiece enemy = null;
             Rectangle rect = null;
 
-            foreach (UIElement element in GeteCombatGridChildren(origemY, origemX))
+            foreach (UIElement element in GetCombateGridChildren(origemY, origemX))
             {
                 switch (element)
                 {
@@ -547,7 +547,7 @@ namespace eCombat
             }
 
             if (enemy == null) return;
-            foreach (UIElement element in GeteCombatGridChildren(destY, destX))
+            foreach (UIElement element in GetCombateGridChildren(destY, destX))
             {
                 switch (element)
                 {

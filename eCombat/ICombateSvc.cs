@@ -7,11 +7,11 @@ using System.Text;
 
 namespace eCombat
 {
-    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "IeCombatSvc" in both code and config file together.
+    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "ICombateSvc" in both code and config file together.
     [ServiceContract]
-    public interface IeCombatSvc
+    public interface ICombateSvc
     {
-        [OperationContract]
+        [OperationContract(IsOneWay = true)]
         void DoWork();
     }
 }

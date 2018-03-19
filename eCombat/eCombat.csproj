@@ -97,12 +97,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="eCombatSvc.cs" />
+    <Compile Include="CombateSvc.cs" />
     <Compile Include="Control\IpMaskedTextBox.xaml.cs">
       <DependentUpon>IpMaskedTextBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="GameMaster.cs" />
-    <Compile Include="IeCombatSvc.cs" />
+    <Compile Include="ICombateSvc.cs" />
     <Compile Include="Model\Army.cs" />
     <Compile Include="Model\BoardPiece.cs" />
     <Compile Include="Model\ChatMsg.cs" />

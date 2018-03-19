@@ -78,9 +78,9 @@ namespace eCombat.ViewModel
                 {
                     /*
                     var localBaseAddress = new Uri("net.tcp://" + GetLocalIp());
-                    SelfHost = new ServiceHost(typeof(eCombatSvc), localBaseAddress);
+                    SelfHost = new ServiceHost(typeof(CombateSvc), localBaseAddress);
                     */
-                    this.SelfHost = new ServiceHost(typeof(eCombatSvc));
+                    this.SelfHost = new ServiceHost(typeof(CombateSvc));
                     this.SelfHost.Open();
 
                     /*
@@ -100,6 +100,7 @@ namespace eCombat.ViewModel
                     */
 
                     this.GameMaster = new GameMasterClient("Server_IGameMaster");
+                    await this.GameMaster.IntroduceToGameMasterAsync(0);
                     await this.GameMaster.DoWorkAsync();
                 }
                 catch (Exception e)

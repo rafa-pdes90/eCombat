@@ -11,14 +11,20 @@
 
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-[System.ServiceModel.ServiceContractAttribute(ConfigurationName="IGameMaster")]
+[System.ServiceModel.ServiceContractAttribute(ConfigurationName="IGameMaster", SessionMode=System.ServiceModel.SessionMode.Required)]
 public interface IGameMaster
 {
     
-    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMaster/DoWork", ReplyAction="http://tempuri.org/IGameMaster/DoWorkResponse")]
+    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMaster/IntroduceToGameMaster", ReplyAction="http://tempuri.org/IGameMaster/IntroduceToGameMasterResponse")]
+    void IntroduceToGameMaster(int clientId);
+    
+    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMaster/IntroduceToGameMaster", ReplyAction="http://tempuri.org/IGameMaster/IntroduceToGameMasterResponse")]
+    System.Threading.Tasks.Task IntroduceToGameMasterAsync(int clientId);
+    
+    [System.ServiceModel.OperationContractAttribute(IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/IGameMaster/DoWork", ReplyAction="http://tempuri.org/IGameMaster/DoWorkResponse")]
     void DoWork();
     
-    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMaster/DoWork", ReplyAction="http://tempuri.org/IGameMaster/DoWorkResponse")]
+    [System.ServiceModel.OperationContractAttribute(IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/IGameMaster/DoWork", ReplyAction="http://tempuri.org/IGameMaster/DoWorkResponse")]
     System.Threading.Tasks.Task DoWorkAsync();
 }
 
@@ -54,6 +60,16 @@ public partial class GameMasterClient : System.ServiceModel.ClientBase<IGameMast
     public GameMasterClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
             base(binding, remoteAddress)
     {
+    }
+    
+    public void IntroduceToGameMaster(int clientId)
+    {
+        base.Channel.IntroduceToGameMaster(clientId);
+    }
+    
+    public System.Threading.Tasks.Task IntroduceToGameMasterAsync(int clientId)
+    {
+        return base.Channel.IntroduceToGameMasterAsync(clientId);
     }
     
     public void DoWork()

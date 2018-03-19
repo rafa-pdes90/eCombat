@@ -14,9 +14,16 @@ namespace GameServer
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "GameMaster" in both code and config file together.
     public class GameMaster : IGameMaster
     {
+        private string ClientSvcName { get; set; }
+
+        public void IntroduceToGameMaster(int clientId)
+        {
+            ClientSvcName = "CombateSvc" + clientId;
+        }
+
         public void DoWork()
         {
-            Console.WriteLine(@"Teste GameServer");
+            Console.WriteLine(@"Test " + ClientSvcName);
 
             // Create a DiscoveryClient that points to the DiscoveryProxy  
             var probeBinding = new NetTcpBinding(SecurityMode.None);
@@ -27,8 +34,8 @@ namespace GameServer
             try
             {
                 // Find IeCombatSvc endpoints
-                var eCombatSvcSearch = new FindCriteria(typeof(IeCombatSvc));
-                var searchExtension = new XElement("Name", "eCombatSvc0");
+                var eCombatSvcSearch = new FindCriteria(typeof(ICombateSvc));
+                var searchExtension = new XElement("Name", ClientSvcName);
                 eCombatSvcSearch.Extensions.Add(searchExtension);
 
                 FindResponse searchResponse;
@@ -62,7 +69,7 @@ namespace GameServer
         private static async void InvokeeCombatService(EndpointAddress endpointAddress, Uri viaUri)
         {
             // Create a client  
-            var client = new eCombatSvcClient(new NetTcpBinding(SecurityMode.None), endpointAddress);
+            var client = new CombateSvcClient(new NetTcpBinding(SecurityMode.None), endpointAddress);
 
             // if viaUri is not null then add the approprate ClientViaBehavior.
             if (viaUri != null)

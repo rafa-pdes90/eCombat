@@ -8,10 +8,13 @@ using System.Text;
 namespace GameServer
 {
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "IGameMaster" in both code and config file together.
-    [ServiceContract]
+    [ServiceContract(SessionMode = SessionMode.Required)]
     public interface IGameMaster
     {
-        [OperationContract]
+        [OperationContract(IsInitiating = true)]
+        void IntroduceToGameMaster(int clientId);
+
+        [OperationContract(IsInitiating = false, IsTerminating = true)]
         void DoWork();
     }
 }

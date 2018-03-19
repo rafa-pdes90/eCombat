@@ -18,7 +18,7 @@
 
         <Grid Grid.Column="0" Margin="5">
             <Border BorderThickness="1" BorderBrush="Black">
-                <Grid x:Name="eCombatGrid" Background="Green">
+                <Grid x:Name="CombateGrid" Background="Green">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>

@@ -11,47 +11,47 @@
 
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-[System.ServiceModel.ServiceContractAttribute(ConfigurationName="IeCombatSvc")]
-public interface IeCombatSvc
+[System.ServiceModel.ServiceContractAttribute(ConfigurationName="ICombateSvc")]
+public interface ICombateSvc
 {
     
-    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IeCombatSvc/DoWork", ReplyAction="http://tempuri.org/IeCombatSvc/DoWorkResponse")]
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ICombateSvc/DoWork")]
     void DoWork();
     
-    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IeCombatSvc/DoWork", ReplyAction="http://tempuri.org/IeCombatSvc/DoWorkResponse")]
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ICombateSvc/DoWork")]
     System.Threading.Tasks.Task DoWorkAsync();
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-public interface IeCombatSvcChannel : IeCombatSvc, System.ServiceModel.IClientChannel
+public interface ICombateSvcChannel : ICombateSvc, System.ServiceModel.IClientChannel
 {
 }
 
 [System.Diagnostics.DebuggerStepThroughAttribute()]
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-public partial class eCombatSvcClient : System.ServiceModel.ClientBase<IeCombatSvc>, IeCombatSvc
+public partial class CombateSvcClient : System.ServiceModel.ClientBase<ICombateSvc>, ICombateSvc
 {
     
-    public eCombatSvcClient()
+    public CombateSvcClient()
     {
     }
     
-    public eCombatSvcClient(string endpointConfigurationName) : 
+    public CombateSvcClient(string endpointConfigurationName) : 
             base(endpointConfigurationName)
     {
     }
     
-    public eCombatSvcClient(string endpointConfigurationName, string remoteAddress) : 
+    public CombateSvcClient(string endpointConfigurationName, string remoteAddress) : 
             base(endpointConfigurationName, remoteAddress)
     {
     }
     
-    public eCombatSvcClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
+    public CombateSvcClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
             base(endpointConfigurationName, remoteAddress)
     {
     }
     
-    public eCombatSvcClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+    public CombateSvcClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
             base(binding, remoteAddress)
     {
     }
