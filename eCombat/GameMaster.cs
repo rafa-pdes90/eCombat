@@ -8,6 +8,62 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+namespace GameServer
+{
+    using System.Runtime.Serialization;
+    
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="GMFault", Namespace="http://schemas.datacontract.org/2004/07/GameServer")]
+    public partial class GMFault : object, System.Runtime.Serialization.IExtensibleDataObject
+    {
+        
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private string ExceptionField;
+        
+        private int IdField;
+        
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Exception
+        {
+            get
+            {
+                return this.ExceptionField;
+            }
+            set
+            {
+                this.ExceptionField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Id
+        {
+            get
+            {
+                return this.IdField;
+            }
+            set
+            {
+                this.IdField = value;
+            }
+        }
+    }
+}
 
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -16,10 +72,11 @@ public interface IGameMaster
 {
     
     [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMaster/IntroduceToGameMaster", ReplyAction="http://tempuri.org/IGameMaster/IntroduceToGameMasterResponse")]
-    void IntroduceToGameMaster(int clientId);
+    [System.ServiceModel.FaultContractAttribute(typeof(GameServer.GMFault), Action="http://tempuri.org/IGameMaster/IntroduceToGameMasterGMFaultFault", Name="GMFault", Namespace="http://schemas.datacontract.org/2004/07/GameServer")]
+    void IntroduceToGameMaster(System.Uri clientUri);
     
     [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMaster/IntroduceToGameMaster", ReplyAction="http://tempuri.org/IGameMaster/IntroduceToGameMasterResponse")]
-    System.Threading.Tasks.Task IntroduceToGameMasterAsync(int clientId);
+    System.Threading.Tasks.Task IntroduceToGameMasterAsync(System.Uri clientUri);
     
     [System.ServiceModel.OperationContractAttribute(IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/IGameMaster/DoWork", ReplyAction="http://tempuri.org/IGameMaster/DoWorkResponse")]
     void DoWork();
@@ -62,14 +119,14 @@ public partial class GameMasterClient : System.ServiceModel.ClientBase<IGameMast
     {
     }
     
-    public void IntroduceToGameMaster(int clientId)
+    public void IntroduceToGameMaster(System.Uri clientUri)
     {
-        base.Channel.IntroduceToGameMaster(clientId);
+        base.Channel.IntroduceToGameMaster(clientUri);
     }
     
-    public System.Threading.Tasks.Task IntroduceToGameMasterAsync(int clientId)
+    public System.Threading.Tasks.Task IntroduceToGameMasterAsync(System.Uri clientUri)
     {
-        return base.Channel.IntroduceToGameMasterAsync(clientId);
+        return base.Channel.IntroduceToGameMasterAsync(clientUri);
     }
     
     public void DoWork()

@@ -12,7 +12,8 @@ namespace GameServer
     public interface IGameMaster
     {
         [OperationContract(IsInitiating = true)]
-        void IntroduceToGameMaster(int clientId);
+        [FaultContract(typeof(GMFault))]
+        void IntroduceToGameMaster(Uri clientUri);
 
         [OperationContract(IsInitiating = false, IsTerminating = true)]
         void DoWork();
