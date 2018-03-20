@@ -75,6 +75,8 @@ namespace eCombat.ViewModel
         {
             if (this.ListenButtonContent != "Cancelar")
             {
+                const bool generateMexMode = false;
+
                 try
                 {
                     /*
@@ -84,18 +86,21 @@ namespace eCombat.ViewModel
                     this.SelfHost = new ServiceHost(typeof(CombateSvc));
                     this.SelfHost.Open();
 
-                    Uri myUri = null;
-                    foreach (ChannelDispatcherBase dispatcherBase in SelfHost.ChannelDispatchers)
+                    if (!generateMexMode)
                     {
-                        if (dispatcherBase.Listener == null) continue;
-                        if (dispatcherBase.Listener.Uri.Port == -1) continue;
-                        myUri = dispatcherBase.Listener.Uri;
-                    }
-                    Console.WriteLine(myUri);
+                        Uri myUri = null;
+                        foreach (ChannelDispatcherBase dispatcherBase in SelfHost.ChannelDispatchers)
+                        {
+                            if (dispatcherBase.Listener == null) continue;
+                            if (dispatcherBase.Listener.Uri.Port == -1) continue;
+                            myUri = dispatcherBase.Listener.Uri;
+                            break;
+                        }
 
-                    this.GameMaster = new GameMasterClient("Server_IGameMaster");
-                    await this.GameMaster.IntroduceToGameMasterAsync(0);
-                    await this.GameMaster.DoWorkAsync();
+                        this.GameMaster = new GameMasterClient("Server_IGameMaster");
+                        this.GameMaster.IntroduceToGameMaster(myUri);
+                        await this.GameMaster.DoWorkAsync();
+                    }
                 }
                 catch (Exception e)
                 {
