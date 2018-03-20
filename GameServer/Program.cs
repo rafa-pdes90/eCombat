@@ -8,6 +8,12 @@ namespace GameServer
         // ReSharper disable once UnusedParameter.Local
         static void Main(string[] args)
         {
+            var proxyUri = new Uri("net.tcp://localhost:8001/Probe");
+            var proxyBinding = new NetTcpBinding(SecurityMode.None);
+            Type combateSvcBinding = typeof(NetTcpBinding);
+            const SecurityMode combateSvcSecurity = SecurityMode.None;
+            GMHelper.Init(proxyUri, proxyBinding, combateSvcBinding, combateSvcSecurity);
+
             var selfHost = new ServiceHost(typeof(GameMaster));
             try
             {
@@ -30,38 +36,5 @@ namespace GameServer
 
             selfHost.Close();
         }
-
-        /*
-        static void FindServiceAsync()
-        {
-            DiscoveryClient dc = new DiscoveryClient(new UdpDiscoveryEndpoint());
-            dc.FindCompleted += new EventHandler<FindCompletedEventArgs>(discoveryClient_FindCompleted);
-            dc.FindProgressChanged += new EventHandler<FindProgressChangedEventArgs>(discoveryClient_FindProgressChanged);
-            dc.FindAsync(new FindCriteria(typeof(IeCombatSvc)));
-        }
-        static void discoveryClient_FindProgressChanged(object sender, FindProgressChangedEventArgs e)
-        {
-            Console.WriteLine("Found service at: " + e.EndpointDiscoveryMetadata.Address);
-        }
-
-        static void async discoveryClient_FindCompleted(object sender, FindCompletedEventArgs e)
-        {
-            if (e.Result.Endpoints.Count > 0)
-            {
-                EndpointAddress ep = e.Result.Endpoints[0].Address;
-                var client = new eCombatSvcClient();
-
-                // Connect to the discovered service endpoint  
-                client.Endpoint.Address = ep;
-                Console.WriteLine("Invoking CalculatorService at {0}", ep);
-
-                await client.DoWorkAsync();
-
-                client.Close(); //?
-            }
-            else
-                Console.WriteLine("No matching endpoints found");
-        }
-        */
     }
 }
