@@ -98,6 +98,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="CombateSvc.cs" />
+    <Compile Include="CombateSvcData.cs" />
     <Compile Include="Control\IpMaskedTextBox.xaml.cs">
       <DependentUpon>IpMaskedTextBox.xaml</DependentUpon>
     </Compile>
