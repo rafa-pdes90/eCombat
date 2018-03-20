@@ -8,6 +8,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Discovery;
+using System.ServiceModel.Dispatcher;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -83,21 +84,14 @@ namespace eCombat.ViewModel
                     this.SelfHost = new ServiceHost(typeof(CombateSvc));
                     this.SelfHost.Open();
 
-                    /*
-                    IChannelListener channelListener = SelfHost.ChannelDispatchers[1].Listener;
-                    if (channelListener != null)
+                    Uri myUri = null;
+                    foreach (ChannelDispatcherBase dispatcherBase in SelfHost.ChannelDispatchers)
                     {
-                        Uri myUri = channelListener.Uri;
-                        var myResolveCriteria = new ResolveCriteria(new EndpointAddress(myUri));
-                        ResolveResponse proxyResponse = discoveryClient.Resolve(myResolveCriteria);
-                        EndpointDiscoveryMetadata myMetadata = proxyResponse.EndpointDiscoveryMetadata;
-                        foreach (var uriDoida in myMetadata.ListenUris)
-                            Console.WriteLine(uriDoida);
-                        Console.WriteLine(myMetadata.Address);
-                        string myPublicName = myMetadata.Extensions.First(x => x.Name.LocalName == "Name").Value;
-                        Console.WriteLine(myPublicName);
+                        if (dispatcherBase.Listener == null) continue;
+                        if (dispatcherBase.Listener.Uri.Port == -1) continue;
+                        myUri = dispatcherBase.Listener.Uri;
                     }
-                    */
+                    Console.WriteLine(myUri);
 
                     this.GameMaster = new GameMasterClient("Server_IGameMaster");
                     await this.GameMaster.IntroduceToGameMasterAsync(0);

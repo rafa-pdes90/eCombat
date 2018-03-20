@@ -14,7 +14,7 @@ namespace eCombat
     {
         public void DoWork()
         {
-            Console.WriteLine(@"Teste eCombat");
+            Console.WriteLine(@"Testing eCombat");
         }
     }
 }

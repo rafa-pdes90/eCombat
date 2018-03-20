@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Discovery;
 using System.Text;
@@ -14,16 +15,31 @@ namespace GameServer
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "GameMaster" in both code and config file together.
     public class GameMaster : IGameMaster
     {
-        private string ClientSvcName { get; set; }
+        private int ClientSvcId { get; set; }
 
         public void IntroduceToGameMaster(int clientId)
         {
-            ClientSvcName = "CombateSvc" + clientId;
+            /*
+            IChannelListener channelListener = SelfHost.ChannelDispatchers[1].Listener;
+            if (channelListener != null)
+            {
+                Uri myUri = channelListener.Uri;
+                var myResolveCriteria = new ResolveCriteria(new EndpointAddress(myUri));
+                ResolveResponse proxyResponse = discoveryClient.Resolve(myResolveCriteria);
+                EndpointDiscoveryMetadata myMetadata = proxyResponse.EndpointDiscoveryMetadata;
+                foreach (var uriDoida in myMetadata.ListenUris)
+                    Console.WriteLine(uriDoida);
+                Console.WriteLine(myMetadata.Address);
+                string myPublicName = myMetadata.Extensions.First(x => x.Name.LocalName == "Name").Value;
+                Console.WriteLine(myPublicName);
+            }
+            */
+            this.ClientSvcId = clientId;
         }
 
         public void DoWork()
         {
-            Console.WriteLine(@"Test " + ClientSvcName);
+            Console.WriteLine(@"Testing GameServer");
 
             // Create a DiscoveryClient that points to the DiscoveryProxy  
             var probeBinding = new NetTcpBinding(SecurityMode.None);
@@ -35,7 +51,7 @@ namespace GameServer
             {
                 // Find IeCombatSvc endpoints
                 var eCombatSvcSearch = new FindCriteria(typeof(ICombateSvc));
-                var searchExtension = new XElement("Name", ClientSvcName);
+                var searchExtension = new XElement("Id", ClientSvcId);
                 eCombatSvcSearch.Extensions.Add(searchExtension);
 
                 FindResponse searchResponse;
