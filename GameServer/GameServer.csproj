@@ -48,6 +48,8 @@
   <ItemGroup>
     <Compile Include="CombateSvc.cs" />
     <Compile Include="GameMaster.cs" />
+    <Compile Include="GameMasterData.cs" />
+    <Compile Include="GameMasterHelper.cs" />
     <Compile Include="IGameMaster.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
