@@ -10,9 +10,9 @@ namespace GameServer
         {
             var proxyUri = new Uri("net.tcp://localhost:8001/Probe");
             var proxyBinding = new NetTcpBinding(SecurityMode.None);
-            Type combateSvcBinding = typeof(NetTcpBinding);
-            const SecurityMode combateSvcSecurity = SecurityMode.None;
-            GMHelper.Init(proxyUri, proxyBinding, combateSvcBinding, combateSvcSecurity);
+            Type svcBindingType = typeof(NetTcpBinding);
+            const SecurityMode svcSecurityMode = SecurityMode.None;
+            GMHelper.Init(proxyUri, proxyBinding, svcBindingType, svcSecurityMode);
 
             var selfHost = new ServiceHost(typeof(GameMaster));
             try

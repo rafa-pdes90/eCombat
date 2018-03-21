@@ -6,9 +6,19 @@ namespace eCombat
     public class CombateSvcFault
     {
         [DataMember]
-        public int Id { get; set; }
+        public string Operation { get; set; }
 
         [DataMember]
-        public string Exception { get; set; }
+        public string Reason { get; set; }
+
+        [DataMember]
+        public string Code { get; set; }
+
+        public CombateSvcFault(string operation, string reason, string code = "")
+        {
+            this.Operation = operation;
+            this.Reason = reason;
+            this.Code = code;
+        }
     }
 }

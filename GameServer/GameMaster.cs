@@ -8,6 +8,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Discovery;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace GameServer
@@ -15,59 +16,67 @@ namespace GameServer
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "GameMaster" in both code and config file together.
     public class GameMaster : IGameMaster
     {
-        private EndpointDiscoveryMetadata ClientMetadata { get; set; }
-        public static CombateSvcClient Player { get; set; }
+        private static GameManager _theHouse;
 
-        public void IntroduceToGameMaster(Uri clientUri)
+        private string PlayerClientId { get; set; }
+        private CombateSvcClient PlayerClient { get; set; }
+        private GameInfo CurrentGame { get; set; }
+
+        static GameMaster()
+        {
+            _theHouse = new GameManager();
+        }
+
+        public string IntroduceToGameMaster(Uri clientUri)
         {
             try
             {
                 EndpointDiscoveryMetadata probedMetadata = GMHelper.ProbeByUri(clientUri);
 
+                if (probedMetadata == null)
+                {
+                    var fault = new GMFault("probing by Uri", "invalid Uri.", "ITGM 01");
+                    throw new FaultException<GMFault>(fault);
+                }
+
                 var testCriteria = new FindCriteria(typeof(ICombateSvc));
                 if (testCriteria.IsMatch(probedMetadata))
                 {
-                    var clientBinding = (Binding)Activator.CreateInstance(GMHelper.CombateSvcBinding);
-                    var client = new CombateSvcClient(new NetTcpBinding(SecurityMode.None), probedMetadata.Address);
+                    Task.Run(() =>
+                        this.PlayerClient = GMHelper.NewClient(probedMetadata));
 
-                    // Check to see if the endpoint has a listenUri and if it differs from the Address URI
-                    if (probedMetadata.ListenUris.Count > 0 && probedMetadata.Address.Uri != probedMetadata.ListenUris[0])
+                    this.PlayerClientId = probedMetadata.Extensions.First(x => x.Name.LocalName == "Id").Value;
+                    Task.Run(() =>
                     {
-                        client.Endpoint.Behaviors.Add(new ClientViaBehavior(probedMetadata.ListenUris[0]));
-                    }
+                        lock (_theHouse)
+                        {
+                             CurrentGame = GMHelper.NewGame(this, ref _theHouse);
+                        }
 
-                    this.ClientMetadata = probedMetadata;
-                    Player = client;
+                        if (CurrentGame == null) return;
+                        CurrentGame.Player1.PlayerClient.DoWorkAsync();
+                        CurrentGame.Player2.PlayerClient.DoWorkAsync();
+                    });
+
+                    return this.PlayerClientId;
                 }
                 else
                 {
-
+                    var fault = new GMFault("probing by Uri", "Uri belongs to another service type.", "ITGM 02");
+                    throw new FaultException<GMFault>(fault);
                 }
             }
-            catch (TargetInvocationException e)
+            catch (TargetInvocationException)
             {
-                Console.WriteLine(e);
+                var fault = new GMFault("probing by URI", "unable to connect to and query the proxy.", "ITGM 00");
+                throw new FaultException<GMFault>(fault);
             }
         }
 
         public void DoWork()
         {
             Console.WriteLine(@"Testing GameServer");
-
-            try
-            {
-                // Call the Add service operation.  
-                Player.DoWork();
-
-                // Closing the client gracefully closes the connection and cleans up resources  
-                Player.Close();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-
-                Player.Abort();
-            }
+            PlayerClient.Close();
         }
     }
 }

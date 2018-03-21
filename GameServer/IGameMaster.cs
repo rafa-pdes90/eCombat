@@ -13,9 +13,9 @@ namespace GameServer
     {
         [OperationContract(IsInitiating = true)]
         [FaultContract(typeof(GMFault))]
-        void IntroduceToGameMaster(Uri clientUri);
+        string IntroduceToGameMaster(Uri clientUri);
 
-        [OperationContract(IsInitiating = false, IsTerminating = true)]
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = true)]
         void DoWork();
     }
 }
