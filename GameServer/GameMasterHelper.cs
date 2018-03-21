@@ -14,25 +14,27 @@ namespace GameServer
 {
     public class GameManager
     {
-        public GameMaster WaitingPlayer { get; set; }
+        public Queue<GameMaster> WaitingPlayers { get; set; }
         public Dictionary<int, GameInfo> GameList { get; }
         public int GameCount { get; private set; }
 
         public GameManager()
         {
-            this.WaitingPlayer = null;
+            this.WaitingPlayers = new Queue<GameMaster>();
             this.GameList = new Dictionary<int, GameInfo>();
             this.GameCount = 0;
         }
 
         public void AddToGameList(GameInfo newGame)
         {
+            newGame.Id = GameCount;
             GameList.Add(this.GameCount++, newGame);
         }
     }
 
     public class GameInfo
     {
+        public int Id { get; set; }
         public GameMaster Player1 { get; set; }
         public GameMaster Player2 { get; set; }
         public int Winner { get; set; }
@@ -83,21 +85,15 @@ namespace GameServer
         /// <summary>
         /// Initializes a new game and updates the game manager
         /// </summary>
-        /// <param name="newPlayer"></param>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
         /// <param name="house"></param>
         /// <returns></returns>
-        public static GameInfo NewGame(GameMaster newPlayer, ref GameManager house)
+        public static GameInfo NewGame(GameMaster p1, GameMaster p2, ref GameManager house)
         {
-            if (house.WaitingPlayer == null)
-            {
-                house.WaitingPlayer = newPlayer;
-                return null;
-            }
-            
-            var newGame = new GameInfo(house.WaitingPlayer, newPlayer);
+            var newGame = new GameInfo(p1, p2);
             house.AddToGameList(newGame);
 
-            house.WaitingPlayer = null;
             return newGame;
         }
 
