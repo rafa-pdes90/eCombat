@@ -11,15 +11,15 @@
 
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-[System.ServiceModel.ServiceContractAttribute(ConfigurationName="ICombateSvc")]
+[System.ServiceModel.ServiceContractAttribute(ConfigurationName="ICombateSvc", SessionMode=System.ServiceModel.SessionMode.Required)]
 public interface ICombateSvc
 {
     
-    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ICombateSvc/DoWork")]
-    void DoWork();
+    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICombateSvc/StartGame", ReplyAction="http://tempuri.org/ICombateSvc/StartGameResponse")]
+    void StartGame(string opponentName, string opponentId, bool isPlayer1);
     
-    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ICombateSvc/DoWork")]
-    System.Threading.Tasks.Task DoWorkAsync();
+    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICombateSvc/StartGame", ReplyAction="http://tempuri.org/ICombateSvc/StartGameResponse")]
+    System.Threading.Tasks.Task StartGameAsync(string opponentName, string opponentId, bool isPlayer1);
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -56,13 +56,13 @@ public partial class CombateSvcClient : System.ServiceModel.ClientBase<ICombateS
     {
     }
     
-    public void DoWork()
+    public void StartGame(string opponentName, string opponentId, bool isPlayer1)
     {
-        base.Channel.DoWork();
+        base.Channel.StartGame(opponentName, opponentId, isPlayer1);
     }
     
-    public System.Threading.Tasks.Task DoWorkAsync()
+    public System.Threading.Tasks.Task StartGameAsync(string opponentName, string opponentId, bool isPlayer1)
     {
-        return base.Channel.DoWorkAsync();
+        return base.Channel.StartGameAsync(opponentName, opponentId, isPlayer1);
     }
 }

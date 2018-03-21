@@ -8,10 +8,10 @@ using System.Text;
 namespace eCombat
 {
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "ICombateSvc" in both code and config file together.
-    [ServiceContract]
+    [ServiceContract(SessionMode = SessionMode.Required)]
     public interface ICombateSvc
     {
-        [OperationContract(IsOneWay = true)]
-        void DoWork();
+        [OperationContract(IsInitiating = true)]
+        void StartGame(string opponentName, string opponentId, bool isPlayer1);
     }
 }
