@@ -84,30 +84,32 @@ namespace eCombat.ViewModel
                     */
                     this.SelfHost = new ServiceHost(typeof(CombateSvc));
                     this.SelfHost.Open();
-                    
-                    this.GameMaster = new GameMasterClient("Server_IGameMaster");
 
-                    Uri myUri = null;
-                    foreach (ChannelDispatcherBase dispatcherBase in SelfHost.ChannelDispatchers)
+                    if (this.SelfHost.Description.Endpoints.All(x => x.Contract.Name != "IMetadataExchange"))
                     {
-                        if (dispatcherBase.Listener == null) continue;
-                        if (dispatcherBase.Listener.Uri.Port == -1) continue;
-                        myUri = dispatcherBase.Listener.Uri;
-                        break;
+                        this.GameMaster = new GameMasterClient("Server_IGameMaster");
+
+                        Uri myUri = null;
+                        foreach (ChannelDispatcherBase dispatcherBase in SelfHost.ChannelDispatchers)
+                        {
+                            if (dispatcherBase.Listener == null) continue;
+                            if (dispatcherBase.Listener.Uri.Port == -1) continue;
+                            myUri = dispatcherBase.Listener.Uri;
+                            break;
+                        }
+
+                        try
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine(this.GameMaster.IntroduceToGameMaster(myUri, "João"));
+                            Console.WriteLine();
+                        }
+                        catch (FaultException<GMFault> f)
+                        {
+                            Console.WriteLine(@"GMFault while " + f.Detail.Operation + @". Reason: " + f.Detail.Reason);
+                            this.GameMaster.Abort();
+                        }
                     }
-                    
-                    try
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine(this.GameMaster.IntroduceToGameMaster(myUri));
-                        Console.WriteLine();
-                    }
-                    catch (FaultException<GMFault> f)
-                    {
-                        Console.WriteLine(@"GMFault while " + f.Detail.Operation + @". Reason: " + f.Detail.Reason);
-                        this.GameMaster.Abort();
-                    }
-                    
                 }
                 catch (Exception e)
                 {
