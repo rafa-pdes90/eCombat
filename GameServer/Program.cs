@@ -18,23 +18,44 @@ namespace GameServer
             try
             {
                 selfHost.Open();
+                Console.WriteLine("Game Server started.");
+                Console.WriteLine();
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                Console.ReadLine();
+                switch (e)
+                {
+                    case CommunicationObjectFaultedException _:
+                    case EndpointNotFoundException _:
+                        Console.WriteLine("The Discovery Proxy couldn't be reached.");
+                        break;
+                    case TimeoutException _:
+                        Console.WriteLine("The Discovery Proxy is unresponsive.");
+                        break;
+                    case CommunicationException _:
+                        Console.WriteLine("The Discovery Proxy refused the connection.");
+                        break;
+                    default:
+                        Console.WriteLine(e);
+                        break;
+                }
+                Console.WriteLine();
 
                 selfHost.Abort();
-                return;
             }
 
-            Console.WriteLine("Game Server started.");
-            Console.WriteLine();
             Console.WriteLine("Press <ENTER> to terminate the server.");
             Console.WriteLine();
             Console.ReadLine();
 
-            selfHost.Close();
+            try
+            {
+                selfHost.Close();
+            }
+            catch (Exception)
+            {
+                selfHost.Abort();
+            }
         }
     }
 }
