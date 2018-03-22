@@ -96,14 +96,56 @@ namespace GameServer
 
             return newGame;
         }
+        
+        private static EndpointDiscoveryMetadata Probe(string serviceId, Type serviceType)
+        {
+            FindCriteria svcSearch = serviceType == null ? new FindCriteria() : new FindCriteria(serviceType);
+
+            if (serviceId != null)
+            {
+                var searchExtension = new XElement("Id", serviceId);
+                svcSearch.Extensions.Add(searchExtension);
+            }
+
+            FindResponse searchResponse;
+            lock (ProbeClient)
+            {
+                searchResponse = ProbeClient.Find(svcSearch);
+            }
+
+            return searchResponse.Endpoints.FirstOrDefault();
+        }
 
         /// <summary>
-        /// Try to find service by its serviceUri
+        /// Query the proxy for all services or a specific one by its Id
+        /// </summary>
+        /// <exception cref="TargetInvocationException"></exception>
+        /// <param name="serviceId"></param>
+        /// <returns></returns>
+        public static EndpointDiscoveryMetadata Probe(string serviceId = null)
+        {
+            return Probe(serviceId, null);
+        }
+
+        /// <summary>
+        /// Query the proxy for all TType services or a specific TType one by its Id
+        /// </summary>
+        /// <exception cref="TargetInvocationException"></exception>
+        /// <typeparam name="TType"></typeparam>
+        /// <param name="serviceId"></param>
+        /// <returns></returns>
+        public static EndpointDiscoveryMetadata Probe<TType>(string serviceId = null)
+        {
+            return Probe(serviceId, typeof(TType));
+        }
+
+        /// <summary>
+        /// Query the proxy for a specific service by its URI
         /// </summary>
         /// <exception cref="TargetInvocationException"></exception>
         /// <param name="serviceUri"></param>
         /// <returns></returns>
-        public static EndpointDiscoveryMetadata ProbeByUri(Uri serviceUri)
+        public static EndpointDiscoveryMetadata Probe(Uri serviceUri)
         {
             var svcSearch = new ResolveCriteria(new EndpointAddress(serviceUri));
 
@@ -115,60 +157,5 @@ namespace GameServer
 
             return searchResponse.EndpointDiscoveryMetadata;
         }
-
-        /// <summary>
-        /// Try to find a service of TType by its Id
-        /// </summary>
-        /// <exception cref="TargetInvocationException"></exception>
-        /// <typeparam name="TType"></typeparam>
-        /// <param name="serviceId"></param>
-        /// <returns></returns>
-        public static EndpointDiscoveryMetadata ProbeById<TType>(string serviceId)
-        {
-            var svcSearch = new FindCriteria(typeof(TType));
-            var searchExtension = new XElement("Id", serviceId);
-            svcSearch.Extensions.Add(searchExtension);
-            
-            FindResponse searchResponse;
-            lock (ProbeClient)
-            {
-                searchResponse = ProbeClient.Find(svcSearch);
-            }
-            
-            return searchResponse.Endpoints.FirstOrDefault();
-        }
-
-        /*
-        static void FindServiceAsync<TType>()
-        {
-            DiscoveryClient dc = new DiscoveryClient(new UdpDiscoveryEndpoint());
-            dc.FindCompleted += new EventHandler<FindCompletedEventArgs>(discoveryClient_FindCompleted);
-            dc.FindProgressChanged += new EventHandler<FindProgressChangedEventArgs>(discoveryClient_FindProgressChanged);
-            dc.FindAsync(new FindCriteria(typeof(TType)));
-        }
-        static void discoveryClient_FindProgressChanged(object sender, FindProgressChangedEventArgs e)
-        {
-            Console.WriteLine("Found service at: " + e.EndpointDiscoveryMetadata.Address);
-        }
-
-        static void async discoveryClient_FindCompleted(object sender, FindCompletedEventArgs e)
-        {
-            if (e.Result.Endpoints.Count > 0)
-            {
-                EndpointAddress ep = e.Result.Endpoints[0].Address;
-                var client = new CalculatorServiceClient();
-
-                // Connect to the discovered service endpoint  
-                client.Endpoint.Address = ep;
-                Console.WriteLine("Invoking CalculatorService at {0}", ep);
-
-                await client.DoWorkAsync();
-
-                client.Close(); //?
-            }
-            else
-                Console.WriteLine("No matching endpoints found");
-        }
-        */
     }
 }

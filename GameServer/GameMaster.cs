@@ -36,8 +36,8 @@ namespace GameServer
         {
             try
             {
-                EndpointDiscoveryMetadata probedMetadata = GMHelper.ProbeById<ICombateSvc>(clientId);
-
+                EndpointDiscoveryMetadata probedMetadata = GMHelper.Probe<ICombateSvc>(clientId);
+                
                 if (probedMetadata == null)
                 {
                     var fault = new GMFault("probing by Id", "invalid Id.", "ITGM 01");
