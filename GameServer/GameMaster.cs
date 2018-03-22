@@ -19,7 +19,7 @@ namespace GameServer
     {
         private static GameManager _theHouse;
 
-        private static readonly Mutex Locker;
+        private static readonly Semaphore Locker;
 
         private string DisplayName { get; set; }
         private string PlayerClientId { get; set; }
@@ -29,7 +29,7 @@ namespace GameServer
         static GameMaster()
         {
             _theHouse = new GameManager();
-            Locker = new Mutex();
+            Locker = new Semaphore(1,1);
         }
 
         public string IntroduceToGameMaster(string clientId, string name)
@@ -103,7 +103,7 @@ namespace GameServer
                                       waitingPlayer.PlayerClientId + " and " + this.PlayerClientId);
                     Console.WriteLine();
 
-                    Locker.ReleaseMutex();
+                    Locker.Release();
                     return;
                 }
                 catch (EndpointNotFoundException)
@@ -116,7 +116,7 @@ namespace GameServer
 
             _theHouse.WaitingPlayers.Enqueue(this);
             CurrentGame = null;
-            Locker.ReleaseMutex();
+            Locker.Release();
             Console.WriteLine("Player " + this.PlayerClientId + " is waiting for an opponent");
             Console.WriteLine();
         }
