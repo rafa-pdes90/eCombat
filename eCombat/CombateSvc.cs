@@ -16,6 +16,7 @@ namespace eCombat
         {
             Console.WriteLine(@"Starting game against " + opponentId + @" - " + opponentName);
             Console.WriteLine(isPlayer1 ? @"It's your turn!" : @"It' the opponent turn!");
+            Console.WriteLine();
         }
     }
 }

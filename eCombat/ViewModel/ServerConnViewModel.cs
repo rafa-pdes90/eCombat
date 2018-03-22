@@ -77,7 +77,7 @@ namespace eCombat.ViewModel
                     SelfHost = new ServiceHost(typeof(CombateSvc), localBaseAddress);
                     */
                     this.SelfHost = new CustomHost(typeof(CombateSvc));
-                    string myId = this.SelfHost.CustomOpen("GameMaster");
+                    string myId = this.SelfHost.CustomOpen("ICombateSvc", requirements:"IGameMaster");
 
                     if (this.SelfHost.Description.Endpoints.All(x => x.Contract.Name != "IMetadataExchange"))
                     {

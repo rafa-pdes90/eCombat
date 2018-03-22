@@ -46,6 +46,7 @@ namespace GameServer
 
                 this.PlayerClientId = clientId;
                 Console.WriteLine("Player " + name + "(" + clientId + ") has logged in");
+                Console.WriteLine();
 
                 Task.Run(async () =>
                 {
@@ -70,6 +71,7 @@ namespace GameServer
                         break;
                 }
                 Console.WriteLine();
+
                 return null;
             }
         }
@@ -99,6 +101,7 @@ namespace GameServer
                     waitingPlayer.CurrentGame = CurrentGame;
                     Console.WriteLine("Game #" + CurrentGame.Id + " has started between players " +
                                       waitingPlayer.PlayerClientId + " and " + this.PlayerClientId);
+                    Console.WriteLine();
 
                     Locker.ReleaseMutex();
                     return;
@@ -106,6 +109,7 @@ namespace GameServer
                 catch (EndpointNotFoundException)
                 {
                     Console.WriteLine("Player " + waitingPlayer.PlayerClientId + " couldn't be reached");
+                    Console.WriteLine();
                     waitingPlayer.PlayerClient.Abort();
                 }
             }
@@ -114,6 +118,7 @@ namespace GameServer
             CurrentGame = null;
             Locker.ReleaseMutex();
             Console.WriteLine("Player " + this.PlayerClientId + " is waiting for an opponent");
+            Console.WriteLine();
         }
 
         #endregion

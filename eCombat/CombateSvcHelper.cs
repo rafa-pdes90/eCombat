@@ -13,15 +13,18 @@ namespace eCombat
         {
         }
 
-        public string CustomOpen(string parents)
+        public string CustomOpen(string contract, string requirements = "")
         {
             var behavior = new EndpointDiscoveryBehavior();
-            var parentsElem = new XElement("Parents", parents);
-            
-            behavior.Extensions.Add(parentsElem);
+            var contractElem = new XElement("Contract", contract);
+            var requirementsElem = new XElement("Requirements", requirements);
+
+            behavior.Extensions.Add(contractElem);
+            behavior.Extensions.Add(requirementsElem);
 
             ServiceEndpoint endpoint =
                 Description.Endpoints.First(x => x.Name == "CombateSvcEndpoint");
+
             while (true)
             {
                 string serviceId = Guid.NewGuid().ToString();
