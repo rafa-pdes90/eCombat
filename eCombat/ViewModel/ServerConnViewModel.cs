@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.ServiceModel.Description;
-using System.ServiceModel.Discovery;
 using System.ServiceModel.Dispatcher;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,7 +11,6 @@ using CommonServiceLocator;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
-using eCombat.Model;
 using GameServer;
 
 namespace eCombat.ViewModel
@@ -70,7 +64,7 @@ namespace eCombat.ViewModel
             Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
         }
 
-        public ServiceHost SelfHost { get; set; }
+        public CustomHost SelfHost { get; set; }
         public GameMasterClient GameMaster { get; set; }
         private async void ListenConnectionMethod()
         {
@@ -82,26 +76,17 @@ namespace eCombat.ViewModel
                     var localBaseAddress = new Uri("net.tcp://" + GetLocalIp());
                     SelfHost = new ServiceHost(typeof(CombateSvc), localBaseAddress);
                     */
-                    this.SelfHost = new ServiceHost(typeof(CombateSvc));
-                    this.SelfHost.Open();
+                    this.SelfHost = new CustomHost(typeof(CombateSvc));
+                    string myId = this.SelfHost.CustomOpen("GameMaster");
 
                     if (this.SelfHost.Description.Endpoints.All(x => x.Contract.Name != "IMetadataExchange"))
                     {
                         this.GameMaster = new GameMasterClient("Server_IGameMaster");
 
-                        Uri myUri = null;
-                        foreach (ChannelDispatcherBase dispatcherBase in SelfHost.ChannelDispatchers)
-                        {
-                            if (dispatcherBase.Listener == null) continue;
-                            if (dispatcherBase.Listener.Uri.Port == -1) continue;
-                            myUri = dispatcherBase.Listener.Uri;
-                            break;
-                        }
-
                         try
                         {
                             Console.WriteLine();
-                            Console.WriteLine(this.GameMaster.IntroduceToGameMaster(myUri, "João"));
+                            Console.WriteLine(this.GameMaster.IntroduceToGameMaster(myId, "João"));
                             Console.WriteLine();
                         }
                         catch (FaultException<GMFault> f)

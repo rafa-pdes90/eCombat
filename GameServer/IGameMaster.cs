@@ -13,6 +13,6 @@ namespace GameServer
     {
         [OperationContract(IsInitiating = true)]
         [FaultContract(typeof(GMFault))]
-        string IntroduceToGameMaster(Uri clientUri, string name);
+        string IntroduceToGameMaster(string clientId, string name);
     }
 }

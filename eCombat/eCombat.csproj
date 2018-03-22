@@ -99,6 +99,7 @@
     </ApplicationDefinition>
     <Compile Include="CombateSvc.cs" />
     <Compile Include="CombateSvcData.cs" />
+    <Compile Include="CombateSvcHelper.cs" />
     <Compile Include="Control\IpMaskedTextBox.xaml.cs">
       <DependentUpon>IpMaskedTextBox.xaml</DependentUpon>
     </Compile>

@@ -88,10 +88,10 @@ public interface IGameMaster
     
     [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMaster/IntroduceToGameMaster", ReplyAction="http://tempuri.org/IGameMaster/IntroduceToGameMasterResponse")]
     [System.ServiceModel.FaultContractAttribute(typeof(GameServer.GMFault), Action="http://tempuri.org/IGameMaster/IntroduceToGameMasterGMFaultFault", Name="GMFault", Namespace="http://schemas.datacontract.org/2004/07/GameServer")]
-    string IntroduceToGameMaster(System.Uri clientUri, string name);
+    string IntroduceToGameMaster(string clientId, string name);
     
     [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMaster/IntroduceToGameMaster", ReplyAction="http://tempuri.org/IGameMaster/IntroduceToGameMasterResponse")]
-    System.Threading.Tasks.Task<string> IntroduceToGameMasterAsync(System.Uri clientUri, string name);
+    System.Threading.Tasks.Task<string> IntroduceToGameMasterAsync(string clientId, string name);
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -128,13 +128,13 @@ public partial class GameMasterClient : System.ServiceModel.ClientBase<IGameMast
     {
     }
     
-    public string IntroduceToGameMaster(System.Uri clientUri, string name)
+    public string IntroduceToGameMaster(string clientId, string name)
     {
-        return base.Channel.IntroduceToGameMaster(clientUri, name);
+        return base.Channel.IntroduceToGameMaster(clientId, name);
     }
     
-    public System.Threading.Tasks.Task<string> IntroduceToGameMasterAsync(System.Uri clientUri, string name)
+    public System.Threading.Tasks.Task<string> IntroduceToGameMasterAsync(string clientId, string name)
     {
-        return base.Channel.IntroduceToGameMasterAsync(clientUri, name);
+        return base.Channel.IntroduceToGameMasterAsync(clientId, name);
     }
 }

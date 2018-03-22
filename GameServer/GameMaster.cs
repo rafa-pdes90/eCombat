@@ -32,36 +32,27 @@ namespace GameServer
             Locker = new Mutex();
         }
 
-        public string IntroduceToGameMaster(Uri clientUri, string name)
+        public string IntroduceToGameMaster(string clientId, string name)
         {
             try
             {
-                EndpointDiscoveryMetadata probedMetadata = GMHelper.ProbeByUri(clientUri);
+                EndpointDiscoveryMetadata probedMetadata = GMHelper.ProbeById<ICombateSvc>(clientId);
 
                 if (probedMetadata == null)
                 {
-                    var fault = new GMFault("probing by Uri", "invalid Uri.", "ITGM 01");
-                    throw new FaultException<GMFault>(fault, "invalid Uri");
+                    var fault = new GMFault("probing by Id", "invalid Id.", "ITGM 01");
+                    throw new FaultException<GMFault>(fault, "invalid Id");
                 }
 
-                var testCriteria = new FindCriteria(typeof(ICombateSvc));
-                if (testCriteria.IsMatch(probedMetadata))
+                this.PlayerClientId = clientId;
+                Console.WriteLine("Player " + name + "(" + clientId + ") has logged in");
+
+                Task.Run(async () =>
                 {
-                    this.PlayerClientId = probedMetadata.Extensions.First(x => x.Name.LocalName == "Id").Value;
-                    Console.WriteLine("Player " + this.PlayerClientId + " has logged in");
+                    await InitGame(name, probedMetadata);
+                });
 
-                    Task.Run(async () =>
-                    {
-                        await InitGame(name, probedMetadata);
-                    });
-
-                    return this.PlayerClientId;
-                }
-                else
-                {
-                    var fault = new GMFault("probing by Uri", "Uri belongs to another service type.", "ITGM 02");
-                    throw new FaultException<GMFault>(fault, "service mismatch");
-                }
+                return clientId;
             }
             catch (Exception e)
             {
