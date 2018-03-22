@@ -3,10 +3,10 @@ using System.ServiceModel;
 
 namespace GameServer
 {
-    class Program
+    internal class Program
     {
         // ReSharper disable once UnusedParameter.Local
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var proxyUri = new Uri("net.tcp://localhost:8001/Probe");
             var proxyBinding = new NetTcpBinding(SecurityMode.None);
