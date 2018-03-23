@@ -1,124 +1,69 @@
-﻿<mah:MetroWindow x:Class="eCombat.View.ConnectionWindow"
+﻿<mah:MetroWindow xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"  x:Class="eCombat.View.ConnectionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:eCombat.View"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:control="clr-namespace:eCombat.Control"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:loadin="clr-namespace:LoadingIndicators.WPF;assembly=LoadingIndicators.WPF"
         mc:Ignorable="d"
-        Title="Conectar" Height="300" Width="724"
-        WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
-        Background="Azure" WindowTransitionsEnabled="False"
-        BorderThickness="0" GlowBrush="Black"
-        ShowInTaskbar="False">
-    <mah:MetroWindow.OverlayBrush>
-        <!--<SolidColorBrush Opacity="0.8" Color="{StaticResource Gray2}" />-->
-        <SolidColorBrush Opacity="0.7" Color="{StaticResource BlackColor}"/>
-    </mah:MetroWindow.OverlayBrush>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        Title="eCombat - Stratego Game" TitleCharacterCasing="Normal" Height="300" Width="600"
+        ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
+        Background="#A8228B22" WindowTransitionsEnabled="False" ShowInTaskbar="False"
+        BorderThickness="0" GlowBrush="Black" Icon="/eCombat;component/Resources/WindowIcon.png" >
+    <Grid DataContext="{Binding Source={StaticResource Locator}, Path=NetConn}">
+        <Grid.Background>
+            <ImageBrush ImageSource="/Resources/WelcomeBackground.jpg" Opacity="0.66" Stretch="UniformToFill"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <Grid Grid.Column="0" DataContext="{Binding Source={StaticResource Locator}, Path=ClientConn}" 
-              Background="CornflowerBlue">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="0,10,0,10" HorizontalAlignment="Center">
+            <Label Content="{Binding WelcomeMessageContent, FallbackValue='Welcome to eCombat'}"
+                   FontSize="42" FontFamily="Segoe Print" FontWeight="Bold" Foreground="#FFFAC815">
+                <Label.Effect>
+                    <DropShadowEffect Color="#FF621AA9"/>
+                </Label.Effect>
+            </Label>
+        </Grid>
 
-            <Grid Grid.Row="0" Margin="0,10,0,10" HorizontalAlignment="Center">
-                <Label Content="Conectar ao jogador" FontSize="25" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Grid>
-
-            <Grid Grid.Row="1" VerticalAlignment="center" HorizontalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <Label FontSize="20" Content="Endereço IP" HorizontalAlignment="Center"/>
-                    <control:IpMaskedTextBox FontSize="20" MinWidth="200" BorderBrush="LightGray"/>
-                </StackPanel>
-                <Grid Grid.Column="1">
-                    <Label FontSize="20" Content=":" VerticalAlignment="Bottom"/>
-                </Grid>
-                <StackPanel Grid.Column="2">
-                    <Label FontSize="20" Content="Porta" HorizontalAlignment="Center"/>
-                    <TextBox Text="{Binding Porta, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="False"
-                             FontSize="20" MinWidth="75" MinHeight="37" HorizontalContentAlignment="Center" MaxLength="5">
+        <StackPanel Grid.Row="1" VerticalAlignment="center" HorizontalAlignment="Center">
+            <Label Content="{Binding NicknameContent, FallbackValue='Enter a Nickname'}" HorizontalAlignment="Center"
+                   FontSize="21" FontFamily="Segoe UI Semibold" Foreground="White">
+                <Label.Effect>
+                    <DropShadowEffect />
+                </Label.Effect>
+            </Label>
+            <Border Background="{Binding Background, ElementName=NicknameTextBox}">
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconMaterial Kind="Account" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10"/>
+                    <TextBox x:Name="NicknameTextBox" Text="{Binding NicknameText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="False"
+                             FontSize="21" FontFamily="Segoe UI Emoji" MaxLength="21" MinWidth="275" MinHeight="42"
+                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderThickness="0">
                         <TextBox.InputBindings>
                             <KeyBinding
                                 Key="Return"
-                                Command="{Binding RequestConnectionCommand}"/>
+                                Command="{Binding RequestOrCancelMatchCommand}"/>
                         </TextBox.InputBindings>
                     </TextBox>
                 </StackPanel>
-            </Grid>
+            </Border>
+        </StackPanel>
 
-            <Grid Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button IsEnabled="{Binding ConnectButtonIsEnabled}" Command="{Binding RequestConnectionCommand}" Content="{Binding ConnectButtonContent}"
-                        FontSize="20" MinHeight="50" MinWidth="200"
-                        VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-            </Grid>
-        </Grid>
-
-        <Grid Grid.Column="1">
-            <Grid.Background>
-                <LinearGradientBrush>
-                    <LinearGradientBrush.RelativeTransform>
-                        <TransformGroup>
-                            <RotateTransform Angle="270"/>
-                            <TranslateTransform/>
-                        </TransformGroup>
-                    </LinearGradientBrush.RelativeTransform>
-                    <GradientStop Color="CornflowerBlue" Offset="0.2"/>
-                    <GradientStop Color="Orange" Offset="0.8"/>
-                </LinearGradientBrush>
-            </Grid.Background>
-            <Separator HorizontalAlignment="Center" VerticalAlignment="Center" Height="150" Background="Black" Margin="20"
-                       Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-        </Grid>
-
-        <Grid Grid.Column="2" DataContext="{Binding Source={StaticResource Locator}, Path=ServerConn}" 
-              Background="Orange">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <Grid Grid.Row="0" Margin="0,10,0,10" HorizontalAlignment="Center">
-                <Label FontSize="25" Content="Solicitar conexão" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Grid>
-
-            <Grid Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0">
-                    <Label FontSize="20" Content="Meu IP:Porta" HorizontalAlignment="Center"/>
-                </Grid>
-                <Grid Grid.Row="1">
-                    <xctk:AutoSelectTextBox Text="{Binding IpPortInfo}" MinWidth="200" FontSize="20" HorizontalAlignment="Center" Padding="5"
-                                            AutoSelectBehavior="OnFocus" IsReadOnly="True" IsEnabled="{Binding IpPortTextBoxIsEnabled}"/>
-                </Grid>
-            </Grid>
-
-            <Grid Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button IsEnabled="{Binding ListenButtonIsEnabled}" Command="{Binding ToggleListeningCommand}" Content="{Binding ListenButtonContent}"
-                        FontSize="20" MinHeight="50" MinWidth="200"
-                        VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-            </Grid>
+        <Grid Grid.Row="2" Margin="0,10,0,10" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Command="{Binding RequestOrCancelMatchCommand}"
+                    MinHeight="60" MinWidth="240" VerticalContentAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <loadin:LoadingIndicator Style="{DynamicResource LoadingIndicatorRingStyle}"
+                                             Visibility="{Binding RequestOrCancelMatchLoadingVisibility, FallbackValue=Collaped}"/>
+                    <TextBlock Text="{Binding RequestOrCancelMatchContent, FallbackValue='Ready to Play!'}"
+                               VerticalAlignment="Center" FontSize="21" FontFamily="Segoe UI Black" Margin="10"/>
+                </StackPanel>
+            </Button>
         </Grid>
     </Grid>
 </mah:MetroWindow>

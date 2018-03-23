@@ -28,7 +28,7 @@ namespace eCombat.ViewModel
             set => Set(() => OpponentColor, ref _opponentColor, value);
         }
 
-        private NetMsgViewModel NetMsg { get; } = ServiceLocator.Current.GetInstance<NetMsgViewModel>();
+        //private NetMsgViewModel NetMsg { get; } = ServiceLocator.Current.GetInstance<NetMsgViewModel>();
         public ObservableCollection<ChatMsg> ChatList { get; } = new ObservableCollection<ChatMsg>();
 
         public ChatMsgViewModel()
@@ -61,7 +61,7 @@ namespace eCombat.ViewModel
             int msgId = ChatList.Count + 1;
             string msg = "c" + " " + msgId + " " + notificationMessage.Notification;
 
-            NetMsg.NetMsgAsync(msg);
+            //NetMsg.NetMsgAsync(msg);
 
             var enviada = new ChatMsg(msgId, "s", notificationMessage.Notification);
             this.ChatList.Add(enviada);

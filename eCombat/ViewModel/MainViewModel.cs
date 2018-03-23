@@ -81,7 +81,7 @@ namespace eCombat.ViewModel
         public ICommand ExitCommand { get; }
 
         public ObservableCollection<string> LogList { get; } = new ObservableCollection<string>();
-        private NetMsgViewModel NetMsg { get; } = ServiceLocator.Current.GetInstance<NetMsgViewModel>();
+        //private NetMsgViewModel NetMsg { get; } = ServiceLocator.Current.GetInstance<NetMsgViewModel>();
 
         /// <inheritdoc />
         /// <summary>
@@ -143,18 +143,18 @@ namespace eCombat.ViewModel
         public void FinishTurn(int origemY, int origemX, int destinoY, int destinoX, string powerLevel)
         {
             string moveMsg = "m " + origemY + " " + origemX + " " + destinoY + " " + destinoX + " " + powerLevel;
-            NetMsg.NetMsgAsync(moveMsg);
+            //NetMsg.NetMsgAsync(moveMsg);
         }
 
         public void SendDefenderFeedback(string powerLevel)
         {
             string fbMsg = "f " + powerLevel;
-            NetMsg.NetMsgSend(fbMsg);
+            //NetMsg.NetMsgSend(fbMsg);
         }
 
         private void DesistirPartidaMethod()
         {
-            NetMsg.NetMsgSend("g bye");
+            //NetMsg.NetMsgSend("g bye");
             NetConnViewModel netConn = ServiceLocator.Current.GetInstance<NetConnViewModel>();
             netConn.Handler.Shutdown(System.Net.Sockets.SocketShutdown.Both);
             this.MensagemFinal = "Você desistiu!?";

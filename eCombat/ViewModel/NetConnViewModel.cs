@@ -20,6 +20,115 @@ namespace eCombat.ViewModel
     /// </summary>
     public class NetConnViewModel : ViewModelBase
     {
+        /// <summary>
+        /// The <see cref="WelcomeMessageContent" /> property's name.
+        /// </summary>
+        public const string WelcomeMessageContentPropertyName = "WelcomeMessageContent";
+
+        private string _welcomeMessageContent = "Welcome to eCombat!";
+        
+        /// <summary>
+        /// Sets and gets the WelcomeMessage property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public string WelcomeMessageContent
+        {
+            get => _welcomeMessageContent;
+            set => Set(() => WelcomeMessageContent, ref _welcomeMessageContent, value);
+        }
+
+        /// <summary>
+        /// The <see cref="NicknameContent" /> property's name.
+        /// </summary>
+        public const string NicknameContentPropertyName = "NicknameContent";
+
+        private string _nicknameContent = "Enter a Nickname";
+
+        /// <summary>
+        /// Sets and gets the NicknameLabel property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public string NicknameContent
+        {
+            get => _nicknameContent;
+            set => Set(() => NicknameContent, ref _nicknameContent, value);
+        }
+
+        /// <summary>
+        /// The <see cref="NicknameText" /> property's name.
+        /// </summary>
+        public const string NicknameTextPropertyName = "NicknameText";
+
+        private string _nicknameText;
+
+        /// <summary>
+        /// Sets and gets the Nickname property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public string NicknameText
+        {
+            get => _nicknameText;
+            set => Set(() => NicknameText, ref _nicknameText, value);
+        }
+
+        /// <summary>
+        /// The <see cref="RequestOrCancelMatchContent" /> property's name.
+        /// </summary>
+        public const string RequestOrCancelMatchContentPropertyName = "RequestOrCancelMatchContent";
+
+        private string _requestOrCancelMatchContent = "Ready to Play!";
+
+        /// <summary>
+        /// Sets and gets the RequestOrCancelMatchContent property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public string RequestOrCancelMatchContent
+        {
+            get => _requestOrCancelMatchContent;
+            set => Set(() => RequestOrCancelMatchContent, ref _requestOrCancelMatchContent, value);
+        }
+
+        /// <summary>
+        /// The <see cref="RequestOrCancelMatchLoadingVisibility" /> property's name.
+        /// </summary>
+        public const string RequestOrCancelMatchLoadingVisibilityPropertyName = "RequestOrCancelMatchLoadingVisibility";
+
+        private Visibility _requestOrCancelMatchLoadingVisibility = Visibility.Collapsed;
+
+        /// <summary>
+        /// Sets and gets the RequestOrCancelMatchLoadingVisibility property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public Visibility RequestOrCancelMatchLoadingVisibility
+        {
+            get => _requestOrCancelMatchLoadingVisibility;
+            set => Set(() => RequestOrCancelMatchLoadingVisibility, ref _requestOrCancelMatchLoadingVisibility, value);
+        }
+
+        private RelayCommand _requestOrCancelMatchCommand;
+
+        /// <summary>
+        /// Gets the RequestOrCancelMatchCommand.
+        /// </summary>
+        public RelayCommand RequestOrCancelMatchCommand
+        {
+            get
+            {
+                return _requestOrCancelMatchCommand
+                    ?? (_requestOrCancelMatchCommand = new RelayCommand(
+                    () =>
+                    {
+                        
+                    }));
+            }
+        }
+
+
+
+
+
+
+
         private int MaxMsgSize { get; } = 150;
         private bool IsClient { get; set; }
 

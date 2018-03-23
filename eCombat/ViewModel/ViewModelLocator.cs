@@ -44,27 +44,37 @@ namespace eCombat.ViewModel
 
             SimpleIoc.Default.Register<MainViewModel>();
             SimpleIoc.Default.Register<NetConnViewModel>();
-            SimpleIoc.Default.Register<ClientConnViewModel>();
-            SimpleIoc.Default.Register<ServerConnViewModel>();
-            SimpleIoc.Default.Register<NetMsgViewModel>();
             SimpleIoc.Default.Register<ChatMsgViewModel>();
         }
 
+        /// <summary>
+        /// Gets the ViewModelPropertyName property.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+            "CA1822:MarkMembersAsStatic",
+            Justification = "This non-static member is needed for data binding purposes.")]
         public MainViewModel Main
         {
             get { return ServiceLocator.Current.GetInstance<MainViewModel>(); }
         }
 
-        public ClientConnViewModel ClientConn
+        /// <summary>
+        /// Gets the ViewModelPropertyName property.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+            "CA1822:MarkMembersAsStatic",
+            Justification = "This non-static member is needed for data binding purposes.")]
+        public NetConnViewModel NetConn
         {
-            get { return ServiceLocator.Current.GetInstance<ClientConnViewModel>(); }
+            get { return ServiceLocator.Current.GetInstance<NetConnViewModel>(); }
         }
 
-        public ServerConnViewModel ServerConn
-        {
-            get { return ServiceLocator.Current.GetInstance<ServerConnViewModel>(); }
-        }
-
+        /// <summary>
+        /// Gets the ViewModelPropertyName property.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+            "CA1822:MarkMembersAsStatic",
+            Justification = "This non-static member is needed for data binding purposes.")]
         public ChatMsgViewModel ChatMsg
         {
             get { return ServiceLocator.Current.GetInstance<ChatMsgViewModel>(); }
@@ -74,9 +84,6 @@ namespace eCombat.ViewModel
         {
             SimpleIoc.Default.Unregister<MainViewModel>();
             SimpleIoc.Default.Unregister<NetConnViewModel>();
-            SimpleIoc.Default.Unregister<ClientConnViewModel>();
-            SimpleIoc.Default.Unregister<ServerConnViewModel>();
-            SimpleIoc.Default.Unregister<NetMsgViewModel>();
             SimpleIoc.Default.Unregister<ChatMsgViewModel>();
         }
     }
