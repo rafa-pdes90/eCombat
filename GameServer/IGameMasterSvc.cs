@@ -12,7 +12,7 @@ namespace GameServer
     public interface IGameMasterSvc
     {
         [OperationContract(IsInitiating = true, IsTerminating = false)]
-        [FaultContract(typeof(GMFault))]
+        [FaultContract(typeof(GameMasterSvcFault))]
         void MeetTheGameMaster(string clientId);
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]

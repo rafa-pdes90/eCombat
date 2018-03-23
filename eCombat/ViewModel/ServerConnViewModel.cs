@@ -83,9 +83,9 @@ namespace eCombat.ViewModel
                         {
                             await this.GameMaster.MeetTheGameMasterAsync(myId);
                         }
-                        catch (FaultException<GMFault> f)
+                        catch (FaultException<GameMasterSvcFault> f)
                         {
-                            Console.WriteLine(@"GMFault while " + f.Detail.Operation + @". Reason: " + f.Detail.Reason);
+                            Console.WriteLine(@"GameMasterSvcFault while " + f.Detail.Operation + @". Reason: " + f.Detail.Reason);
                             this.GameMaster.Abort();
                         }
 

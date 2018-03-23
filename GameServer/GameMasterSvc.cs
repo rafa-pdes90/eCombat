@@ -27,8 +27,8 @@ namespace GameServer
 
                 if (probedMetadata == null)
                 {
-                    var fault = new GMFault("probing by Id", "invalid Id.", "ITGM 01");
-                    throw new FaultException<GMFault>(fault, "invalid Id");
+                    var fault = new GameMasterSvcFault("probing by Id", "invalid Id.", "ITGM 01");
+                    throw new FaultException<GameMasterSvcFault>(fault, "invalid Id");
                 }
 
                 this.SessionPlayer = new Player(this, clientId, probedMetadata);
@@ -39,8 +39,8 @@ namespace GameServer
                 {
                     case TargetInvocationException _:
                         Console.WriteLine("Fault exception because of unreachable proxy");
-                        var fault = new GMFault("probing by URI", "unable to connect to and query the proxy.", "ITGM 00");
-                        throw new FaultException<GMFault>(fault);
+                        var fault = new GameMasterSvcFault("probing by URI", "unable to connect to and query the proxy.", "ITGM 00");
+                        throw new FaultException<GameMasterSvcFault>(fault);
                     case FaultException _:
                         Console.WriteLine("Fault exception because of " + e.Message);
                         throw;

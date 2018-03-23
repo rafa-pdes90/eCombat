@@ -15,8 +15,8 @@ namespace GameServer
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="GMFault", Namespace="http://schemas.datacontract.org/2004/07/GameServer")]
-    public partial class GMFault : object, System.Runtime.Serialization.IExtensibleDataObject
+    [System.Runtime.Serialization.DataContractAttribute(Name="GameMasterSvcFault", Namespace="http://schemas.datacontract.org/2004/07/GameServer")]
+    public partial class GameMasterSvcFault : object, System.Runtime.Serialization.IExtensibleDataObject
     {
         
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
@@ -87,7 +87,7 @@ public interface IGameMasterSvc
 {
     
     [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMasterSvc/MeetTheGameMaster", ReplyAction="http://tempuri.org/IGameMasterSvc/MeetTheGameMasterResponse")]
-    [System.ServiceModel.FaultContractAttribute(typeof(GameServer.GMFault), Action="http://tempuri.org/IGameMasterSvc/MeetTheGameMasterGMFaultFault", Name="GMFault", Namespace="http://schemas.datacontract.org/2004/07/GameServer")]
+    [System.ServiceModel.FaultContractAttribute(typeof(GameServer.GameMasterSvcFault), Action="http://tempuri.org/IGameMasterSvc/MeetTheGameMasterGameMasterSvcFaultFault", Name="GameMasterSvcFault", Namespace="http://schemas.datacontract.org/2004/07/GameServer")]
     void MeetTheGameMaster(string clientId);
     
     [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMasterSvc/MeetTheGameMaster", ReplyAction="http://tempuri.org/IGameMasterSvc/MeetTheGameMasterResponse")]

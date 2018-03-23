@@ -3,7 +3,7 @@
 namespace GameServer
 {
     [DataContract]
-    public class GMFault
+    public class GameMasterSvcFault
     {
         [DataMember]
         public string Operation { get; set; }
@@ -14,7 +14,7 @@ namespace GameServer
         [DataMember]
         public string Code { get; set; }
 
-        public GMFault(string operation, string reason, string code = "")
+        public GameMasterSvcFault(string operation, string reason, string code = "")
         {
             this.Operation = operation;
             this.Reason = reason;

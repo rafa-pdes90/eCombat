@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameServer
 {
-    public class Player
+    public sealed class Player
     {
         private static Queue<Player> WaitingPlayers { get; set; }
 

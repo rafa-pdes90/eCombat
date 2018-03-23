@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace GameServer
 {
-    public class MatchInfo
+    public sealed class MatchInfo
     {
         public int Id { get; set; }
         public Player Player1 { get; set; }
@@ -27,7 +27,7 @@ namespace GameServer
         }
     }
 
-    public class GameManager
+    public sealed class GameManager
     {
         public Dictionary<int, MatchInfo> MatchList { get; }
         public int MatchCount { get; private set; }
@@ -45,7 +45,7 @@ namespace GameServer
         }
     }
 
-    public class GameMaster
+    public static class GameMaster
     {
         private static GameManager Manager { get; set; }
 
