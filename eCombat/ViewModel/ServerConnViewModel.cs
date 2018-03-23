@@ -65,35 +65,31 @@ namespace eCombat.ViewModel
         }
 
         public CustomHost SelfHost { get; set; }
-        public GameMasterClient GameMaster { get; set; }
+        public GameMasterSvcClient GameMaster { get; set; }
         private async void ListenConnectionMethod()
         {
             if (this.ListenButtonContent != "Cancelar")
             {
                 try
                 {
-                    /*
-                    var localBaseAddress = new Uri("net.tcp://" + GetLocalIp());
-                    SelfHost = new ServiceHost(typeof(CombateSvc), localBaseAddress);
-                    */
                     this.SelfHost = new CustomHost(typeof(CombateSvc));
-                    string myId = this.SelfHost.CustomOpen("ICombateSvc", requirements:"IGameMaster");
+                    string myId = this.SelfHost.CustomOpen("ICombateSvc", requirements:"IGameMasterSvc");
 
                     if (this.SelfHost.Description.Endpoints.All(x => x.Contract.Name != "IMetadataExchange"))
                     {
-                        this.GameMaster = new GameMasterClient("Server_IGameMaster");
+                        this.GameMaster = new GameMasterSvcClient("Server_IGameMasterSvc");
 
                         try
                         {
-                            Console.WriteLine();
-                            Console.WriteLine(this.GameMaster.IntroduceToGameMaster(myId, "João"));
-                            Console.WriteLine();
+                            await this.GameMaster.MeetTheGameMasterAsync(myId);
                         }
                         catch (FaultException<GMFault> f)
                         {
                             Console.WriteLine(@"GMFault while " + f.Detail.Operation + @". Reason: " + f.Detail.Reason);
                             this.GameMaster.Abort();
                         }
+
+                        await this.GameMaster.IntroduceToGameMasterAsync("João");
                     }
                 }
                 catch (Exception e)
@@ -101,6 +97,10 @@ namespace eCombat.ViewModel
                     Console.WriteLine(e);
 
                     this.SelfHost.Abort();
+                    /*
+                    var localBaseAddress = new Uri("net.tcp://" + GetLocalIp());
+                    SelfHost = new ServiceHost(typeof(CombateSvc), localBaseAddress);
+                    */
                 }
             }
 

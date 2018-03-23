@@ -15,11 +15,17 @@
 public interface ICombateSvc
 {
     
-    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICombateSvc/StartGame", ReplyAction="http://tempuri.org/ICombateSvc/StartGameResponse")]
-    void StartGame(string opponentName, string opponentId, bool isPlayer1);
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ICombateSvc/StartMatch")]
+    void StartMatch(string opponentName, string opponentId, bool isPlayer1);
     
-    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICombateSvc/StartGame", ReplyAction="http://tempuri.org/ICombateSvc/StartGameResponse")]
-    System.Threading.Tasks.Task StartGameAsync(string opponentName, string opponentId, bool isPlayer1);
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ICombateSvc/StartMatch")]
+    System.Threading.Tasks.Task StartMatchAsync(string opponentName, string opponentId, bool isPlayer1);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/CancelMatch")]
+    void CancelMatch();
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/CancelMatch")]
+    System.Threading.Tasks.Task CancelMatchAsync();
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -56,13 +62,23 @@ public partial class CombateSvcClient : System.ServiceModel.ClientBase<ICombateS
     {
     }
     
-    public void StartGame(string opponentName, string opponentId, bool isPlayer1)
+    public void StartMatch(string opponentName, string opponentId, bool isPlayer1)
     {
-        base.Channel.StartGame(opponentName, opponentId, isPlayer1);
+        base.Channel.StartMatch(opponentName, opponentId, isPlayer1);
     }
     
-    public System.Threading.Tasks.Task StartGameAsync(string opponentName, string opponentId, bool isPlayer1)
+    public System.Threading.Tasks.Task StartMatchAsync(string opponentName, string opponentId, bool isPlayer1)
     {
-        return base.Channel.StartGameAsync(opponentName, opponentId, isPlayer1);
+        return base.Channel.StartMatchAsync(opponentName, opponentId, isPlayer1);
+    }
+    
+    public void CancelMatch()
+    {
+        base.Channel.CancelMatch();
+    }
+    
+    public System.Threading.Tasks.Task CancelMatchAsync()
+    {
+        return base.Channel.CancelMatchAsync();
     }
 }

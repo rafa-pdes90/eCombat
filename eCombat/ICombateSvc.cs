@@ -11,7 +11,10 @@ namespace eCombat
     [ServiceContract(SessionMode = SessionMode.Required)]
     public interface ICombateSvc
     {
-        [OperationContract(IsInitiating = true)]
-        void StartGame(string opponentName, string opponentId, bool isPlayer1);
+        [OperationContract(IsOneWay = true, IsInitiating = true, IsTerminating = false)]
+        void StartMatch(string opponentName, string opponentId, bool isPlayer1);
+
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = true)]
+        void CancelMatch();
     }
 }

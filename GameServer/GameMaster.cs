@@ -2,125 +2,161 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Discovery;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace GameServer
 {
-    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "GameMaster" in both code and config file together.
-    public class GameMaster : IGameMaster
+    public class MatchInfo
     {
-        private static GameManager _theHouse;
+        public int Id { get; set; }
+        public Player Player1 { get; set; }
+        public Player Player2 { get; set; }
+        public int Winner { get; set; }
 
-        private static readonly Semaphore Locker;
-
-        private string DisplayName { get; set; }
-        private string PlayerClientId { get; set; }
-        private CombateSvcClient PlayerClient { get; set; }
-        private GameInfo CurrentGame { get; set; }
-
-        static GameMaster()
+        public MatchInfo(Player p1, Player p2)
         {
-            _theHouse = new GameManager();
-            Locker = new Semaphore(1,1);
+            this.Player1 = p1;
+            this.Player2 = p2;
+            this.Winner = 0;
+        }
+    }
+
+    public class GameManager
+    {
+        public Dictionary<int, MatchInfo> MatchList { get; }
+        public int MatchCount { get; private set; }
+
+        public GameManager()
+        {
+            this.MatchList = new Dictionary<int, MatchInfo>();
+            this.MatchCount = 0;
         }
 
-        public string IntroduceToGameMaster(string clientId, string name)
+        public void AddToMatchList(MatchInfo newMatch)
         {
-            try
+            newMatch.Id = MatchCount;
+            MatchList.Add(this.MatchCount++, newMatch);
+        }
+    }
+
+    public class GameMaster
+    {
+        private static GameManager Manager { get; set; }
+
+        private static DiscoveryClient ProbeClient { get; set; }
+        private static ChannelFactory<ICombateSvcChannel> SvcFactory { get; set; }
+
+        public static void Init(Uri probeUri, Binding probeBinding, ChannelFactory<ICombateSvcChannel> svcFactory)
+        {
+            Manager = new GameManager();
+            
+            // Create a DiscoveryClient that points to the DiscoveryProxy
+            var discoveryEndpoint = new DiscoveryEndpoint(probeBinding, new EndpointAddress(probeUri));
+            ProbeClient = new DiscoveryClient(discoveryEndpoint);
+            SvcFactory = svcFactory;
+        }
+        
+        /// <summary>
+        /// Initializes a new client
+        /// </summary>
+        /// <param name="clientMetadata"></param>
+        /// <returns></returns>
+        public static ICombateSvcChannel NewClient(EndpointDiscoveryMetadata clientMetadata)
+        {
+            // Check to see if the endpoint has a listenUri and if it differs from the Address URI
+            if (clientMetadata.ListenUris.Count > 0 &&
+                clientMetadata.Address.Uri != clientMetadata.ListenUris[0])
             {
-                EndpointDiscoveryMetadata probedMetadata = GMHelper.Probe<ICombateSvc>(clientId);
-                
-                if (probedMetadata == null)
-                {
-                    var fault = new GMFault("probing by Id", "invalid Id.", "ITGM 01");
-                    throw new FaultException<GMFault>(fault, "invalid Id");
-                }
-
-                this.PlayerClientId = clientId;
-                Console.WriteLine("Player " + name + "(" + clientId + ") has logged in");
-                Console.WriteLine();
-
-                Task.Run(async () =>
-                {
-                    await InitGame(name, probedMetadata);
-                });
-
-                return clientId;
+                return SvcFactory.CreateChannel
+                    (clientMetadata.Address, clientMetadata.ListenUris[0]);
             }
-            catch (Exception e)
-            {
-                switch (e)
-                {
-                    case TargetInvocationException _:
-                        Console.WriteLine("Fault exception because of unreachable proxy");
-                        var fault = new GMFault("probing by URI", "unable to connect to and query the proxy.", "ITGM 00");
-                        throw new FaultException<GMFault>(fault);
-                    case FaultException _:
-                        Console.WriteLine("Fault exception because of " + e.Message);
-                        throw;
-                    default:
-                        Console.WriteLine(e);
-                        break;
-                }
-                Console.WriteLine();
 
-                return null;
-            }
+            return SvcFactory.CreateChannel(clientMetadata.Address);
         }
 
-
-        #region unserviced methods
-
-        private async Task InitGame(string name, EndpointDiscoveryMetadata probedMetadata)
+        /// <summary>
+        /// Initializes a new game and updates the game manager
+        /// </summary>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <returns></returns>
+        public static MatchInfo NewMatch(Player p1, Player p2)
         {
-            this.DisplayName = name;
-            this.PlayerClient = GMHelper.NewClient(probedMetadata);
+            var newMatch = new MatchInfo(p1, p2);
 
-            Locker.WaitOne();
-            while (_theHouse.WaitingPlayers.Count > 0)
+            lock (Manager)
             {
-                GameMaster waitingPlayer = _theHouse.WaitingPlayers.Dequeue();
-                try
-                {
-                    await Task.WhenAll(
-                        waitingPlayer.PlayerClient.StartGameAsync(this.DisplayName, this.PlayerClientId, true),
-                        PlayerClient.StartGameAsync(waitingPlayer.DisplayName, waitingPlayer.PlayerClientId, false));
-
-                    lock (_theHouse)
-                    {
-                        CurrentGame = GMHelper.NewGame(waitingPlayer, this, ref _theHouse);
-                    }
-                    waitingPlayer.CurrentGame = CurrentGame;
-                    Console.WriteLine("Game #" + CurrentGame.Id + " has started between players " +
-                                      waitingPlayer.PlayerClientId + " and " + this.PlayerClientId);
-                    Console.WriteLine();
-
-                    Locker.Release();
-                    return;
-                }
-                catch (EndpointNotFoundException)
-                {
-                    Console.WriteLine("Player " + waitingPlayer.PlayerClientId + " couldn't be reached");
-                    Console.WriteLine();
-                    waitingPlayer.PlayerClient.Abort();
-                }
+                Manager.AddToMatchList(newMatch);
             }
 
-            _theHouse.WaitingPlayers.Enqueue(this);
-            CurrentGame = null;
-            Locker.Release();
-            Console.WriteLine("Player " + this.PlayerClientId + " is waiting for an opponent");
-            Console.WriteLine();
+            return newMatch;
+        }
+        
+        private static EndpointDiscoveryMetadata Probe(string serviceId, Type serviceType)
+        {
+            FindCriteria svcSearch = serviceType == null ? new FindCriteria() : new FindCriteria(serviceType);
+
+            if (serviceId != null)
+            {
+                var searchExtension = new XElement("Id", serviceId);
+                svcSearch.Extensions.Add(searchExtension);
+            }
+
+            FindResponse searchResponse;
+            lock (ProbeClient)
+            {
+                searchResponse = ProbeClient.Find(svcSearch);
+            }
+
+            return searchResponse.Endpoints.FirstOrDefault();
         }
 
-        #endregion
+        /// <summary>
+        /// Query the proxy for all services or a specific one by its Id
+        /// </summary>
+        /// <exception cref="TargetInvocationException"></exception>
+        /// <param name="serviceId"></param>
+        /// <returns></returns>
+        public static EndpointDiscoveryMetadata Probe(string serviceId = null)
+        {
+            return Probe(serviceId, null);
+        }
+
+        /// <summary>
+        /// Query the proxy for all TType services or a specific TType one by its Id
+        /// </summary>
+        /// <exception cref="TargetInvocationException"></exception>
+        /// <typeparam name="TType"></typeparam>
+        /// <param name="serviceId"></param>
+        /// <returns></returns>
+        public static EndpointDiscoveryMetadata Probe<TType>(string serviceId = null)
+        {
+            return Probe(serviceId, typeof(TType));
+        }
+
+        /// <summary>
+        /// Query the proxy for a specific service by its URI
+        /// </summary>
+        /// <exception cref="TargetInvocationException"></exception>
+        /// <param name="serviceUri"></param>
+        /// <returns></returns>
+        public static EndpointDiscoveryMetadata Probe(Uri serviceUri)
+        {
+            var svcSearch = new ResolveCriteria(new EndpointAddress(serviceUri));
+
+            ResolveResponse searchResponse;
+            lock (ProbeClient)
+            {
+                searchResponse = ProbeClient.Resolve(svcSearch);
+            }
+
+            return searchResponse.EndpointDiscoveryMetadata;
+        }
     }
 }

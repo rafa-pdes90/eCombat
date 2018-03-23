@@ -82,59 +82,75 @@ namespace GameServer
 
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-[System.ServiceModel.ServiceContractAttribute(ConfigurationName="IGameMaster", SessionMode=System.ServiceModel.SessionMode.Required)]
-public interface IGameMaster
+[System.ServiceModel.ServiceContractAttribute(ConfigurationName="IGameMasterSvc", SessionMode=System.ServiceModel.SessionMode.Required)]
+public interface IGameMasterSvc
 {
     
-    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMaster/IntroduceToGameMaster", ReplyAction="http://tempuri.org/IGameMaster/IntroduceToGameMasterResponse")]
-    [System.ServiceModel.FaultContractAttribute(typeof(GameServer.GMFault), Action="http://tempuri.org/IGameMaster/IntroduceToGameMasterGMFaultFault", Name="GMFault", Namespace="http://schemas.datacontract.org/2004/07/GameServer")]
-    string IntroduceToGameMaster(string clientId, string name);
+    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMasterSvc/MeetTheGameMaster", ReplyAction="http://tempuri.org/IGameMasterSvc/MeetTheGameMasterResponse")]
+    [System.ServiceModel.FaultContractAttribute(typeof(GameServer.GMFault), Action="http://tempuri.org/IGameMasterSvc/MeetTheGameMasterGMFaultFault", Name="GMFault", Namespace="http://schemas.datacontract.org/2004/07/GameServer")]
+    void MeetTheGameMaster(string clientId);
     
-    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMaster/IntroduceToGameMaster", ReplyAction="http://tempuri.org/IGameMaster/IntroduceToGameMasterResponse")]
-    System.Threading.Tasks.Task<string> IntroduceToGameMasterAsync(string clientId, string name);
+    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMasterSvc/MeetTheGameMaster", ReplyAction="http://tempuri.org/IGameMasterSvc/MeetTheGameMasterResponse")]
+    System.Threading.Tasks.Task MeetTheGameMasterAsync(string clientId);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/IntroduceToGameMaster")]
+    void IntroduceToGameMaster(string displayName);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/IntroduceToGameMaster")]
+    System.Threading.Tasks.Task IntroduceToGameMasterAsync(string displayName);
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-public interface IGameMasterChannel : IGameMaster, System.ServiceModel.IClientChannel
+public interface IGameMasterSvcChannel : IGameMasterSvc, System.ServiceModel.IClientChannel
 {
 }
 
 [System.Diagnostics.DebuggerStepThroughAttribute()]
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-public partial class GameMasterClient : System.ServiceModel.ClientBase<IGameMaster>, IGameMaster
+public partial class GameMasterSvcClient : System.ServiceModel.ClientBase<IGameMasterSvc>, IGameMasterSvc
 {
     
-    public GameMasterClient()
+    public GameMasterSvcClient()
     {
     }
     
-    public GameMasterClient(string endpointConfigurationName) : 
+    public GameMasterSvcClient(string endpointConfigurationName) : 
             base(endpointConfigurationName)
     {
     }
     
-    public GameMasterClient(string endpointConfigurationName, string remoteAddress) : 
+    public GameMasterSvcClient(string endpointConfigurationName, string remoteAddress) : 
             base(endpointConfigurationName, remoteAddress)
     {
     }
     
-    public GameMasterClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
+    public GameMasterSvcClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
             base(endpointConfigurationName, remoteAddress)
     {
     }
     
-    public GameMasterClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+    public GameMasterSvcClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
             base(binding, remoteAddress)
     {
     }
     
-    public string IntroduceToGameMaster(string clientId, string name)
+    public void MeetTheGameMaster(string clientId)
     {
-        return base.Channel.IntroduceToGameMaster(clientId, name);
+        base.Channel.MeetTheGameMaster(clientId);
     }
     
-    public System.Threading.Tasks.Task<string> IntroduceToGameMasterAsync(string clientId, string name)
+    public System.Threading.Tasks.Task MeetTheGameMasterAsync(string clientId)
     {
-        return base.Channel.IntroduceToGameMasterAsync(clientId, name);
+        return base.Channel.MeetTheGameMasterAsync(clientId);
+    }
+    
+    public void IntroduceToGameMaster(string displayName)
+    {
+        base.Channel.IntroduceToGameMaster(displayName);
+    }
+    
+    public System.Threading.Tasks.Task IntroduceToGameMasterAsync(string displayName)
+    {
+        return base.Channel.IntroduceToGameMasterAsync(displayName);
     }
 }
