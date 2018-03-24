@@ -123,12 +123,13 @@
     </ApplicationDefinition>
     <Compile Include="CombateSvc.cs" />
     <Compile Include="CombateSvcData.cs" />
-    <Compile Include="CombateSvcHelper.cs" />
     <Compile Include="GameMasterSvc.cs" />
     <Compile Include="ICombateSvc.cs" />
     <Compile Include="Model\Army.cs" />
     <Compile Include="Model\BoardPiece.cs" />
     <Compile Include="Model\ChatMsg.cs" />
+    <Compile Include="Model\CustomHost.cs" />
+    <Compile Include="Model\GameMaster.cs" />
     <Compile Include="Model\NetMsg.cs" />
     <Compile Include="ViewModel\ChatMsgViewModel.cs" />
     <Compile Include="ViewModel\ClientConnViewModel.cs" />

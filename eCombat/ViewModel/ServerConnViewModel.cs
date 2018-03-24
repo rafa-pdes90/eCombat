@@ -63,47 +63,9 @@ namespace eCombat.ViewModel
             Messenger.Default.Register<NotificationMessage>(this, "Toggle_Server", ToggleServer);
             Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
         }
-
-        public CustomHost SelfHost { get; set; }
-        public GameMasterSvcClient GameMaster { get; set; }
+        
         private async void ListenConnectionMethod()
         {
-            if (this.ListenButtonContent != "Cancelar")
-            {
-                try
-                {
-                    this.SelfHost = new CustomHost(typeof(CombateSvc));
-                    string myId = this.SelfHost.CustomOpen("ICombateSvc", requirements:"IGameMasterSvc");
-
-                    if (this.SelfHost.Description.Endpoints.All(x => x.Contract.Name != "IMetadataExchange"))
-                    {
-                        this.GameMaster = new GameMasterSvcClient("Server_IGameMasterSvc");
-
-                        try
-                        {
-                            await this.GameMaster.MeetTheGameMasterAsync(myId);
-                        }
-                        catch (FaultException<GameMasterSvcFault> f)
-                        {
-                            Console.WriteLine(@"GameMasterSvcFault while " + f.Detail.Operation + @". Reason: " + f.Detail.Reason);
-                            this.GameMaster.Abort();
-                        }
-
-                        await this.GameMaster.IntroduceToGameMasterAsync("João");
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-
-                    this.SelfHost.Abort();
-                    /*
-                    var localBaseAddress = new Uri("net.tcp://" + GetLocalIp());
-                    SelfHost = new ServiceHost(typeof(CombateSvc), localBaseAddress);
-                    */
-                }
-            }
-
             Messenger.Default.Send(new NotificationMessage(string.Empty), "Toggle_Client");
             if (this.ListenButtonContent == "Cancelar")
             {

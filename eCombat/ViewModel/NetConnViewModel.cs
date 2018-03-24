@@ -76,7 +76,7 @@ namespace eCombat.ViewModel
         /// </summary>
         public const string RequestOrCancelMatchContentPropertyName = "RequestOrCancelMatchContent";
 
-        private string _requestOrCancelMatchContent = "Ready to Play!";
+        private string _requestOrCancelMatchContent = "Conectando..";
 
         /// <summary>
         /// Sets and gets the RequestOrCancelMatchContent property.

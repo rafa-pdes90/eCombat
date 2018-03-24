@@ -99,9 +99,6 @@ namespace eCombat.ViewModel
 
         private async void RequestConnectionMethod()
         {
-            var serverConn = ServiceLocator.Current.GetInstance<ServerConnViewModel>();
-            serverConn.SelfHost.Close();
-
             Messenger.Default.Send(new NotificationMessage(string.Empty), "Toggle_Server");
             this.ConnectButtonContent = "Conectando..";
 
