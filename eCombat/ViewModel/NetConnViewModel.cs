@@ -116,10 +116,10 @@ namespace eCombat.ViewModel
             {
                 return _requestOrCancelMatchCommand
                     ?? (_requestOrCancelMatchCommand = new RelayCommand(
-                    () =>
-                    {
-                        
-                    }));
+                           () =>
+                           {
+                               
+                           }));
             }
         }
 

@@ -216,5 +216,8 @@
   <ItemGroup>
     <Resource Include="eCombatIcon.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\SplashScreen.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
