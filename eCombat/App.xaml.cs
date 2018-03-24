@@ -35,33 +35,24 @@ namespace eCombat
             {
                 default:
                     string errorMsg = "";
-                    string[] exceptionMsg = e.Exception.ToString().Split(new char[] {':', '\n', '\r'},
+                    string[] exceptionMsg = e.Exception.ToString().Split(new char[] {':', ')'},
                         StringSplitOptions.RemoveEmptyEntries);
 
-                    int i = 1;
-                    while (i < exceptionMsg.Length && i <= 3)
+                    if (exceptionMsg.Length == 1)
                     {
-                        switch (i)
-                        {
-                            case 1:
-                                errorMsg += "\n\r" + exceptionMsg[i];
-                                break;
-                            case 2:
-                                if (e.Exception.InnerException != null)
-                                {
-                                    errorMsg += "\n\r\n\r" + exceptionMsg[i];
-                                }
-                                break;
-                            case 3:
-                                int endTrim = exceptionMsg[i].Length - 8;
-                                errorMsg += "\n\r\n\r" + exceptionMsg[i].Substring(3, endTrim);
-                                break;
-                        }
+                        errorMsg += ":\n\r" + exceptionMsg[0];
+                    }
+                    else
+                    {
+                        errorMsg += ":\n\r" + exceptionMsg[1];
 
-                        i++;
+                        if (exceptionMsg.Length > 2)
+                        {
+                            errorMsg += ":\n\r" + exceptionMsg[2] + ")";
+                        }
                     }
 
-                    MessageBox.Show("An unhandled exception just occurred: " + errorMsg, 
+                    MessageBox.Show("An unhandled exception just occurred" + errorMsg + ".", 
                         "Unknown Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     this.Shutdown();
                     break;

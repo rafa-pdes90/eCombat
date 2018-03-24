@@ -118,7 +118,7 @@ namespace eCombat.ViewModel
                     ?? (_requestOrCancelMatchCommand = new RelayCommand(
                            () =>
                            {
-                               
+                               throw new Exception("Not implemented!");
                            }));
             }
         }
