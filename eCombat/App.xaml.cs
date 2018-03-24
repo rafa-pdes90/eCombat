@@ -100,25 +100,7 @@ namespace eCombat
 
         private void ShowUnknownException(Exception e)
         {
-            string errorMsg = "";
-            string[] exceptionMsg = e.ToString().Split(new[] { ':', ')' },
-                StringSplitOptions.RemoveEmptyEntries);
-
-            if (exceptionMsg.Length == 1)
-            {
-                errorMsg += ":\n\r" + exceptionMsg[0];
-            }
-            else
-            {
-                errorMsg += ":\n\r" + exceptionMsg[1];
-
-                if (exceptionMsg.Length > 2)
-                {
-                    errorMsg += ":\n\r" + exceptionMsg[2] + ")";
-                }
-            }
-
-            MessageBox.Show("An unhandled exception just occurred" + errorMsg + ".",
+            MessageBox.Show("An unhandled exception just occurred:\n\r\n\r" + e,
                 "Unknown Error", MessageBoxButton.OK, MessageBoxImage.Error);
             this.Shutdown();
         }
