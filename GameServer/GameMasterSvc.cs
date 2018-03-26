@@ -39,7 +39,7 @@ namespace GameServer
                 {
                     case TargetInvocationException _:
                         Console.WriteLine("Fault exception because of unreachable proxy");
-                        var fault = new GameMasterSvcFault("probing by URI", "unable to connect to and query the proxy.", "ITGM 00");
+                        var fault = new GameMasterSvcFault("probing by URI", "unable to connect to the proxy and query it.", "ITGM 00");
                         throw new FaultException<GameMasterSvcFault>(fault);
                     case FaultException _:
                         Console.WriteLine("Fault exception because of " + e.Message);
