@@ -98,18 +98,18 @@ namespace eCombat
         {
             void AddNewCell(int r, int c)
             {
-                var novaCell = new Rectangle
+                var newCell = new Rectangle
                 {
                     Stroke = Brushes.Black,
                     StrokeThickness = 1,
                     Fill = Brushes.Transparent,
                 };
-                novaCell.MouseLeftButtonDown += CellMouseLeftButtonDown;
+                newCell.MouseLeftButtonDown += CellMouseLeftButtonDown;
 
-                this.CombateGrid.Children.Add(novaCell);
-                Grid.SetRow(novaCell, r);
-                Grid.SetColumn(novaCell, c);
-                Panel.SetZIndex(novaCell, 1);
+                this.CombateGrid.Children.Add(newCell);
+                Grid.SetRow(newCell, r);
+                Grid.SetColumn(newCell, c);
+                Panel.SetZIndex(newCell, 1);
             }
 
             void AddNewBoardPiece(int r, int c, Brush color, BoardPiece unit)
