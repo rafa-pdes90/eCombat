@@ -82,11 +82,11 @@ namespace GameServer
             }
         }
 
-        private void InvokeCancelMatch()
+        private void InvokeCancelMatch(bool isWorthPoints)
         {
             try
             {
-                this.Client.CancelMatch();
+                this.Client.CancelMatch(isWorthPoints);
             }
             catch (EndpointNotFoundException)
             {
@@ -137,7 +137,7 @@ namespace GameServer
                     {
                         try
                         {
-                            waitingPlayer.InvokeCancelMatch();
+                            waitingPlayer.InvokeCancelMatch(false);
                             waitingPlayer.Locker.Release();
                         }
                         catch (EndpointNotFoundException)
@@ -170,6 +170,84 @@ namespace GameServer
 
             Console.WriteLine("Player " + this.ClientId + " is waiting for an opponent");
             Console.WriteLine();
+        }
+
+        private void TryToRunIt(Action tryAction, Player opponent)
+        {
+            try
+            {
+                tryAction();
+            }
+            catch (EndpointNotFoundException)
+            {
+                if (opponent.Client.State == CommunicationState.Faulted)
+                {
+                    Console.WriteLine("Player " + opponent.ClientId + " couldn't be reached");
+                    Console.WriteLine();
+
+                    opponent.GameSession.SessionPlayer = null;
+
+                    try { this.InvokeCancelMatch(true); }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Player " + this.ClientId + " couldn't be reached");
+                    Console.WriteLine();
+
+                    this.GameSession.SessionPlayer = null;
+
+                    try { opponent.InvokeCancelMatch(true); }
+                    catch
+                    {
+                        //ignored
+                    }
+                }
+            }
+        }
+
+        public void MakeOriginalAndMirroredMove(int srcX, int srcY, int destX, int destY)
+        {
+            int mirroredSrcX = Math.Abs(srcX - 9);
+            int mirroredSrcY = Math.Abs(srcY - 9);
+            int mirroredDestX = Math.Abs(destX - 9);
+            int mirroredDestY = Math.Abs(destY - 9);
+
+            Player opponent = this.CurrentGame.GetOpponent(this);
+
+            var tryAction = new Action(() =>
+            {
+                this.Client.MoveBoardPieceAsync(srcX, srcY, destX, destY);
+                opponent.Client.MoveBoardPieceAsync(mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY);
+            });
+
+            TryToRunIt(tryAction, opponent);
+        }
+
+        public void MakeOriginalAndMirroredAttack(int srcX, int srcY, int destX, int destY,
+            int attackerPowerLevel)
+        {
+            int mirroredSrcX = Math.Abs(srcX - 9);
+            int mirroredSrcY = Math.Abs(srcY - 9);
+            int mirroredDestX = Math.Abs(destX - 9);
+            int mirroredDestY = Math.Abs(destY - 9);
+
+            Player opponent = this.CurrentGame.GetOpponent(this);
+
+            var tryAction = new Action(() =>
+            {
+                int defenderPowerLevel = opponent.Client.ShowPowerLevel(mirroredDestX, mirroredDestY);
+
+                this.Client.AttackBoardPieceAsync(srcX, srcY, destX, destY,
+                    attackerPowerLevel, defenderPowerLevel);
+                opponent.Client.AttackBoardPieceAsync(mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY,
+                    attackerPowerLevel, defenderPowerLevel);
+            });
+
+            TryToRunIt(tryAction, opponent);
         }
     }
 }

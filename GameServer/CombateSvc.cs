@@ -22,10 +22,28 @@ public interface ICombateSvc
     System.Threading.Tasks.Task StartMatchAsync(string opponentName, string opponentId, bool isPlayer1);
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/CancelMatch")]
-    void CancelMatch();
+    void CancelMatch(bool isWorthPoints);
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/CancelMatch")]
     System.Threading.Tasks.Task CancelMatchAsync();
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/MoveBoardPiece")]
+    void MoveBoardPiece(int srcX, int srcY, int destX, int destY);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/MoveBoardPiece")]
+    System.Threading.Tasks.Task MoveBoardPieceAsync(int srcX, int srcY, int destX, int destY);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/AttackBoardPiece")]
+    void AttackBoardPiece(int srcX, int srcY, int destX, int destY, int attackerPowerLevel, int defenderPowerLevel);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/AttackBoardPiece")]
+    System.Threading.Tasks.Task AttackBoardPieceAsync(int srcX, int srcY, int destX, int destY, int attackerPowerLevel, int defenderPowerLevel);
+    
+    [System.ServiceModel.OperationContractAttribute(IsInitiating=false, Action="http://tempuri.org/ICombateSvc/ShowPowerLevel", ReplyAction="http://tempuri.org/ICombateSvc/ShowPowerLevelResponse")]
+    int ShowPowerLevel(int srcX, int srcY);
+    
+    [System.ServiceModel.OperationContractAttribute(IsInitiating=false, Action="http://tempuri.org/ICombateSvc/ShowPowerLevel", ReplyAction="http://tempuri.org/ICombateSvc/ShowPowerLevelResponse")]
+    System.Threading.Tasks.Task<int> ShowPowerLevelAsync(int srcX, int srcY);
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -72,13 +90,43 @@ public partial class CombateSvcClient : System.ServiceModel.ClientBase<ICombateS
         return base.Channel.StartMatchAsync(opponentName, opponentId, isPlayer1);
     }
     
-    public void CancelMatch()
+    public void CancelMatch(bool isWorthPoints)
     {
-        base.Channel.CancelMatch();
+        base.Channel.CancelMatch(isWorthPoints);
     }
     
     public System.Threading.Tasks.Task CancelMatchAsync()
     {
         return base.Channel.CancelMatchAsync();
+    }
+    
+    public void MoveBoardPiece(int srcX, int srcY, int destX, int destY)
+    {
+        base.Channel.MoveBoardPiece(srcX, srcY, destX, destY);
+    }
+    
+    public System.Threading.Tasks.Task MoveBoardPieceAsync(int srcX, int srcY, int destX, int destY)
+    {
+        return base.Channel.MoveBoardPieceAsync(srcX, srcY, destX, destY);
+    }
+    
+    public void AttackBoardPiece(int srcX, int srcY, int destX, int destY, int attackerPowerLevel, int defenderPowerLevel)
+    {
+        base.Channel.AttackBoardPiece(srcX, srcY, destX, destY, attackerPowerLevel, defenderPowerLevel);
+    }
+    
+    public System.Threading.Tasks.Task AttackBoardPieceAsync(int srcX, int srcY, int destX, int destY, int attackerPowerLevel, int defenderPowerLevel)
+    {
+        return base.Channel.AttackBoardPieceAsync(srcX, srcY, destX, destY, attackerPowerLevel, defenderPowerLevel);
+    }
+    
+    public int ShowPowerLevel(int srcX, int srcY)
+    {
+        return base.Channel.ShowPowerLevel(srcX, srcY);
+    }
+    
+    public System.Threading.Tasks.Task<int> ShowPowerLevelAsync(int srcX, int srcY)
+    {
+        return base.Channel.ShowPowerLevelAsync(srcX, srcY);
     }
 }

@@ -26,6 +26,11 @@ namespace GameServer
             this.Player2 = p2;
             this.Winner = 0;
         }
+
+        public Player GetOpponent(Player player)
+        {
+            return player.Equals(this.Player1) ? this.Player2 : this.Player1;
+        }
     }
 
     public sealed class GameManager

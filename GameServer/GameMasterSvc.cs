@@ -10,6 +10,7 @@ using System.ServiceModel.Discovery;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using System.Xml.Linq;
 
 namespace GameServer
@@ -54,7 +55,21 @@ namespace GameServer
 
         public void IntroduceToGameMaster(string displayName)
         {
-            Task.Run(() => this.SessionPlayer.SeekMatch(displayName));
+            Task.Run(() =>
+                this.SessionPlayer.SeekMatch(displayName));
+        }
+
+        public void MoveBoardPiece(int srcX, int srcY, int destX, int destY)
+        {
+            Task.Run(() =>
+                this.SessionPlayer.MakeOriginalAndMirroredMove(srcX, srcY, destX, destY));
+        }
+
+        public void AttackBoardPiece(int srcX, int srcY, int destX, int destY,
+            int attackerPowerLevel)
+        {
+            Task.Run(() => 
+                this.SessionPlayer.MakeOriginalAndMirroredAttack(srcX, srcY, destX, destY, attackerPowerLevel));
         }
     }
 }
