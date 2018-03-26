@@ -7,6 +7,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Discovery;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -49,6 +50,8 @@ namespace GameServer
     {
         private static GameManager Manager { get; set; }
 
+        // ReSharper disable once NotAccessedField.Local
+        private static Timer _probeClientReseter;
         private static DiscoveryClient ProbeClient { get; set; }
         private static ChannelFactory<ICombateSvcChannel> SvcFactory { get; set; }
 
@@ -56,10 +59,18 @@ namespace GameServer
         {
             Manager = new GameManager();
             
-            // Create a DiscoveryClient that points to the DiscoveryProxy
-            var discoveryEndpoint = new DiscoveryEndpoint(probeBinding, new EndpointAddress(probeUri));
-            ProbeClient = new DiscoveryClient(discoveryEndpoint);
+            var probeEndpoint = new DiscoveryEndpoint(probeBinding, new EndpointAddress(probeUri));
+            _probeClientReseter = new Timer(ReloadProbeClient, probeEndpoint, 0, 900000); // 15min.
             SvcFactory = svcFactory;
+        }
+
+        private static void ReloadProbeClient(object param)
+        {
+            // Create a DiscoveryClient that points to the DiscoveryProxy
+            lock (ProbeClient)
+            {
+                ProbeClient = new DiscoveryClient((DiscoveryEndpoint)param);
+            }
         }
         
         /// <summary>
