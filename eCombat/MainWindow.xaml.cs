@@ -37,8 +37,6 @@ namespace eCombat
         /// </summary>
         private MainViewModel Vm => (MainViewModel)DataContext;
 
-        private MainViewModel Main { get; set; }
-
         // ReSharper disable RedundantDefaultMemberInitializer
         private MetroWindow DialogWindow { get; set; } = null;
 
@@ -62,7 +60,6 @@ namespace eCombat
         {
             InitializeComponent();
             BoardPieceSelectCommand = new RelayCommand<BoardPiece>(BoardPieceSelectMethod);
-            this.Main = ServiceLocator.Current.GetInstance<MainViewModel>();
             this.Combatentes = new Queue<BoardPiece>();
             this.EnabledFields = new List<Rectangle>();
             this.MoveLog = new Queue<Tuple<int, int>>(3);
@@ -150,8 +147,8 @@ namespace eCombat
                 Panel.SetZIndex(unit, 2);
             }
 
-            List<BoardPiece> unitList = Main.UnitList;
-            List<BoardPiece> enemyList = Main.EnemyList;
+            List<BoardPiece> unitList = this.Vm.UnitList;
+            List<BoardPiece> enemyList = this.Vm.EnemyList;
 
             int index = 0;
             for (int r = 0; r < 4; r++)
@@ -356,8 +353,8 @@ namespace eCombat
             int unitRow = Grid.GetRow(this.LastSelectedUnit);
             int unitColumn = Grid.GetColumn(this.LastSelectedUnit);
 
-            Main.IsOpponentTurn = true;
-            Main.FinishTurn(unitRow, unitColumn, cellRow, cellColumn, this.LastSelectedUnit.PowerLevel);
+            this.Vm.IsOpponentTurn = true;
+            this.Vm.FinishTurn(unitRow, unitColumn, cellRow, cellColumn, this.LastSelectedUnit.PowerLevel);
 
             MovePiece(this.LastSelectedUnit, rect, cellRow, cellColumn, unitRow, unitColumn);
         }
@@ -387,12 +384,12 @@ namespace eCombat
 
                 if (enemy != null)
                 {
-                    while (Main.FeedbackReceived == null)
+                    while (this.Vm.FeedbackReceived == null)
                     {
                     }
 
-                    enemy.PowerLevel = Main.FeedbackReceived;
-                    Main.FeedbackReceived = null;
+                    enemy.PowerLevel = this.Vm.FeedbackReceived;
+                    this.Vm.FeedbackReceived = null;
                     enemy.GetBindingExpression(ContentProperty)?.UpdateTarget();
                 }
 
@@ -556,7 +553,7 @@ namespace eCombat
                         rect = rectangle;
                         break;
                     case BoardPiece piece:
-                        Main.SendDefenderFeedback(piece.PowerLevel);
+                        this.Vm.SendDefenderFeedback(piece.PowerLevel);
                         break;
                 }
             }
@@ -566,13 +563,13 @@ namespace eCombat
 
         private void CallVictory()
         {
-            Main.MensagemFinal = "Parabéns pela vitória!";
+            this.Vm.MensagemFinal = "Parabéns pela vitória!";
             CallDesistir();
         }
 
         private void CallDefeat()
         {
-            Main.MensagemFinal = "É, não foi dessa vez.";
+            this.Vm.MensagemFinal = "É, não foi dessa vez.";
             CallDesistir();
         }
 
