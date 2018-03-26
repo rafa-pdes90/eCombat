@@ -29,6 +29,25 @@ namespace eCombat
                 ((MainWindow)Application.Current.MainWindow)?.StartNewMatch());
         }
 
-        public void CancelMatch() { }
+        public void CancelMatch(bool isWorthPoints)
+        {
+            //TODO
+        }
+
+        public void MoveBoardPiece(int srcX, int srcY, int destX, int destY)
+        {
+
+        }
+
+        public void AttackBoardPiece(int srcX, int srcY, int destX, int destY,
+            int attackerPowerLevel, int defenderPowerLevel)
+        {
+
+        }
+
+        public int ShowPowerLevel(int srcX, int srcY)
+        {
+            return 0;
+        }
     }
 }

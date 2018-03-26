@@ -52,12 +52,12 @@ namespace eCombat.ViewModel
         {
             byte[] byteData = Encoding.UTF8.GetBytes(message);
             // Sends data asynchronously to a connected Socket 
-            this.NetConn.Handler.BeginSend(byteData, 0, byteData.Length, 0, this.NetConn.SendCallback, this.NetConn.Handler);
+            //this.NetConn.Handler.BeginSend(byteData, 0, byteData.Length, 0, this.NetConn.SendCallback, this.NetConn.Handler);
         }
 
         public void NetMsgSend(string message)
         {
-            this.NetConn.Send(this.NetConn.Handler, message);
+            //this.NetConn.Send(this.NetConn.Handler, message);
         }
     }
 }

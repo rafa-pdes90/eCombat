@@ -163,8 +163,6 @@ namespace eCombat.ViewModel
             DesistirPartidaCommand = new RelayCommand(DesistirPartidaMethod);
             ResetCommand = new RelayCommand(ResetMethod);
             ExitCommand = new RelayCommand(ExitMethod);
-            Messenger.Default.Register<GenericMessage<bool>>(this, "PlayerIsClient_Set", PlayerIsClientSet);
-            Messenger.Default.Register<GenericMessage<NetConnViewModel>>(this, "NetConn_Set", NetConnSet);
             Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
             Messenger.Default.Register<NotificationMessage>(this, "Move_In", MoveIn);
             Messenger.Default.Register<NotificationMessage>(this, "Feedback_In", FeedbackIn);
@@ -203,7 +201,8 @@ namespace eCombat.ViewModel
             int destinoX = int.Parse(coords[3]);
             string powerLevel = coords[4];
             Application.Current.Dispatcher.Invoke(() =>
-                ((MainWindow)Application.Current.MainWindow)?.MoveTheEnemy(origemY, origemX, destinoY, destinoX, powerLevel));
+                ((MainWindow)Application.Current.MainWindow)?.MoveTheEnemy(
+                    origemY, origemX, destinoY, destinoX, powerLevel));
 
             this.IsOpponentTurn = false;
         }
@@ -211,16 +210,6 @@ namespace eCombat.ViewModel
         private void FeedbackIn(NotificationMessage notificationMessage)
         {
             this.FeedbackReceived = notificationMessage.Notification;
-        }
-
-        private void PlayerIsClientSet(GenericMessage<bool> genericMessage)
-        {
-            IsOpponentTurn = !genericMessage.Content;
-        }
-
-        private void NetConnSet(GenericMessage<NetConnViewModel> genericMessage)
-        {
-            Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow)?.StartNewMatch());
         }
 
         private void SendButtonMethod()
@@ -247,7 +236,7 @@ namespace eCombat.ViewModel
         {
             //NetMsg.NetMsgSend("g bye");
             NetConnViewModel netConn = ServiceLocator.Current.GetInstance<NetConnViewModel>();
-            netConn.Handler.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+            //netConn.Handler.Shutdown(System.Net.Sockets.SocketShutdown.Both);
             this.MensagemFinal = "Você desistiu!?";
             Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow)?.CallDesistir());
         }
@@ -270,6 +259,9 @@ namespace eCombat.ViewModel
 
         private void NetConnLost(NotificationMessage notificationMsg)
         {
+            this.MensagemFinal = "O outro jogador desistiu!";
+            Application.Current.Dispatcher.Invoke(() =>
+                ((MainWindow)Application.Current.MainWindow)?.CallDesistir());
             ResetAll();
         }
     }
