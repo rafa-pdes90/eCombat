@@ -163,10 +163,10 @@ namespace GameServer
                     return;
                 }
 
+                this.Locker.Release();
+
                 WaitingPlayers.Enqueue(this);
             }
-
-            this.Locker.Release();
 
             Console.WriteLine("Player " + this.ClientId + " is waiting for an opponent");
             Console.WriteLine();
