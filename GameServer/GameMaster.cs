@@ -60,7 +60,8 @@ namespace GameServer
             Manager = new GameManager();
             
             var probeEndpoint = new DiscoveryEndpoint(probeBinding, new EndpointAddress(probeUri));
-            _probeClientReseter = new Timer(ReloadProbeClient, probeEndpoint, 0, 900000); // 15min.
+            ProbeClient = new DiscoveryClient(probeEndpoint);
+            _probeClientReseter = new Timer(ReloadProbeClient, probeEndpoint, 900000, 900000); // 15min.
             SvcFactory = svcFactory;
         }
 
