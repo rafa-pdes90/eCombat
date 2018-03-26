@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ServiceModel;
-using System.Windows;
+using GameServer;
 
 namespace eCombat.Model
 {
@@ -52,9 +52,14 @@ namespace eCombat.Model
                 {
                     _client.MeetTheGameMaster(MyId);
                 }
+                catch (FaultException<GameMasterSvcFault>)
+                {
+                    _client.Abort();
+                    throw;
+                }
                 catch (Exception)
                 {
-                    _client?.Abort();
+                    _client.Abort();
                     throw new CommunicationObjectAbortedException();
                 }
 

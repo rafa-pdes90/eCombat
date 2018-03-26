@@ -32,6 +32,11 @@ namespace eCombat
     // ReSharper disable once RedundantExtendsListEntry
     public partial class MainWindow : MetroWindow
     {
+        /// <summary>
+        /// Gets the view's ViewModel.
+        /// </summary>
+        private MainViewModel Vm => (MainViewModel)DataContext;
+
         private MainViewModel Main { get; set; }
 
         // ReSharper disable RedundantDefaultMemberInitializer
@@ -145,10 +150,6 @@ namespace eCombat
                 Panel.SetZIndex(unit, 2);
             }
 
-            var chatMsg = ServiceLocator.Current.GetInstance<ChatMsgViewModel>();
-            var playerColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(chatMsg.PlayerColor));
-            var enemyColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(chatMsg.OpponentColor));
-
             List<BoardPiece> unitList = Main.UnitList;
             List<BoardPiece> enemyList = Main.EnemyList;
 
@@ -158,7 +159,7 @@ namespace eCombat
                 for (int c = 9; c >= 0; c--)
                 {
                     AddNewCell(r, c);
-                    AddNewBoardPiece(r, c, enemyColor, enemyList[index]);
+                    AddNewBoardPiece(r, c, this.Vm.OpponentColor, enemyList[index]);
                     index += 1;
                 }
             }
@@ -177,7 +178,7 @@ namespace eCombat
                 for (int c = 0; c < 10; c++)
                 {
                     AddNewCell(r, c);
-                    AddNewBoardPiece(r, c, playerColor, unitList[index]);
+                    AddNewBoardPiece(r, c, this.Vm.PlayerColor, unitList[index]);
                     index += 1;
                 }
             }
@@ -355,7 +356,7 @@ namespace eCombat
             int unitRow = Grid.GetRow(this.LastSelectedUnit);
             int unitColumn = Grid.GetColumn(this.LastSelectedUnit);
 
-            Main.IsEnemyTurno = true;
+            Main.IsOpponentTurn = true;
             Main.FinishTurn(unitRow, unitColumn, cellRow, cellColumn, this.LastSelectedUnit.PowerLevel);
 
             MovePiece(this.LastSelectedUnit, rect, cellRow, cellColumn, unitRow, unitColumn);
@@ -584,19 +585,10 @@ namespace eCombat
             this.DialogWindow.ShowDialog();
         }
 
-        public void CloseConnectionWindow()
+        public void StartNewMatch()
         {
             this.KeepOn = true;
             this.DialogWindow.Close();
-        }
-
-        public void SetPlayerColor(bool isClient)
-        {
-            string color = isClient ? "Cobalt" : "Orange";
-
-            ThemeManager.ChangeAppStyle(this,
-                ThemeManager.GetAccent(color),
-                ThemeManager.GetAppTheme("BaseLight"));
         }
 
         public void ChatScrollToEnd()

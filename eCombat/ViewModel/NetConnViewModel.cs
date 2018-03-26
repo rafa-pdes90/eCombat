@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Net.Sockets;
+using System.Runtime.ExceptionServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
@@ -55,11 +58,28 @@ namespace eCombat.ViewModel
         }
 
         /// <summary>
+        /// The <see cref="NicknameTextIsEnabled" /> property's name.
+        /// </summary>
+        public const string NicknameTextIsEnabledPropertyName = "NicknameTextIsEnabled";
+
+        private bool _nicknameTextIsEnabled = true;
+
+        /// <summary>
+        /// Sets and gets the NicknameTextIsEnabled property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public bool NicknameTextIsEnabled
+        {
+            get => _nicknameTextIsEnabled;
+            set => Set(() => NicknameTextIsEnabled, ref _nicknameTextIsEnabled, value);
+        }
+
+        /// <summary>
         /// The <see cref="NicknameText" /> property's name.
         /// </summary>
         public const string NicknameTextPropertyName = "NicknameText";
 
-        private string _nicknameText;
+        private string _nicknameText = "";
 
         /// <summary>
         /// Sets and gets the Nickname property.
@@ -72,11 +92,28 @@ namespace eCombat.ViewModel
         }
 
         /// <summary>
+        /// The <see cref="RequestOrCancelMatchIsEnabled" /> property's name.
+        /// </summary>
+        public const string RequestOrCancelMatchIsEnabledPropertyName = "RequestOrCancelMatchIsEnabled";
+
+        private bool _requestorCancelMatchIsEnabled = false;
+
+        /// <summary>
+        /// Sets and gets the RequestOrCancelMatchIsEnabled property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public bool RequestOrCancelMatchIsEnabled
+        {
+            get => _requestorCancelMatchIsEnabled;
+            set => Set(() => RequestOrCancelMatchIsEnabled, ref _requestorCancelMatchIsEnabled, value);
+        }
+
+        /// <summary>
         /// The <see cref="RequestOrCancelMatchContent" /> property's name.
         /// </summary>
         public const string RequestOrCancelMatchContentPropertyName = "RequestOrCancelMatchContent";
 
-        private string _requestOrCancelMatchContent = "Conectando..";
+        private string _requestOrCancelMatchContent = "Conectando...";
 
         /// <summary>
         /// Sets and gets the RequestOrCancelMatchContent property.
@@ -93,7 +130,7 @@ namespace eCombat.ViewModel
         /// </summary>
         public const string RequestOrCancelMatchLoadingVisibilityPropertyName = "RequestOrCancelMatchLoadingVisibility";
 
-        private Visibility _requestOrCancelMatchLoadingVisibility = Visibility.Collapsed;
+        private Visibility _requestOrCancelMatchLoadingVisibility = Visibility.Visible;
 
         /// <summary>
         /// Sets and gets the RequestOrCancelMatchLoadingVisibility property.
@@ -115,10 +152,27 @@ namespace eCombat.ViewModel
             get
             {
                 return _requestOrCancelMatchCommand
-                    ?? (_requestOrCancelMatchCommand = new RelayCommand(
-                           () =>
+                    ?? (_requestOrCancelMatchCommand = new RelayCommand(async () =>
                            {
-                               throw new Exception("Not implemented!");
+                               if (!RequestOrCancelMatchIsEnabled || NicknameText.Length == 0) return;
+
+                               if (this.RequestOrCancelMatchLoadingVisibility.Equals(Visibility.Collapsed))
+                               {
+                                   this.NicknameTextIsEnabled = false;
+                                   this.RequestOrCancelMatchLoadingVisibility = Visibility.Visible;
+                                   this.RequestOrCancelMatchContent = "Cancel";
+
+                                   await GameMaster.Client.IntroduceToGameMasterAsync(RequestOrCancelMatchContent);
+
+                                   await Task.Run(() =>
+                                       Messenger.Default.Send(RequestOrCancelMatchContent, "PlayerName"));
+                               }
+                               else
+                               {
+                                   this.NicknameTextIsEnabled = true;
+                                   this.RequestOrCancelMatchLoadingVisibility = Visibility.Collapsed;
+                                   this.RequestOrCancelMatchContent = "Ready to Play!";
+                               }
                            }));
             }
         }

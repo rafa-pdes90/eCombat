@@ -5,7 +5,10 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Discovery;
 using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Xml.Linq;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace eCombat
 {
@@ -17,6 +20,13 @@ namespace eCombat
             Console.WriteLine(@"Starting game against " + opponentId + @" - " + opponentName);
             Console.WriteLine(isPlayer1 ? @"It's your turn!" : @"It' the opponent turn!");
             Console.WriteLine();
+
+            Messenger.Default.Send(opponentName, "OpponentName");
+            Messenger.Default.Send(opponentId, "OpponentId");
+            Messenger.Default.Send(isPlayer1, "IsPlayer1");
+
+            Application.Current.Dispatcher.Invoke(() =>
+                ((MainWindow)Application.Current.MainWindow)?.StartNewMatch());
         }
 
         public void CancelMatch() { }

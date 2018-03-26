@@ -6,7 +6,9 @@ using System.Linq;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using System.Windows;
+using CommonServiceLocator;
 using eCombat.Model;
+using eCombat.ViewModel;
 using GameServer;
 
 namespace eCombat
@@ -17,10 +19,15 @@ namespace eCombat
     // ReSharper disable once RedundantExtendsListEntry
     public partial class App : Application
     {
+        private NetConnViewModel NetConn { get; set; }
+
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             var splashScreen = new SplashScreen("/Resources/SplashScreen.png");
-            splashScreen.Show(false, false);
+            splashScreen.Show(false, true);
+
+            var dummy = new ViewModelLocator();
+            this.NetConn = ServiceLocator.Current.GetInstance<NetConnViewModel>();
 
             Task.Run(() => ConnectToGameMaster());
 
@@ -39,21 +46,24 @@ namespace eCombat
         {
             while (true)
             {
+                var result = MessageBoxResult.None;
+
                 try
                 {
                     GameMasterSvcClient dummy = GameMaster.Client;
                     break;
                 }
+                catch (FaultException<GameMasterSvcFault> f)
+                {
+                    string fMsg = "Error on game server while " + f.Detail.Operation +
+                                  ". Reason: " + f.Detail.Reason + "\n\r\n\rRetry?";
+                    result = MessageBox.Show(fMsg, "Service error",
+                        MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                }
                 catch (Exception e)
                 {
-                    var result = MessageBoxResult.None;
-
                     switch (e)
                     {
-                        case FaultException<GameMasterSvcFault> f:
-                            Console.WriteLine(@"GameMasterSvcFault while " + f.Detail.Operation + @". Reason: " + f.Detail.Reason);
-                            GameMaster.Client.Abort();
-                            return;
                         case EndpointNotFoundException _:
                             result = MessageBox.Show(
                                 "The Proxy Server couldn't be reached.\n\r\n\rRetry?",
@@ -73,23 +83,31 @@ namespace eCombat
                             this.Dispatcher.Invoke(() => ShowUnknownException(e));
                             break;
                     }
-
-                    if (result == MessageBoxResult.OK) continue;
-
-                    if (result == MessageBoxResult.None) break;
-
-                    this.Dispatcher.Invoke(this.Shutdown);
-                    return;
                 }
+
+                if (result == MessageBoxResult.None) break;
+
+                if (result == MessageBoxResult.OK) continue;
+
+                this.Dispatcher.Invoke(this.Shutdown);
+                return;
             }
 
-            //TODO Turn connection window button on
+            this.NetConn.RequestOrCancelMatchIsEnabled = true;
+            this.NetConn.RequestOrCancelMatchLoadingVisibility = Visibility.Collapsed;
+            this.NetConn.RequestOrCancelMatchContent = "Ready to Play!";
         }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            switch (e)
+            switch (e.Exception)
             {
+                case CommunicationException _:
+                    GameMaster.Client.Abort();
+                    //TODO Auto retry connect to server again, with an option to cancel
+                    ConnectToGameMaster();
+                    this.NetConn.RequestOrCancelMatchCommand.Execute(null);
+                    break;
                 default:
                     ShowUnknownException(e.Exception);
                     break;

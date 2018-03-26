@@ -50,18 +50,85 @@ namespace eCombat.ViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
+        /// <summary>
+        /// The <see cref="PlayerName" /> property's name.
+        /// </summary>
+        public const string PlayerNamePropertyName = "PlayerName";
+
+        private string _playerName = "";
+
+        /// <summary>
+        /// Sets and gets the PlayerName property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public string PlayerName
+        {
+            get => _playerName;
+            set => Set(() => PlayerName, ref _playerName, value);
+        }
+
+        /// <summary>
+        /// The <see cref="IsOpponentTurn" /> property's name.
+        /// </summary>
+        public const string IsOpponentTurnPropertyName = "IsOpponentTurn";
+
+        private bool _isOpponentTurn;
+
+        /// <summary>
+        /// Sets and gets the IsOpponentTurn property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public bool IsOpponentTurn
+        {
+            get => _isOpponentTurn;
+            set => Set(() => IsOpponentTurn, ref _isOpponentTurn, value);
+        }
+
+        /// <summary>
+        /// The <see cref="PlayerColor" /> property's name.
+        /// </summary>
+        public const string PlayerColorPropertyName = "PlayerColor";
+
+        private SolidColorBrush _playerColor;
+
+        /// <summary>
+        /// Sets and gets the PlayerColor property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public SolidColorBrush PlayerColor
+        {
+            get => _playerColor;
+            set => Set(() => PlayerColor, ref _playerColor, value);
+        }
+
+        /// <summary>
+        /// The <see cref="OpponentColor" /> property's name.
+        /// </summary>
+        public const string OpponentColorPropertyName = "OpponentColor";
+
+        private SolidColorBrush _opponentColor;
+
+        /// <summary>
+        /// Sets and gets the OpponentColor property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public SolidColorBrush OpponentColor
+        {
+            get => _opponentColor;
+            set => Set(() => OpponentColor, ref _opponentColor, value);
+        }
+
+
+
+
+
+
+
         private string _mensagemFinal;
         public string MensagemFinal
         {
             get => _mensagemFinal;
             set => Set(() => MensagemFinal, ref _mensagemFinal, value);
-        }
-
-        private bool _isSelfTurno;
-        public bool IsEnemyTurno
-        {
-            get => _isSelfTurno;
-            set => Set(() => IsEnemyTurno, ref _isSelfTurno, value);
         }
 
         private string _sendTextContent = string.Empty;
@@ -89,6 +156,9 @@ namespace eCombat.ViewModel
         /// </summary>
         public MainViewModel()
         {
+            Messenger.Default.Register<string>(this, "PlayerName", SetPlayerName);
+            Messenger.Default.Register<bool>(this, "IsPlayer1", SetGameTurn);
+
             SendButtonCommand = new RelayCommand(SendButtonMethod);
             DesistirPartidaCommand = new RelayCommand(DesistirPartidaMethod);
             ResetCommand = new RelayCommand(ResetMethod);
@@ -103,6 +173,27 @@ namespace eCombat.ViewModel
             this.UnitList.Shuffle();
         }
 
+        private void SetPlayerName(string name)
+        {
+            this.PlayerName = name;
+        }
+
+        private void SetGameTurn(bool isSelfTurn)
+        {
+            this.IsOpponentTurn = !isSelfTurn;
+
+            if (isSelfTurn)
+            {
+                this.PlayerColor = Brushes.CornflowerBlue;
+                this.OpponentColor = Brushes.Orange;
+            }
+            else
+            {
+                this.PlayerColor = Brushes.Orange;
+                this.OpponentColor = Brushes.CornflowerBlue;
+            }
+        }
+
         private void MoveIn(NotificationMessage notificationMessage)
         {
             string[] coords = notificationMessage.Notification.Split();
@@ -114,7 +205,7 @@ namespace eCombat.ViewModel
             Application.Current.Dispatcher.Invoke(() =>
                 ((MainWindow)Application.Current.MainWindow)?.MoveTheEnemy(origemY, origemX, destinoY, destinoX, powerLevel));
 
-            this.IsEnemyTurno = false;
+            this.IsOpponentTurn = false;
         }
 
         private void FeedbackIn(NotificationMessage notificationMessage)
@@ -124,12 +215,12 @@ namespace eCombat.ViewModel
 
         private void PlayerIsClientSet(GenericMessage<bool> genericMessage)
         {
-            IsEnemyTurno = !genericMessage.Content;
+            IsOpponentTurn = !genericMessage.Content;
         }
 
         private void NetConnSet(GenericMessage<NetConnViewModel> genericMessage)
         {
-            Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow)?.CloseConnectionWindow());
+            Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow)?.StartNewMatch());
         }
 
         private void SendButtonMethod()

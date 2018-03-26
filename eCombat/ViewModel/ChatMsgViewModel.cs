@@ -14,18 +14,21 @@ namespace eCombat.ViewModel
 {
     public class ChatMsgViewModel : ViewModelBase
     {
-        private string _playerColor;
-        public string PlayerColor
-        {
-            get => _playerColor;
-            set => Set(() => PlayerColor, ref _playerColor, value);
-        }
+        /// <summary>
+        /// The <see cref="OpponentName" /> property's name.
+        /// </summary>
+        public const string OpponentNamePropertyName = "OpponentName";
 
-        private string _opponentColor;
-        public string OpponentColor
+        private string _opponentName = "";
+
+        /// <summary>
+        /// Sets and gets the OpponentName property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public string OpponentName
         {
-            get => _opponentColor;
-            set => Set(() => OpponentColor, ref _opponentColor, value);
+            get => _opponentName;
+            set => Set(() => OpponentName, ref _opponentName, value);
         }
 
         //private NetMsgViewModel NetMsg { get; } = ServiceLocator.Current.GetInstance<NetMsgViewModel>();
@@ -33,19 +36,17 @@ namespace eCombat.ViewModel
 
         public ChatMsgViewModel()
         {
+            Messenger.Default.Register<string>(this, "OpponentName", SetOpponentName);
+
+
             Messenger.Default.Register<NotificationMessage>(this, "Chat_In", ChatIn);
             Messenger.Default.Register<NotificationMessage>(this, "Chat_Async", ChatAsync);
             Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
-            Messenger.Default.Register<GenericMessage<bool>>(this, "PlayerIsClient_Set", PlayerIsClientSet);
         }
 
-        private void PlayerIsClientSet(GenericMessage<bool> genericMessage)
+        private void SetOpponentName(string name)
         {
-            bool playerIsClient = genericMessage.Content;
-
-            Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow)?.SetPlayerColor(playerIsClient));
-            PlayerColor = playerIsClient ? "CornflowerBlue" : "Orange";
-            OpponentColor = playerIsClient ? "Orange" : "CornflowerBlue";
+            this.OpponentName = name;
         }
 
         private void ChatIn(NotificationMessage notificationMessage)

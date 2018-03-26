@@ -45,7 +45,7 @@
                     </Grid.RowDefinitions>
 
                     <Rectangle x:Name="TurnoDisabler" Grid.Row="0" Grid.Column="0" Grid.RowSpan="10" Grid.ColumnSpan="10"
-                                   Panel.ZIndex="4" Fill="Transparent" IsHitTestVisible="{Binding IsEnemyTurno}"/>
+                                   Panel.ZIndex="4" Fill="Transparent" IsHitTestVisible="{Binding IsOpponentTurn}"/>
 
                     <Grid Grid.Row="4" Grid.Column="2" Panel.ZIndex="3" Background="DarkBlue"/>
                     <Grid Grid.Row="4" Grid.Column="3" Panel.ZIndex="3" Background="DarkBlue"/>
@@ -143,13 +143,13 @@
                                         <DataTrigger Binding="{Binding Origem}" Value="r">
                                             <Setter TargetName="Para" Property="HorizontalAlignment" Value="Left"/>
                                             <Setter TargetName="Para" Property="Background" 
-                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Grid}}, 
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, 
                                                 Path=DataContext.OpponentColor}"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Origem}" Value="s">
                                             <Setter TargetName="Para" Property="HorizontalAlignment" Value="Right"/>
                                             <Setter TargetName="Para" Property="Background"
-                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Grid}}, 
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, 
                                                 Path=DataContext.PlayerColor}"/>
                                         </DataTrigger>
                                     </DataTemplate.Triggers>

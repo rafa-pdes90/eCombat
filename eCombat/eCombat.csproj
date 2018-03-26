@@ -123,6 +123,7 @@
     </ApplicationDefinition>
     <Compile Include="CombateSvc.cs" />
     <Compile Include="CombateSvcData.cs" />
+    <Compile Include="Converters\StringIsNotEmptyConverter.cs" />
     <Compile Include="GameMasterSvc.cs" />
     <Compile Include="ICombateSvc.cs" />
     <Compile Include="Model\Army.cs" />
