@@ -25,12 +25,12 @@ public interface ICombateSvc
     void CancelMatch(bool isWorthPoints);
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/CancelMatch")]
-    System.Threading.Tasks.Task CancelMatchAsync();
+    System.Threading.Tasks.Task CancelMatchAsync(bool isWorthPoints);
     
-    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/MoveBoardPiece")]
+    [System.ServiceModel.OperationContractAttribute(IsInitiating=false, Action="http://tempuri.org/ICombateSvc/MoveBoardPiece")]
     void MoveBoardPiece(int srcX, int srcY, int destX, int destY);
     
-    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/MoveBoardPiece")]
+    [System.ServiceModel.OperationContractAttribute(IsInitiating=false, Action="http://tempuri.org/ICombateSvc/MoveBoardPiece")]
     System.Threading.Tasks.Task MoveBoardPieceAsync(int srcX, int srcY, int destX, int destY);
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/AttackBoardPiece")]
@@ -95,9 +95,9 @@ public partial class CombateSvcClient : System.ServiceModel.ClientBase<ICombateS
         base.Channel.CancelMatch(isWorthPoints);
     }
     
-    public System.Threading.Tasks.Task CancelMatchAsync()
+    public System.Threading.Tasks.Task CancelMatchAsync(bool isWorthPoints)
     {
-        return base.Channel.CancelMatchAsync();
+        return base.Channel.CancelMatchAsync(isWorthPoints);
     }
     
     public void MoveBoardPiece(int srcX, int srcY, int destX, int destY)
