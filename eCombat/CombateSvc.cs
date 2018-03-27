@@ -17,6 +17,8 @@ namespace eCombat
     {
         public void StartMatch(string opponentName, string opponentId, bool isPlayer1)
         {
+            Messenger.Default.Send(false, "RequestOrCancelState");
+
             Console.WriteLine(@"Starting game against " + opponentId + @" - " + opponentName);
             Console.WriteLine(isPlayer1 ? @"It's your turn!" : @"It' the opponent turn!");
             Console.WriteLine();

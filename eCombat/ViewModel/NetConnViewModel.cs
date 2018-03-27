@@ -146,7 +146,7 @@ namespace eCombat.ViewModel
                 return _requestOrCancelMatchCommand
                     ?? (_requestOrCancelMatchCommand = new RelayCommand(async () =>
                            {
-                               if (!RequestOrCancelMatchIsEnabled || NicknameText.Length == 0) return;
+                               if (!this.RequestOrCancelMatchIsEnabled || this.NicknameText.Length == 0) return;
 
                                if (this.RequestOrCancelMatchLoadingVisibility.Equals(Visibility.Collapsed))
                                {
@@ -155,15 +155,14 @@ namespace eCombat.ViewModel
                                    this.RequestOrCancelMatchContent = "Cancel";
 
                                    await GameMaster.Client.IntroduceToGameMasterAsync(RequestOrCancelMatchContent);
-
-                                   await Task.Run(() =>
-                                       Messenger.Default.Send(RequestOrCancelMatchContent, "PlayerName"));
                                }
                                else
                                {
                                    this.NicknameTextIsEnabled = true;
                                    this.RequestOrCancelMatchLoadingVisibility = Visibility.Collapsed;
                                    this.RequestOrCancelMatchContent = "Ready to Play!";
+
+                                   await GameMaster.Client.CancelMatchAsync();
                                }
                            }));
             }
@@ -175,6 +174,15 @@ namespace eCombat.ViewModel
         /// </summary>
         public NetConnViewModel()
         {
+            Messenger.Default.Register<bool>(this, "RequestOrCancelState", ChangeRequestOrCancelState);
+        }
+
+        private void ChangeRequestOrCancelState(bool value)
+        {
+            this.RequestOrCancelMatchIsEnabled = value;
+
+            Task.Run(() =>
+                Messenger.Default.Send(RequestOrCancelMatchContent, "PlayerName"));
         }
     }
 }

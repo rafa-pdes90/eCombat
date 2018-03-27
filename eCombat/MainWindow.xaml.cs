@@ -69,7 +69,11 @@ namespace eCombat
         private void MetroWindow_ContentRendered(object sender, EventArgs e)
         {
             LoadConnectionWindow();
-            if (!this.KeepOn) return;
+            if (!this.KeepOn)
+            {
+                //TODO Send CancelMatch
+                return;
+            }
             this.KeepOn = false;
             LoadCombateUIElements();
         }

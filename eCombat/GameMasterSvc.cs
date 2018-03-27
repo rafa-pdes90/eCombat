@@ -99,6 +99,12 @@ public interface IGameMasterSvc
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/IntroduceToGameMaster")]
     System.Threading.Tasks.Task IntroduceToGameMasterAsync(string displayName);
     
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/CancelMatch")]
+    void CancelMatch();
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/CancelMatch")]
+    System.Threading.Tasks.Task CancelMatchAsync();
+    
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/MoveBoardPiece")]
     void MoveBoardPiece(int srcX, int srcY, int destX, int destY);
     
@@ -164,6 +170,16 @@ public partial class GameMasterSvcClient : System.ServiceModel.ClientBase<IGameM
     public System.Threading.Tasks.Task IntroduceToGameMasterAsync(string displayName)
     {
         return base.Channel.IntroduceToGameMasterAsync(displayName);
+    }
+    
+    public void CancelMatch()
+    {
+        base.Channel.CancelMatch();
+    }
+    
+    public System.Threading.Tasks.Task CancelMatchAsync()
+    {
+        return base.Channel.CancelMatchAsync();
     }
     
     public void MoveBoardPiece(int srcX, int srcY, int destX, int destY)
