@@ -4,6 +4,7 @@ using System.ServiceModel;
 using System.ServiceModel.Discovery;
 using System.Threading;
 using System.Threading.Tasks;
+using eCombat;
 
 namespace GameServer
 {
@@ -307,6 +308,27 @@ namespace GameServer
             TryToRunIt(tryAction, opponent);
 
             this.CurrentMatch.MoveCount++;
+        }
+
+        public void MakePlayersTalk(string message)
+        {
+            var msg = new ChatMsg
+            {
+                MsgId = this.CurrentMatch.MsgCount,
+                MsgContent = message
+            };
+
+            Player opponent = this.CurrentMatch.GetOpponent(this);
+
+            var tryAction = new Action(async () =>
+            {
+                await Task.WhenAll(this.Client.WriteMessageToChatAsync(msg, true),
+                    opponent.Client.WriteMessageToChatAsync(msg, false));
+            });
+
+            TryToRunIt(tryAction, opponent);
+
+            this.CurrentMatch.MsgCount++;
         }
     }
 }

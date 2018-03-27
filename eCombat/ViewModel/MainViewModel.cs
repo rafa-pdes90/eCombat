@@ -112,29 +112,11 @@ namespace eCombat.ViewModel
             get => _opponentColor;
             set => Set(() => OpponentColor, ref _opponentColor, value);
         }
-
-        /// <summary>
-        /// The <see cref="SendTextContent" /> property's name.
-        /// </summary>
-        public const string SendTextContentPropertyName = "SendTextContent";
-
-        private string _sendTextContent = string.Empty;
-
-        /// <summary>
-        /// Sets and gets the SendTextContent property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public string SendTextContent
-        {
-            get => _sendTextContent;
-            set => Set(() => SendTextContent, ref _sendTextContent, value);
-        }
         
         public List<BoardPiece> EnemyList { get; set; }
         public List<BoardPiece> UnitList { get; set; }
         public ObservableCollection<string> LogList { get; } = new ObservableCollection<string>();
 
-        public ICommand SendButtonCommand { get; }
         public ICommand DesistirPartidaCommand { get; }
 
         /// <inheritdoc />
@@ -148,7 +130,6 @@ namespace eCombat.ViewModel
             Messenger.Default.Register<bool>(this, "EvalMatchTurn", EvalMatchTurn);
             Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
 
-            SendButtonCommand = new RelayCommand(SendButtonMethod);
             DesistirPartidaCommand = new RelayCommand(DesistirPartidaMethod);
 
             this.EnemyList = Army.GetEnemyList();
@@ -180,14 +161,6 @@ namespace eCombat.ViewModel
             this.IsOpponentTurn = isOpponentTurn;
         }
 
-        private void SendButtonMethod()
-        {
-            if (this.SendTextContent == "") return;
-            Messenger.Default.Send(new NotificationMessage(this.SendTextContent), "Chat_Async");
-            this.SendTextContent = string.Empty;
-            ((MainWindow)Application.Current.MainWindow)?.ChatScrollToEnd();
-        }
-
         private void DesistirPartidaMethod()
         {
             //NetMsg.NetMsgSend("g bye");
@@ -200,7 +173,6 @@ namespace eCombat.ViewModel
 
         private void ResetAll()
         {
-            Application.Current.Dispatcher.Invoke(() => this.SendTextContent = string.Empty);
         }
 
         private void NetConnLost(NotificationMessage notificationMsg)

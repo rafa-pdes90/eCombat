@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using GalaSoft.MvvmLight;
 
 namespace eCombat
 {
@@ -19,6 +20,26 @@ namespace eCombat
             this.Operation = operation;
             this.Reason = reason;
             this.Code = code;
+        }
+    }
+
+    [DataContract]
+    public class ChatMsg
+    {
+        [DataMember]
+        public int MsgId { get; set; }
+
+        [DataMember]
+        public string MsgContent { get; set; }
+
+        public bool IsSelfMessage { get; set; }
+
+
+        public ChatMsg(int id, bool isSelfMessage, string content)
+        {
+            this.MsgId = id;
+            this.MsgContent = content;
+            this.IsSelfMessage = isSelfMessage;
         }
     }
 }

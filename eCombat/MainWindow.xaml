@@ -92,7 +92,7 @@
                 </Border>
             </Grid>
 
-            <Grid Grid.Row="1" Margin="5">
+            <Grid Grid.Row="1" Margin="5" DataContext="{Binding ChatMsg, Source={StaticResource Locator}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -120,7 +120,7 @@
                             Style="{StaticResource AccentedSquareButtonStyle}"/>
                 </Grid>
 
-                <Grid Grid.Row="1" DataContext="{Binding ChatMsg, Source={StaticResource Locator}}" Background="White">
+                <Grid Grid.Row="1" Background="White">
                     <ScrollViewer x:Name="ChatScrollViewer">
                         <ItemsControl HorizontalAlignment="Stretch"
                                       VerticalAlignment="Stretch"
@@ -140,13 +140,13 @@
                                     </Border>
 
                                     <DataTemplate.Triggers>
-                                        <DataTrigger Binding="{Binding Origem}" Value="r">
+                                        <DataTrigger Binding="{Binding IsSelfMessage}" Value="false">
                                             <Setter TargetName="Para" Property="HorizontalAlignment" Value="Left"/>
                                             <Setter TargetName="Para" Property="Background" 
                                                     Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, 
                                                 Path=DataContext.OpponentColor}"/>
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding Origem}" Value="s">
+                                        <DataTrigger Binding="{Binding IsSelfMessage}" Value="true">
                                             <Setter TargetName="Para" Property="HorizontalAlignment" Value="Right"/>
                                             <Setter TargetName="Para" Property="Background"
                                                     Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, 

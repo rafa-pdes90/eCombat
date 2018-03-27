@@ -20,12 +20,15 @@ namespace GameServer
         public Player Player2 { get; set; }
         public int Winner { get; set; }
         public int MoveCount { get; set; }
+        public int MsgCount { get; set; }
 
         public MatchInfo(Player p1, Player p2)
         {
             this.Player1 = p1;
             this.Player2 = p2;
             this.Winner = 0;
+            this.MoveCount = 0;
+            this.MsgCount = 0;
         }
 
         public Player GetOpponent(Player player)

@@ -8,6 +8,62 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+namespace eCombat
+{
+    using System.Runtime.Serialization;
+    
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ChatMsg", Namespace="http://schemas.datacontract.org/2004/07/eCombat")]
+    public partial class ChatMsg : object, System.Runtime.Serialization.IExtensibleDataObject
+    {
+        
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private string MsgContentField;
+        
+        private int MsgIdField;
+        
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string MsgContent
+        {
+            get
+            {
+                return this.MsgContentField;
+            }
+            set
+            {
+                this.MsgContentField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int MsgId
+        {
+            get
+            {
+                return this.MsgIdField;
+            }
+            set
+            {
+                this.MsgIdField = value;
+            }
+        }
+    }
+}
 
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -44,6 +100,12 @@ public interface ICombateSvc
     
     [System.ServiceModel.OperationContractAttribute(IsInitiating=false, Action="http://tempuri.org/ICombateSvc/ShowPowerLevel", ReplyAction="http://tempuri.org/ICombateSvc/ShowPowerLevelResponse")]
     System.Threading.Tasks.Task<string> ShowPowerLevelAsync(int srcX, int srcY);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/WriteMessageToChat")]
+    void WriteMessageToChat(eCombat.ChatMsg chatMessage, bool isSelfMessage);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/WriteMessageToChat")]
+    System.Threading.Tasks.Task WriteMessageToChatAsync(eCombat.ChatMsg chatMessage, bool isSelfMessage);
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -128,5 +190,15 @@ public partial class CombateSvcClient : System.ServiceModel.ClientBase<ICombateS
     public System.Threading.Tasks.Task<string> ShowPowerLevelAsync(int srcX, int srcY)
     {
         return base.Channel.ShowPowerLevelAsync(srcX, srcY);
+    }
+    
+    public void WriteMessageToChat(eCombat.ChatMsg chatMessage, bool isSelfMessage)
+    {
+        base.Channel.WriteMessageToChat(chatMessage, isSelfMessage);
+    }
+    
+    public System.Threading.Tasks.Task WriteMessageToChatAsync(eCombat.ChatMsg chatMessage, bool isSelfMessage)
+    {
+        return base.Channel.WriteMessageToChatAsync(chatMessage, isSelfMessage);
     }
 }

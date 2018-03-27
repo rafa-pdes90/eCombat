@@ -116,6 +116,12 @@ public interface IGameMasterSvc
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/AttackBoardPiece")]
     System.Threading.Tasks.Task AttackBoardPieceAsync(int srcX, int srcY, int destX, int destY, string attackerPowerLevel);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/WriteMessageToChat")]
+    void WriteMessageToChat(string message);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/WriteMessageToChat")]
+    System.Threading.Tasks.Task WriteMessageToChatAsync(string message);
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -200,5 +206,15 @@ public partial class GameMasterSvcClient : System.ServiceModel.ClientBase<IGameM
     public System.Threading.Tasks.Task AttackBoardPieceAsync(int srcX, int srcY, int destX, int destY, string attackerPowerLevel)
     {
         return base.Channel.AttackBoardPieceAsync(srcX, srcY, destX, destY, attackerPowerLevel);
+    }
+    
+    public void WriteMessageToChat(string message)
+    {
+        base.Channel.WriteMessageToChat(message);
+    }
+    
+    public System.Threading.Tasks.Task WriteMessageToChatAsync(string message)
+    {
+        return base.Channel.WriteMessageToChatAsync(message);
     }
 }

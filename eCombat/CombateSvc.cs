@@ -64,5 +64,13 @@ namespace eCombat
 
             return powerLevel;
         }
+
+        public void WriteMessageToChat(ChatMsg chatMessage, bool isSelfMessage)
+        {
+            chatMessage.IsSelfMessage = isSelfMessage;
+            Messenger.Default.Send(chatMessage, "Chat_In");
+            Application.Current.Dispatcher.Invoke(() =>
+                ((MainWindow)Application.Current.MainWindow)?.ChatScrollToEnd());
+        }
     }
 }

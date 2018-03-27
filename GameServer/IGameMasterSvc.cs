@@ -26,5 +26,8 @@ namespace GameServer
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
         void AttackBoardPiece(int srcX, int srcY, int destX, int destY, string attackerPowerLevel);
+
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
+        void WriteMessageToChat(string message);
     }
 }

@@ -26,5 +26,8 @@ namespace eCombat
 
         [OperationContract(IsInitiating = false, IsTerminating = false)]
         string ShowPowerLevel(int srcX, int srcY);
+
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
+        void WriteMessageToChat(ChatMsg chatMessage, bool isSelfMessage);
     }
 }

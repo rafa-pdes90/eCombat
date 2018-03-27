@@ -80,7 +80,8 @@ namespace GameServer
 
         public void WriteMessageToChat(string message)
         {
-
+            Task.Run(() =>
+                this.SessionPlayer.MakePlayersTalk(message));
         }
     }
 }

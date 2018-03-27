@@ -5,10 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using CommonServiceLocator;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using eCombat.Model;
+using GalaSoft.MvvmLight.CommandWpf;
 
 namespace eCombat.ViewModel
 {
@@ -31,17 +33,34 @@ namespace eCombat.ViewModel
             set => Set(() => OpponentName, ref _opponentName, value);
         }
 
-        //private NetMsgViewModel NetMsg { get; } = ServiceLocator.Current.GetInstance<NetMsgViewModel>();
+        /// <summary>
+        /// The <see cref="SendTextContent" /> property's name.
+        /// </summary>
+        public const string SendTextContentPropertyName = "SendTextContent";
+
+        private string _sendTextContent = string.Empty;
+
+        /// <summary>
+        /// Sets and gets the SendTextContent property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public string SendTextContent
+        {
+            get => _sendTextContent;
+            set => Set(() => SendTextContent, ref _sendTextContent, value);
+        }
+
         public ObservableCollection<ChatMsg> ChatList { get; } = new ObservableCollection<ChatMsg>();
+
+        public ICommand SendButtonCommand { get; }
 
         public ChatMsgViewModel()
         {
             Messenger.Default.Register<string>(this, "OpponentName", SetOpponentName);
-
-
-            Messenger.Default.Register<NotificationMessage>(this, "Chat_In", ChatIn);
-            Messenger.Default.Register<NotificationMessage>(this, "Chat_Async", ChatAsync);
+            Messenger.Default.Register<ChatMsg>(this, "Chat_In", ChatIn);
             Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
+
+            SendButtonCommand = new RelayCommand(SendButtonMethod);
         }
 
         private void SetOpponentName(string name)
@@ -49,27 +68,23 @@ namespace eCombat.ViewModel
             this.OpponentName = name;
         }
 
-        private void ChatIn(NotificationMessage notificationMessage)
+        private void SendButtonMethod()
         {
-            string[] msg = notificationMessage.Notification.Split(null, 2);
+            if (this.SendTextContent == "") return;
 
-            var recebida = new ChatMsg(int.Parse(msg[0]), "r", msg[1]);
-            Application.Current.Dispatcher.Invoke(() => this.ChatList.Add(recebida));
+            GameMaster.Client.WriteMessageToChatAsync(this.SendTextContent);
+
+            this.SendTextContent = string.Empty;
         }
 
-        private void ChatAsync(NotificationMessage notificationMessage)
+        private void ChatIn(ChatMsg chatMessage)
         {
-            int msgId = ChatList.Count + 1;
-            string msg = "c" + " " + msgId + " " + notificationMessage.Notification;
-
-            //NetMsg.NetMsgAsync(msg);
-
-            var enviada = new ChatMsg(msgId, "s", notificationMessage.Notification);
-            this.ChatList.Add(enviada);
+            Application.Current.Dispatcher.Invoke(() => this.ChatList.Add(chatMessage));
         }
 
         private void ResetAll()
         {
+            Application.Current.Dispatcher.Invoke(() => this.SendTextContent = string.Empty);
             Application.Current.Dispatcher.Invoke(() => this.ChatList.Clear());
         }
 
