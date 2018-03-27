@@ -19,6 +19,7 @@ namespace GameServer
         public Player Player1 { get; set; }
         public Player Player2 { get; set; }
         public int Winner { get; set; }
+        public int MoveCount { get; set; }
 
         public MatchInfo(Player p1, Player p2)
         {

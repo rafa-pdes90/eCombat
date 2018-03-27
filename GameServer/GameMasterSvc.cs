@@ -59,6 +59,12 @@ namespace GameServer
                 this.SessionPlayer.SeekMatch(displayName));
         }
 
+        public void CancelMatch()
+        {
+            Task.Run(() =>
+                this.SessionPlayer.FinishCurrentMatch());
+        }
+
         public void MoveBoardPiece(int srcX, int srcY, int destX, int destY)
         {
             Task.Run(() =>

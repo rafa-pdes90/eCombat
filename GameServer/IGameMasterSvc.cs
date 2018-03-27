@@ -19,6 +19,9 @@ namespace GameServer
         void IntroduceToGameMaster(string displayName);
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
+        void CancelMatch();
+
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
         void MoveBoardPiece(int srcX, int srcY, int destX, int destY);
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]

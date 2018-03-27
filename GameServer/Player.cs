@@ -18,7 +18,7 @@ namespace GameServer
         private ICombateSvcChannel Client { get; set; }
         private EndpointDiscoveryMetadata RemoteMetadata { get; set; }
         private string DisplayName { get; set; }
-        private MatchInfo CurrentGame { get; set; }
+        private MatchInfo CurrentMatch { get; set; }
 
         static Player()
         {
@@ -39,8 +39,8 @@ namespace GameServer
                 this.Client?.Abort();
             }
 
-            //TODO CurrentGame
-            CurrentGame = null;
+            //TODO CurrentMatch
+            CurrentMatch = null;
         }
 
         public Player(GameMasterSvc gameSession, string clientId, EndpointDiscoveryMetadata playerMetadata)
@@ -57,8 +57,8 @@ namespace GameServer
         {
             this.RemoteMetadata = playerMetadata;
             this.Client = null;
-            this.DisplayName = null;
-            this.CurrentGame = null;
+            this.DisplayName = "";
+            this.CurrentMatch = null;
 
             Console.WriteLine("Player " + "(" + this.ClientId + ") has logged in");
             Console.WriteLine();
@@ -105,7 +105,7 @@ namespace GameServer
         /// <param name="displayName"></param>
         public void SeekMatch(string displayName)
         {
-            if (this.CurrentGame != null) return;
+            if (this.CurrentMatch != null) return;
 
             this.Locker.WaitOne();
 
@@ -138,25 +138,25 @@ namespace GameServer
                         try
                         {
                             waitingPlayer.InvokeCancelMatch(false);
-                            waitingPlayer.Locker.Release();
                         }
                         catch (EndpointNotFoundException)
                         {
                             WaitingPlayers.Dequeue();
                         }
 
+                        waitingPlayer.Locker.Release();
                         return;
                     }
 
                     WaitingPlayers.Dequeue();
 
-                    this.CurrentGame = GameMaster.NewMatch(waitingPlayer, this);
+                    this.CurrentMatch = GameMaster.NewMatch(waitingPlayer, this);
                     this.Locker.Release();
 
-                    waitingPlayer.CurrentGame = CurrentGame;
+                    waitingPlayer.CurrentMatch = CurrentMatch;
                     waitingPlayer.Locker.Release();
 
-                    Console.WriteLine("Game #" + CurrentGame.Id + " has started between players " +
+                    Console.WriteLine("Game #" + CurrentMatch.Id + " has started between players " +
                                       waitingPlayer.ClientId + " and " + this.ClientId);
                     Console.WriteLine();
                     
@@ -170,6 +170,61 @@ namespace GameServer
 
             Console.WriteLine("Player " + this.ClientId + " is waiting for an opponent");
             Console.WriteLine();
+        }
+
+        public void FinishCurrentMatch()
+        {
+            lock (WaitingPlayers)
+            {
+                this.Locker.WaitOne();
+
+                if (this.CurrentMatch == null)
+                {
+                    if (WaitingPlayers.Count == 0)
+                    {
+                        this.Locker.Release();
+                        return;
+                    }
+
+                    Console.WriteLine("Player " + this.ClientId + " is not waiting anymore");
+                    Console.WriteLine();
+
+                    WaitingPlayers.Dequeue();
+                }
+                else
+                {
+                    Console.WriteLine("Player " + this.ClientId + " has quit the match");
+                    Console.WriteLine();
+
+                    Player opponent = this.CurrentMatch.GetOpponent(this);
+
+                    opponent.Locker.WaitOne();
+
+                    try
+                    {
+                        opponent.InvokeCancelMatch(this.CurrentMatch.MoveCount >= 2);
+                        opponent.CurrentMatch = null;
+                    }
+                    catch
+                    {
+                        //ignored
+                    }
+
+                    opponent.Locker.Release();
+
+                    try
+                    {
+                        this.InvokeCancelMatch(this.CurrentMatch.MoveCount >= 2);
+                        this.CurrentMatch = null;
+                    }
+                    catch
+                    {
+                        //ignored
+                    }
+                }
+
+                this.Locker.Release();
+            }
         }
 
         private void TryToRunIt(Action tryAction, Player opponent)
@@ -216,15 +271,17 @@ namespace GameServer
             int mirroredDestX = Math.Abs(destX - 9);
             int mirroredDestY = Math.Abs(destY - 9);
 
-            Player opponent = this.CurrentGame.GetOpponent(this);
+            Player opponent = this.CurrentMatch.GetOpponent(this);
 
-            var tryAction = new Action(() =>
+            var tryAction = new Action(async () =>
             {
-                this.Client.MoveBoardPieceAsync(srcX, srcY, destX, destY);
-                opponent.Client.MoveBoardPieceAsync(mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY);
+                await Task.WhenAll(this.Client.MoveBoardPieceAsync(srcX, srcY, destX, destY),
+                    opponent.Client.MoveBoardPieceAsync(mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY));
             });
 
             TryToRunIt(tryAction, opponent);
+
+            this.CurrentMatch.MoveCount++;
         }
 
         public void MakeOriginalAndMirroredAttack(int srcX, int srcY, int destX, int destY,
@@ -235,19 +292,21 @@ namespace GameServer
             int mirroredDestX = Math.Abs(destX - 9);
             int mirroredDestY = Math.Abs(destY - 9);
 
-            Player opponent = this.CurrentGame.GetOpponent(this);
+            Player opponent = this.CurrentMatch.GetOpponent(this);
 
-            var tryAction = new Action(() =>
+            var tryAction = new Action(async () =>
             {
                 int defenderPowerLevel = opponent.Client.ShowPowerLevel(mirroredDestX, mirroredDestY);
 
-                this.Client.AttackBoardPieceAsync(srcX, srcY, destX, destY,
-                    attackerPowerLevel, defenderPowerLevel);
-                opponent.Client.AttackBoardPieceAsync(mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY,
-                    attackerPowerLevel, defenderPowerLevel);
+                await Task.WhenAll(this.Client.AttackBoardPieceAsync(srcX, srcY, destX, destY,
+                        attackerPowerLevel, defenderPowerLevel),
+                    opponent.Client.AttackBoardPieceAsync(mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY,
+                        attackerPowerLevel, defenderPowerLevel));
             });
 
             TryToRunIt(tryAction, opponent);
+
+            this.CurrentMatch.MoveCount++;
         }
     }
 }
