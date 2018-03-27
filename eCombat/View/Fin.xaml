@@ -15,7 +15,7 @@
         <!--<SolidColorBrush Opacity="0.8" Color="{StaticResource Gray2}" />-->
         <SolidColorBrush Opacity="0.7" Color="{StaticResource BlackColor}"/>
     </mah:MetroWindow.OverlayBrush>
-    <Grid Background="Green"  DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
+    <Grid Background="Green"  DataContext="{Binding Source={StaticResource Locator}, Path=Fin}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>

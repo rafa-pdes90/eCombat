@@ -15,6 +15,8 @@ namespace eCombat.Model
         public bool PowerLevelIsPublic { get; set; }
         public bool IsEnemy { get; set; }
 
+        public BoardPiece() { }
+
         public BoardPiece(string powerLevel, int moveLevel = 1, bool powerLevelIsPublic = true, bool isEnemy = false)
         {
             this.PowerLevel = powerLevel;

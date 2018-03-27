@@ -12,19 +12,19 @@ namespace eCombat
     public interface ICombateSvc
     {
         [OperationContract(IsOneWay = true, IsInitiating = true, IsTerminating = false)]
-        void StartMatch(string opponentName, string opponentId, bool isPlayer1);
+        void StartMatch(string opponentName, string opponentId, bool isOpponentTurn);
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = true)]
         void CancelMatch(bool isWorthPoints);
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
-        void MoveBoardPiece(int srcX, int srcY, int destX, int destY);
+        void MoveBoardPiece(int srcX, int srcY, int destX, int destY, bool isOpponentTurn);
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
         void AttackBoardPiece(int srcX, int srcY, int destX, int destY,
-            int attackerPowerLevel, int defenderPowerLevel);
+            string attackerPowerLevel, string defenderPowerLevel, bool isOpponentTurn);
 
         [OperationContract(IsInitiating = false, IsTerminating = false)]
-        int ShowPowerLevel(int srcX, int srcY);
+        string ShowPowerLevel(int srcX, int srcY);
     }
 }

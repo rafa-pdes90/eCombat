@@ -1,20 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
 using CommonServiceLocator;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
-using MahApps.Metro.Controls;
 using eCombat.Model;
-using eCombat.View;
 
 namespace eCombat.ViewModel
 {
@@ -118,37 +113,29 @@ namespace eCombat.ViewModel
             set => Set(() => OpponentColor, ref _opponentColor, value);
         }
 
-
-
-
-
-
-
-        private string _mensagemFinal;
-        public string MensagemFinal
-        {
-            get => _mensagemFinal;
-            set => Set(() => MensagemFinal, ref _mensagemFinal, value);
-        }
+        /// <summary>
+        /// The <see cref="SendTextContent" /> property's name.
+        /// </summary>
+        public const string SendTextContentPropertyName = "SendTextContent";
 
         private string _sendTextContent = string.Empty;
+
+        /// <summary>
+        /// Sets and gets the SendTextContent property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
         public string SendTextContent
         {
             get => _sendTextContent;
-            set => Set(() => this.SendTextContent, ref _sendTextContent, value);
+            set => Set(() => SendTextContent, ref _sendTextContent, value);
         }
-
-        public string FeedbackReceived { get; set; }
+        
         public List<BoardPiece> EnemyList { get; set; }
         public List<BoardPiece> UnitList { get; set; }
+        public ObservableCollection<string> LogList { get; } = new ObservableCollection<string>();
 
         public ICommand SendButtonCommand { get; }
         public ICommand DesistirPartidaCommand { get; }
-        public ICommand ResetCommand { get; }
-        public ICommand ExitCommand { get; }
-
-        public ObservableCollection<string> LogList { get; } = new ObservableCollection<string>();
-        //private NetMsgViewModel NetMsg { get; } = ServiceLocator.Current.GetInstance<NetMsgViewModel>();
 
         /// <inheritdoc />
         /// <summary>
@@ -157,15 +144,13 @@ namespace eCombat.ViewModel
         public MainViewModel()
         {
             Messenger.Default.Register<string>(this, "PlayerName", SetPlayerName);
-            Messenger.Default.Register<bool>(this, "IsPlayer1", SetGameTurn);
+            Messenger.Default.Register<bool>(this, "SetPlayersColors", SetPlayersColors);
+            Messenger.Default.Register<bool>(this, "EvalMatchTurn", EvalMatchTurn);
+            Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
 
             SendButtonCommand = new RelayCommand(SendButtonMethod);
             DesistirPartidaCommand = new RelayCommand(DesistirPartidaMethod);
-            ResetCommand = new RelayCommand(ResetMethod);
-            ExitCommand = new RelayCommand(ExitMethod);
-            Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
-            Messenger.Default.Register<NotificationMessage>(this, "Move_In", MoveIn);
-            Messenger.Default.Register<NotificationMessage>(this, "Feedback_In", FeedbackIn);
+
             this.EnemyList = Army.GetEnemyList();
             this.UnitList = Army.GetUnitlist();
             this.UnitList.Shuffle();
@@ -176,11 +161,9 @@ namespace eCombat.ViewModel
             this.PlayerName = name;
         }
 
-        private void SetGameTurn(bool isSelfTurn)
+        private void SetPlayersColors(bool player2Color)
         {
-            this.IsOpponentTurn = !isSelfTurn;
-
-            if (isSelfTurn)
+            if (player2Color)
             {
                 this.PlayerColor = Brushes.CornflowerBlue;
                 this.OpponentColor = Brushes.Orange;
@@ -192,24 +175,9 @@ namespace eCombat.ViewModel
             }
         }
 
-        private void MoveIn(NotificationMessage notificationMessage)
+        private void EvalMatchTurn(bool isOpponentTurn)
         {
-            string[] coords = notificationMessage.Notification.Split();
-            int origemY = int.Parse(coords[0]);
-            int origemX = int.Parse(coords[1]);
-            int destinoY = int.Parse(coords[2]);
-            int destinoX = int.Parse(coords[3]);
-            string powerLevel = coords[4];
-            Application.Current.Dispatcher.Invoke(() =>
-                ((MainWindow)Application.Current.MainWindow)?.MoveTheEnemy(
-                    origemY, origemX, destinoY, destinoX, powerLevel));
-
-            this.IsOpponentTurn = false;
-        }
-
-        private void FeedbackIn(NotificationMessage notificationMessage)
-        {
-            this.FeedbackReceived = notificationMessage.Notification;
+            this.IsOpponentTurn = isOpponentTurn;
         }
 
         private void SendButtonMethod()
@@ -220,36 +188,14 @@ namespace eCombat.ViewModel
             ((MainWindow)Application.Current.MainWindow)?.ChatScrollToEnd();
         }
 
-        public void FinishTurn(int origemY, int origemX, int destinoY, int destinoX, string powerLevel)
-        {
-            string moveMsg = "m " + origemY + " " + origemX + " " + destinoY + " " + destinoX + " " + powerLevel;
-            //NetMsg.NetMsgAsync(moveMsg);
-        }
-
-        public void SendDefenderFeedback(string powerLevel)
-        {
-            string fbMsg = "f " + powerLevel;
-            //NetMsg.NetMsgSend(fbMsg);
-        }
-
         private void DesistirPartidaMethod()
         {
             //NetMsg.NetMsgSend("g bye");
             NetConnViewModel netConn = ServiceLocator.Current.GetInstance<NetConnViewModel>();
             //netConn.Handler.Shutdown(System.Net.Sockets.SocketShutdown.Both);
-            this.MensagemFinal = "Você desistiu!?";
+            Messenger.Default.Send("Você desistiu!?", "SetEndMatchMessage");
+
             Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow)?.CallDesistir());
-        }
-
-        private void ResetMethod()
-        {
-            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
-            Application.Current.Shutdown();
-        }
-
-        private void ExitMethod()
-        {
-            Application.Current.Shutdown();
         }
 
         private void ResetAll()
@@ -259,7 +205,7 @@ namespace eCombat.ViewModel
 
         private void NetConnLost(NotificationMessage notificationMsg)
         {
-            this.MensagemFinal = "O outro jogador desistiu!";
+            Messenger.Default.Send("O outro jogador desistiu!", "SetEndMatchMessage");
             Application.Current.Dispatcher.Invoke(() =>
                 ((MainWindow)Application.Current.MainWindow)?.CallDesistir());
             ResetAll();

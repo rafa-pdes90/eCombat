@@ -15,17 +15,18 @@ namespace eCombat
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "CombateSvc" in both code and config file together.
     public class CombateSvc : ICombateSvc
     {
-        public void StartMatch(string opponentName, string opponentId, bool isPlayer1)
+        public void StartMatch(string opponentName, string opponentId, bool isOpponentTurn)
         {
             Messenger.Default.Send(false, "RequestOrCancelState");
 
             Console.WriteLine(@"Starting game against " + opponentId + @" - " + opponentName);
-            Console.WriteLine(isPlayer1 ? @"It's your turn!" : @"It' the opponent turn!");
+            Console.WriteLine(isOpponentTurn ? @"It' the opponent turn!" : @"It's your turn!");
             Console.WriteLine();
 
             Messenger.Default.Send(opponentName, "OpponentName");
             Messenger.Default.Send(opponentId, "OpponentId");
-            Messenger.Default.Send(isPlayer1, "IsPlayer1");
+            Messenger.Default.Send(isOpponentTurn, "SetPlayersColors");
+            Messenger.Default.Send(isOpponentTurn, "EvalMatchTurn");
 
             Application.Current.Dispatcher.Invoke(() =>
                 ((MainWindow)Application.Current.MainWindow)?.StartNewMatch());
@@ -36,20 +37,32 @@ namespace eCombat
             //TODO
         }
 
-        public void MoveBoardPiece(int srcX, int srcY, int destX, int destY)
+        public void MoveBoardPiece(int srcX, int srcY, int destX, int destY, bool isOpponentTurn)
         {
+            Application.Current.Dispatcher.Invoke(() =>
+                ((MainWindow)Application.Current.MainWindow)?.MoveBoardPiece(srcX, srcY, destX, destY));
 
+            Messenger.Default.Send(isOpponentTurn, "EvalMatchTurn");
         }
 
         public void AttackBoardPiece(int srcX, int srcY, int destX, int destY,
-            int attackerPowerLevel, int defenderPowerLevel)
+            string attackerPowerLevel, string defenderPowerLevel, bool isOpponentTurn)
         {
+            Application.Current.Dispatcher.Invoke(() =>
+                ((MainWindow)Application.Current.MainWindow)?.AttackBoardPiece(
+                    srcX, srcY, destX, destY, attackerPowerLevel, defenderPowerLevel));
 
+            Messenger.Default.Send(isOpponentTurn, "EvalMatchTurn");
         }
 
-        public int ShowPowerLevel(int srcX, int srcY)
+        public string ShowPowerLevel(int srcX, int srcY)
         {
-            return 0;
+            string powerLevel = null;
+
+            Application.Current.Dispatcher.Invoke(() =>
+                powerLevel = ((MainWindow) Application.Current.MainWindow)?.ShowPowerLevel(srcX, srcY));
+
+            return powerLevel;
         }
     }
 }

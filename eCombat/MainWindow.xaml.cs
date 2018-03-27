@@ -1,28 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using CommonServiceLocator;
 using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
-using MahApps.Metro;
 using MahApps.Metro.Controls;
 using eCombat.Model;
 using eCombat.View;
 using eCombat.ViewModel;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace eCombat
 {
@@ -37,21 +30,17 @@ namespace eCombat
         /// </summary>
         private MainViewModel Vm => (MainViewModel)DataContext;
 
-        // ReSharper disable RedundantDefaultMemberInitializer
-        private MetroWindow DialogWindow { get; set; } = null;
+        private MetroWindow DialogWindow { get; set; }
 
-        private bool KeepOn { get; set; } = false;
-        // ReSharper restore RedundantDefaultMemberInitializer
-
-        private bool LastMoveAnimationEventFired { get; set; } = true;
-        private bool LastLoserAnimationEventFired { get; set; } = true;
+        private bool KeepOn { get; set; }
+        
         private BoardPiece LastMovedUnit { get; set; }
         private BoardPiece LastMovedPiece { get; set; }
         private BoardPiece LastSelectedUnit { get; set; }
-        private Queue<BoardPiece> Combatentes { get; set; }
         private Rectangle LastMovedCell { get; set; }
-        private List<Rectangle> EnabledFields { get; set; }
-        private Queue<Tuple<int, int>> MoveLog { get; set; }
+        private Queue<BoardPiece> Fighters { get; }
+        private List<Rectangle> EnabledFields { get; }
+        private Queue<Tuple<int, int>> MoveLog { get; }
         private IEnumerable<UIElement> CombateGridChildren { get; set; }
 
         public ICommand BoardPieceSelectCommand { get; }
@@ -59,21 +48,25 @@ namespace eCombat
         public MainWindow()
         {
             InitializeComponent();
+
             BoardPieceSelectCommand = new RelayCommand<BoardPiece>(BoardPieceSelectMethod);
-            this.Combatentes = new Queue<BoardPiece>();
+
+            this.DialogWindow = null;
+            this.KeepOn = false;
+
+            this.Fighters = new Queue<BoardPiece>();
             this.EnabledFields = new List<Rectangle>();
             this.MoveLog = new Queue<Tuple<int, int>>(3);
+
             this.LogScrollViewer.ScrollToEnd();
         }
 
         private void MetroWindow_ContentRendered(object sender, EventArgs e)
         {
             LoadConnectionWindow();
-            if (!this.KeepOn)
-            {
-                //TODO Send CancelMatch
-                return;
-            }
+
+            if (!this.KeepOn) return;
+
             this.KeepOn = false;
             LoadCombateUIElements();
         }
@@ -81,6 +74,7 @@ namespace eCombat
         public void LoadConnectionWindow()
         {
             this.Effect = new BlurEffect();
+
             this.DialogWindow = new ConnectionWindow
             {
                 Owner = this
@@ -93,6 +87,7 @@ namespace eCombat
             }
             else
             {
+                GameMaster.Client.CancelMatch();
                 this.Close();
             }
         }
@@ -200,10 +195,10 @@ namespace eCombat
                 this.LastSelectedUnit.Effect = null;
         }
 
-        private IEnumerable<UIElement> GetCombateGridChildren(int r, int c)
+        private IEnumerable<UIElement> GetCombateGridChildren(int x, int y)
         {
             return this.CombateGridChildren.Where(e =>
-                Grid.GetColumn(e) == c && Grid.GetRow(e) == r);
+                Grid.GetColumn(e) == x && Grid.GetRow(e) == y);
         }
 
         private void BoardPieceSelectMethod(BoardPiece unit)
@@ -230,7 +225,7 @@ namespace eCombat
                     Rectangle moveRect = null;
                     bool hasEnemy = false;
 
-                    foreach (UIElement element in GetCombateGridChildren(r, c))
+                    foreach (UIElement element in GetCombateGridChildren(c, r))
                     {
                         switch (element)
                         {
@@ -265,16 +260,10 @@ namespace eCombat
                 }
             }
 
-            if (!LastLoserAnimationEventFired) return;
-
-            if (!this.LastMoveAnimationEventFired)
-            {
-                MoveAnimationClear();
-            }
-
             ClearLastSelection();
 
             var log = new List<Tuple<int, int>>();
+
             if (unit.Equals(this.LastMovedUnit))
             {
                 if (this.MoveLog.Count == 3)
@@ -288,6 +277,7 @@ namespace eCombat
             }
 
             unit.Effect = new DropShadowEffect();
+
             int unitRow = Grid.GetRow(unit);
             int unitColumn = Grid.GetColumn(unit);
 
@@ -299,9 +289,49 @@ namespace eCombat
             this.LastSelectedUnit = unit;
         }
 
-        private void MoveAnimationClear()
+        private void CellMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            this.LastMoveAnimationEventFired = true;
+            var rect = (Rectangle)e.Source;
+            if (!this.EnabledFields.Contains(rect)) return;
+
+            this.Vm.IsOpponentTurn = true;
+
+            int unitRow = Grid.GetRow(this.LastSelectedUnit);
+            int unitColumn = Grid.GetColumn(this.LastSelectedUnit);
+            int cellRow = Grid.GetRow(rect);
+            int cellColumn = Grid.GetColumn(rect);
+
+            if (rect.Fill.Equals(Brushes.Red))
+            {
+                GameMaster.Client.AttackBoardPieceAsync(unitColumn, unitRow, cellColumn, cellRow,
+                    this.LastSelectedUnit.PowerLevel);
+            }
+            else
+            {
+                GameMaster.Client.MoveBoardPieceAsync(unitColumn, unitRow, cellColumn, cellRow);
+            }
+
+            ClearLastSelection();
+
+            var movingCell = new Tuple<int, int>(cellColumn, cellRow);
+
+            if (!this.LastSelectedUnit.Equals(this.LastMovedUnit))
+            {
+                this.MoveLog.Clear();
+            }
+            else
+            {
+                if (this.MoveLog.Count == 3)
+                    this.MoveLog.Dequeue();
+            }
+
+            this.MoveLog.Enqueue(movingCell);
+
+            this.LastMovedUnit = this.LastSelectedUnit;
+        }
+
+        private void MoveAnimationCompleted(object sender, EventArgs e)
+        {
             int cellRow = Grid.GetRow(this.LastMovedCell);
             int cellColumn = Grid.GetColumn(this.LastMovedCell);
 
@@ -310,19 +340,40 @@ namespace eCombat
             Grid.SetColumn(this.LastMovedPiece, cellColumn);
         }
 
-        private void MoveAnimationCompleted(object sender, EventArgs e)
+        public void MoveBoardPiece(int srcX, int srcY, int destX, int destY)
         {
-            if (LastMoveAnimationEventFired) return;
-            MoveAnimationClear();
+            this.LastMovedPiece = GetCombateGridChildren(srcX, srcY).FirstOrDefault(x =>
+                                      x is BoardPiece) as BoardPiece ?? new BoardPiece();
+            
+            this.LastMovedCell = GetCombateGridChildren(destX, destY).FirstOrDefault(x =>
+                                     x is Rectangle) as Rectangle ?? new Rectangle();
+
+            this.LastMovedPiece.RenderTransform = new TranslateTransform();
+            if (destX == srcX)
+            {
+                int steps = destY - srcY;
+                int tempo = (int)Math.Ceiling(0.1 + Math.Log(Math.Abs(steps))) * 500;
+                double moveHeight = CombateGrid.RenderSize.Height / 10;
+                var moveAnimation = new DoubleAnimation(moveHeight * steps, new TimeSpan(0, 0, 0, 0, tempo));
+                moveAnimation.Completed += MoveAnimationCompleted;
+                this.LastMovedPiece.RenderTransform.BeginAnimation(TranslateTransform.YProperty, moveAnimation);
+            }
+            else
+            {
+                int steps = destX - srcX;
+                int tempo = (int)Math.Ceiling(0.1 + Math.Log(Math.Abs(steps))) * 500;
+                double moveWidth = CombateGrid.RenderSize.Width / 10;
+                var moveAnimation = new DoubleAnimation(moveWidth * steps, new TimeSpan(0, 0, 0, 0, tempo));
+                moveAnimation.Completed += MoveAnimationCompleted;
+                this.LastMovedPiece.RenderTransform.BeginAnimation(TranslateTransform.XProperty, moveAnimation);
+            }
         }
 
-        private void LoserAnimationClear()
+        private void LoserAnimationCompleted(object sender, EventArgs e)
         {
-            this.LastLoserAnimationEventFired = true;
-
-            while (Combatentes.Count > 0)
+            while (Fighters.Count > 0)
             {
-                BoardPiece piece = Combatentes.Dequeue();
+                BoardPiece piece = Fighters.Dequeue();
                 if (piece.Foreground.Equals(Brushes.Red))
                 {
                     this.CombateGrid.Children.Remove(piece);
@@ -341,239 +392,100 @@ namespace eCombat
             }
         }
 
-        private void LoserAnimationCompleted(object sender, EventArgs e)
+        public async void AttackBoardPiece(int srcX, int srcY, int destX, int destY,
+            string attackerPowerLevel, string defenderPowerLevel)
         {
-            if (LastLoserAnimationEventFired) return;
-            LoserAnimationClear();
-        }
+            BoardPiece attacker = GetCombateGridChildren(srcX, srcY).FirstOrDefault(x =>
+                                      x is BoardPiece) as BoardPiece ?? new BoardPiece();
 
-        private void CellMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var rect = (Rectangle)e.Source;
-            if (!this.EnabledFields.Contains(rect)) return;
+            BoardPiece defender = GetCombateGridChildren(destX, destY).FirstOrDefault(x =>
+                                      x is BoardPiece) as BoardPiece ?? new BoardPiece();
 
-            int cellRow = Grid.GetRow(rect);
-            int cellColumn = Grid.GetColumn(rect);
-            int unitRow = Grid.GetRow(this.LastSelectedUnit);
-            int unitColumn = Grid.GetColumn(this.LastSelectedUnit);
+            Fighters.Enqueue(attacker);
+            Fighters.Enqueue(defender);
 
-            this.Vm.IsOpponentTurn = true;
-            this.Vm.FinishTurn(unitRow, unitColumn, cellRow, cellColumn, this.LastSelectedUnit.PowerLevel);
+            attacker.PowerLevel = attackerPowerLevel;
+            defender.PowerLevel = defenderPowerLevel;
+            attacker.GetBindingExpression(ContentProperty)?.UpdateTarget();
+            defender.GetBindingExpression(ContentProperty)?.UpdateTarget();
 
-            MovePiece(this.LastSelectedUnit, rect, cellRow, cellColumn, unitRow, unitColumn);
-        }
+            attacker.FontSize *= 2;
+            defender.FontSize *= 2;
 
-        private async void MovePiece(BoardPiece movingUnit, Rectangle rect, int cellRow, int cellColumn, int unitRow,
-            int unitColumn,
-            bool isEnemy = false, string powerLevel = null)
-        {
-            this.LastMoveAnimationEventFired = false;
-            this.LastLoserAnimationEventFired = false;
-            BoardPiece enemy = null;
-            BoardPiece loser = null;
+            var loserAnimation = new DoubleAnimation(0, new TimeSpan(0, 0, 0, 1, 0));
+            loserAnimation.Completed += LoserAnimationCompleted;
 
-            if (isEnemy || rect.Fill.Equals(Brushes.Red))
+            int.TryParse(attacker.PowerLevel, out int attackerPower);
+            bool isBandeira = !int.TryParse(defender.PowerLevel, out int defenderPower);
+
+            if (defenderPower == attackerPower || defenderPower == 0 && attackerPower != 3)
             {
-                foreach (UIElement element in GetCombateGridChildren(cellRow, cellColumn))
-                {
-                    if (!(element is BoardPiece piece)) continue;
-                    enemy = piece;
-                    break;
-                }
-            }
-
-            if (!isEnemy)
-            {
-                ClearLastSelection();
-
-                if (enemy != null)
-                {
-                    while (this.Vm.FeedbackReceived == null)
-                    {
-                    }
-
-                    enemy.PowerLevel = this.Vm.FeedbackReceived;
-                    this.Vm.FeedbackReceived = null;
-                    enemy.GetBindingExpression(ContentProperty)?.UpdateTarget();
-                }
-
-                var movingCell = new Tuple<int, int>(cellRow, cellColumn);
-
-                if (!movingUnit.Equals(this.LastMovedUnit))
-                {
-                    this.MoveLog.Clear();
-                }
-                else
-                {
-                    if (this.MoveLog.Count == 3)
-                        this.MoveLog.Dequeue();
-                }
-
-                this.MoveLog.Enqueue(movingCell);
-            }
-            else if (enemy != null)
-            {
-                movingUnit.PowerLevel = powerLevel;
-                movingUnit.GetBindingExpression(ContentProperty)?.UpdateTarget();
-            }
-
-            if (enemy != null)
-            {
-                Combatentes.Enqueue(movingUnit);
-                Combatentes.Enqueue(enemy);
-
-                movingUnit.FontSize *= 2;
-                enemy.FontSize *= 2;
-
-                var loserAnimation = new DoubleAnimation(0, new TimeSpan(0, 0, 0, 1, 0));
-                loserAnimation.Completed += LoserAnimationCompleted;
-                bool isBandeira = !int.TryParse(enemy.PowerLevel, out int enemyPower);
-                int.TryParse(movingUnit.PowerLevel, out int unitPower);
-
-                if (isBandeira && enemy.PowerLevel != null)
-                {
-                    if (isEnemy)
-                    {
-                        CallDefeat();
-                    }
-                    else
-                    {
-                        CallVictory();
-                    }
-
-                    return;
-                }
-
-                if (unitPower == enemyPower || (enemyPower == 0 && unitPower != 3))
-                {
-                    loser = movingUnit;
-                    movingUnit.Foreground = Brushes.Red;
-                    enemy.IsEnabled = true;
-                    enemy.Foreground = Brushes.Red;
-                    await Task.Delay(1500);
-                    movingUnit.BeginAnimation(FontSizeProperty, loserAnimation);
-                    enemy.BeginAnimation(FontSizeProperty, loserAnimation);
-                    await Task.Delay(500);
-                }
-                else
-                {
-                    BoardPiece winner;
-
-                    if ((enemyPower == 10 && unitPower == 1)
-                        || (enemyPower == 0 && unitPower == 3)
-                        || (unitPower > enemyPower))
-                    {
-                        winner = movingUnit;
-                        loser = enemy;
-                    }
-                    else
-                    {
-                        winner = enemy;
-                        loser = movingUnit;
-                    }
-
-                    winner.Foreground = Brushes.Green;
-                    loser.Foreground = Brushes.Red;
-                    await Task.Delay(1500);
-                    loser.BeginAnimation(FontSizeProperty, loserAnimation);
-                    await Task.Delay(500);
-                }
+                defender.IsEnabled = true;
+                defender.Foreground = Brushes.Red;
+                attacker.Foreground = Brushes.Red;
+                await Task.Delay(1500);
+                attacker.BeginAnimation(FontSizeProperty, loserAnimation);
+                defender.BeginAnimation(FontSizeProperty, loserAnimation);
+                await Task.Delay(500);
             }
             else
             {
-                this.LastLoserAnimationEventFired = true;
-            }
+                BoardPiece winner;
+                BoardPiece loser;
 
-            if (loser == null || !loser.Equals(movingUnit))
-            {
-                movingUnit.RenderTransform = new TranslateTransform();
-                if (cellColumn == unitColumn)
+                if (defenderPower == 10 && attackerPower == 1 ||
+                    defenderPower == 0 && attackerPower == 3||
+                    attackerPower > defenderPower)
                 {
-                    int steps = cellRow - unitRow;
-                    int tempo = (int)Math.Ceiling(0.1 + Math.Log(Math.Abs(steps))) * 500;
-                    double moveHeight = CombateGrid.RenderSize.Height / 10;
-                    var moveAnimation = new DoubleAnimation(moveHeight * steps, new TimeSpan(0, 0, 0, 0, tempo));
-                    moveAnimation.Completed += MoveAnimationCompleted;
-                    movingUnit.RenderTransform.BeginAnimation(TranslateTransform.YProperty, moveAnimation);
+                    winner = attacker;
+                    loser = defender;
                 }
                 else
                 {
-                    int steps = cellColumn - unitColumn;
-                    int tempo = (int)Math.Ceiling(0.1 + Math.Log(Math.Abs(steps))) * 500;
-                    double moveWidth = CombateGrid.RenderSize.Width / 10;
-                    var moveAnimation = new DoubleAnimation(moveWidth * steps, new TimeSpan(0, 0, 0, 0, tempo));
-                    moveAnimation.Completed += MoveAnimationCompleted;
-                    movingUnit.RenderTransform.BeginAnimation(TranslateTransform.XProperty, moveAnimation);
+                    winner = defender;
+                    loser = attacker;
                 }
 
-                this.LastMovedPiece = movingUnit;
-                this.LastMovedCell = rect;
+                winner.Foreground = Brushes.Green;
+                loser.Foreground = Brushes.Red;
+                await Task.Delay(1500);
+                loser.BeginAnimation(FontSizeProperty, loserAnimation);
+                await Task.Delay(500);
+
+                if (winner.Equals(attacker))
+                {
+                    MoveBoardPiece(srcX, srcY, destX, destY);
+                }
+            }
+
+            if (!isBandeira) return;
+
+            if (this.Vm.IsOpponentTurn)
+            {
+                CallVictory();
             }
             else
             {
-                this.LastMoveAnimationEventFired = true;
+                CallDefeat();
             }
-
-            if (!isEnemy)
-            {
-                this.LastMovedUnit = movingUnit;
-            }
-
-            await Task.Run(() =>
-            {
-                Thread.Sleep(1000);
-                if (!LastLoserAnimationEventFired)
-                {
-                    this.Invoke(LoserAnimationClear);
-                }
-            });
         }
 
-        public void MoveTheEnemy(int origemY, int origemX, int destY, int destX, string powerLevel)
+        public string ShowPowerLevel(int srcX, int srcY)
         {
-            origemY = Math.Abs(origemY - 9);
-            origemX = Math.Abs(origemX - 9);
-            destY = Math.Abs(destY - 9);
-            destX = Math.Abs(destX - 9);
-            BoardPiece enemy = null;
-            Rectangle rect = null;
-
-            foreach (UIElement element in GetCombateGridChildren(origemY, origemX))
-            {
-                switch (element)
-                {
-                    case BoardPiece piece:
-                        enemy = piece;
-                        break;
-                }
-            }
-
-            if (enemy == null) return;
-            foreach (UIElement element in GetCombateGridChildren(destY, destX))
-            {
-                switch (element)
-                {
-                    case Rectangle rectangle:
-                        rect = rectangle;
-                        break;
-                    case BoardPiece piece:
-                        this.Vm.SendDefenderFeedback(piece.PowerLevel);
-                        break;
-                }
-            }
-
-            MovePiece(enemy, rect, destY, destX, origemY, origemX, isEnemy: true, powerLevel: powerLevel);
+            BoardPiece piece = GetCombateGridChildren(srcX, srcY).FirstOrDefault(x =>
+                                      x is BoardPiece) as BoardPiece ?? new BoardPiece();
+            return piece.PowerLevel;
         }
-
+        
         private void CallVictory()
         {
-            this.Vm.MensagemFinal = "Parabéns pela vitória!";
+            Messenger.Default.Send("Parabéns pela vitória!", "SetEndMatchMessage");
             CallDesistir();
         }
 
         private void CallDefeat()
         {
-            this.Vm.MensagemFinal = "É, não foi dessa vez.";
+            Messenger.Default.Send("É, não foi dessa vez.", "SetEndMatchMessage");
             CallDesistir();
         }
 

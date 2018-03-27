@@ -154,7 +154,7 @@ namespace eCombat.ViewModel
                                    this.RequestOrCancelMatchLoadingVisibility = Visibility.Visible;
                                    this.RequestOrCancelMatchContent = "Cancel";
 
-                                   await GameMaster.Client.IntroduceToGameMasterAsync(RequestOrCancelMatchContent);
+                                   await GameMaster.Client.IntroduceToGameMasterAsync(NicknameText);
                                }
                                else
                                {
@@ -182,7 +182,7 @@ namespace eCombat.ViewModel
             this.RequestOrCancelMatchIsEnabled = value;
 
             Task.Run(() =>
-                Messenger.Default.Send(RequestOrCancelMatchContent, "PlayerName"));
+                Messenger.Default.Send(NicknameText, "PlayerName"));
         }
     }
 }

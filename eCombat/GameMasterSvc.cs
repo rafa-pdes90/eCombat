@@ -112,10 +112,10 @@ public interface IGameMasterSvc
     System.Threading.Tasks.Task MoveBoardPieceAsync(int srcX, int srcY, int destX, int destY);
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/AttackBoardPiece")]
-    void AttackBoardPiece(int srcX, int srcY, int destX, int destY, int attackerPowerLevel);
+    void AttackBoardPiece(int srcX, int srcY, int destX, int destY, string attackerPowerLevel);
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/AttackBoardPiece")]
-    System.Threading.Tasks.Task AttackBoardPieceAsync(int srcX, int srcY, int destX, int destY, int attackerPowerLevel);
+    System.Threading.Tasks.Task AttackBoardPieceAsync(int srcX, int srcY, int destX, int destY, string attackerPowerLevel);
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -192,12 +192,12 @@ public partial class GameMasterSvcClient : System.ServiceModel.ClientBase<IGameM
         return base.Channel.MoveBoardPieceAsync(srcX, srcY, destX, destY);
     }
     
-    public void AttackBoardPiece(int srcX, int srcY, int destX, int destY, int attackerPowerLevel)
+    public void AttackBoardPiece(int srcX, int srcY, int destX, int destY, string attackerPowerLevel)
     {
         base.Channel.AttackBoardPiece(srcX, srcY, destX, destY, attackerPowerLevel);
     }
     
-    public System.Threading.Tasks.Task AttackBoardPieceAsync(int srcX, int srcY, int destX, int destY, int attackerPowerLevel)
+    public System.Threading.Tasks.Task AttackBoardPieceAsync(int srcX, int srcY, int destX, int destY, string attackerPowerLevel)
     {
         return base.Channel.AttackBoardPieceAsync(srcX, srcY, destX, destY, attackerPowerLevel);
     }

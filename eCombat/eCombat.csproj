@@ -133,6 +133,7 @@
     <Compile Include="Model\GameMaster.cs" />
     <Compile Include="Model\NetMsg.cs" />
     <Compile Include="ViewModel\ChatMsgViewModel.cs" />
+    <Compile Include="ViewModel\FinViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NetConnViewModel.cs" />
     <Compile Include="ViewModel\NetMsgViewModel.cs" />

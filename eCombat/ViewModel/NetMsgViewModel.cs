@@ -38,7 +38,7 @@ namespace eCombat.ViewModel
                     break;
                 case "g":
                     MainViewModel main = ServiceLocator.Current.GetInstance<MainViewModel>();
-                    main.MensagemFinal = "O outro jogador desistiu!";
+                    Messenger.Default.Send("O outro jogador desistiu!", "SetEndMatchMessage");
                     Application.Current.Dispatcher.Invoke(() =>
                             ((MainWindow)Application.Current.MainWindow)?.CallDesistir());
                     break;
