@@ -65,12 +65,12 @@ namespace GameServer
             this.Locker.Release();
         }
 
-        private void InvokeStartMatch(string opponentName, string opponentId, bool isPlayer1)
+        private void InvokeStartMatch(string opponentName, string opponentId, bool isPlayer2)
         {
             try
             {
                 this.Client = GameMaster.NewClient(this.RemoteMetadata);
-                this.Client.StartMatch(opponentName, opponentId, isPlayer1);
+                this.Client.StartMatch(opponentName, opponentId, isPlayer2);
             }
             catch (EndpointNotFoundException)
             {
@@ -121,7 +121,7 @@ namespace GameServer
 
                     try
                     {
-                        waitingPlayer.InvokeStartMatch(this.DisplayName, this.ClientId, true);
+                        waitingPlayer.InvokeStartMatch(this.DisplayName, this.ClientId, false);
                     }
                     catch (EndpointNotFoundException)
                     {
@@ -131,7 +131,7 @@ namespace GameServer
 
                     try
                     {
-                        this.InvokeStartMatch(waitingPlayer.DisplayName, waitingPlayer.ClientId, false);
+                        this.InvokeStartMatch(waitingPlayer.DisplayName, waitingPlayer.ClientId, true);
                     }
                     catch (EndpointNotFoundException)
                     {
@@ -275,8 +275,8 @@ namespace GameServer
 
             var tryAction = new Action(async () =>
             {
-                await Task.WhenAll(this.Client.MoveBoardPieceAsync(srcX, srcY, destX, destY),
-                    opponent.Client.MoveBoardPieceAsync(mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY));
+                await Task.WhenAll(this.Client.MoveBoardPieceAsync(srcX, srcY, destX, destY, true),
+                    opponent.Client.MoveBoardPieceAsync(mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY, false));
             });
 
             TryToRunIt(tryAction, opponent);
@@ -285,7 +285,7 @@ namespace GameServer
         }
 
         public void MakeOriginalAndMirroredAttack(int srcX, int srcY, int destX, int destY,
-            int attackerPowerLevel)
+            string attackerPowerLevel)
         {
             int mirroredSrcX = Math.Abs(srcX - 9);
             int mirroredSrcY = Math.Abs(srcY - 9);
@@ -296,12 +296,12 @@ namespace GameServer
 
             var tryAction = new Action(async () =>
             {
-                int defenderPowerLevel = opponent.Client.ShowPowerLevel(mirroredDestX, mirroredDestY);
+                string defenderPowerLevel = opponent.Client.ShowPowerLevel(mirroredDestX, mirroredDestY);
 
                 await Task.WhenAll(this.Client.AttackBoardPieceAsync(srcX, srcY, destX, destY,
-                        attackerPowerLevel, defenderPowerLevel),
+                        attackerPowerLevel, defenderPowerLevel, true),
                     opponent.Client.AttackBoardPieceAsync(mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY,
-                        attackerPowerLevel, defenderPowerLevel));
+                        attackerPowerLevel, defenderPowerLevel, false));
             });
 
             TryToRunIt(tryAction, opponent);

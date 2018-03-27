@@ -72,10 +72,15 @@ namespace GameServer
         }
 
         public void AttackBoardPiece(int srcX, int srcY, int destX, int destY,
-            int attackerPowerLevel)
+            string attackerPowerLevel)
         {
             Task.Run(() => 
                 this.SessionPlayer.MakeOriginalAndMirroredAttack(srcX, srcY, destX, destY, attackerPowerLevel));
+        }
+
+        public void WriteMessageToChat(string message)
+        {
+
         }
     }
 }

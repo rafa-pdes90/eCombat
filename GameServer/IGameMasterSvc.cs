@@ -25,6 +25,6 @@ namespace GameServer
         void MoveBoardPiece(int srcX, int srcY, int destX, int destY);
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
-        void AttackBoardPiece(int srcX, int srcY, int destX, int destY, int attackerPowerLevel);
+        void AttackBoardPiece(int srcX, int srcY, int destX, int destY, string attackerPowerLevel);
     }
 }
