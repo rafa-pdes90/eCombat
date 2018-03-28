@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
-using CommonServiceLocator;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using eCombat.Model;
@@ -57,7 +51,7 @@ namespace eCombat.ViewModel
         public ChatMsgViewModel()
         {
             Messenger.Default.Register<string>(this, "OpponentName", SetOpponentName);
-            Messenger.Default.Register<ChatMsg>(this, "Chat_In", ChatIn);
+            Messenger.Default.Register<ChatMsg>(this, "ChatIn", ChatIn);
             Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
 
             SendButtonCommand = new RelayCommand(SendButtonMethod);
@@ -79,17 +73,20 @@ namespace eCombat.ViewModel
 
         private void ChatIn(ChatMsg chatMessage)
         {
-            Application.Current.Dispatcher.Invoke(() => this.ChatList.Add(chatMessage));
+            Application.Current.Dispatcher.Invoke(() =>
+                this.ChatList.Add(chatMessage));
         }
 
         private void ResetAll()
         {
+            //TODO
             Application.Current.Dispatcher.Invoke(() => this.SendTextContent = string.Empty);
             Application.Current.Dispatcher.Invoke(() => this.ChatList.Clear());
         }
 
         private void NetConnLost(NotificationMessage notificationMsg)
         {
+            //TODO
             ResetAll();
         }
     }

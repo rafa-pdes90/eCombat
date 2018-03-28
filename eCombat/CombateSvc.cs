@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.ServiceModel.Discovery;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Xml.Linq;
+﻿using System.Windows;
 using GalaSoft.MvvmLight.Messaging;
 
 namespace eCombat
@@ -17,15 +8,10 @@ namespace eCombat
     {
         public void StartMatch(string opponentName, string opponentId, bool isOpponentTurn)
         {
-            Messenger.Default.Send(false, "RequestOrCancelState");
-
-            Console.WriteLine(@"Starting game against " + opponentId + @" - " + opponentName);
-            Console.WriteLine(isOpponentTurn ? @"It' the opponent turn!" : @"It's your turn!");
-            Console.WriteLine();
-
+            Messenger.Default.Send(false, "ChangeRequestOrCancelState");
             Messenger.Default.Send(opponentName, "OpponentName");
             Messenger.Default.Send(opponentId, "OpponentId");
-            Messenger.Default.Send(isOpponentTurn, "SetPlayersColors");
+            Messenger.Default.Send(isOpponentTurn, "EvalPlayersColors");
             Messenger.Default.Send(isOpponentTurn, "EvalMatchTurn");
 
             Application.Current.Dispatcher.Invoke(() =>
@@ -68,7 +54,9 @@ namespace eCombat
         public void WriteMessageToChat(ChatMsg chatMessage, bool isSelfMessage)
         {
             chatMessage.IsSelfMessage = isSelfMessage;
-            Messenger.Default.Send(chatMessage, "Chat_In");
+
+            Messenger.Default.Send(chatMessage, "ChatIn");
+
             Application.Current.Dispatcher.Invoke(() =>
                 ((MainWindow)Application.Current.MainWindow)?.ChatScrollToEnd());
         }

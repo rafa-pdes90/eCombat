@@ -15,12 +15,10 @@ namespace eCombat.ViewModel
 {
     public static class ThreadSafeRandom
     {
-        [ThreadStatic] private static Random Local;
+        [ThreadStatic] private static Random _local;
 
-        public static Random ThisThreadsRandom
-        {
-            get { return Local ?? (Local = new Random(unchecked(Environment.TickCount * 31 + Thread.CurrentThread.ManagedThreadId))); }
-        }
+        public static Random ThisThreadsRandom =>
+            _local ?? (_local = new Random(unchecked(Environment.TickCount * 31 + Thread.CurrentThread.ManagedThreadId)));
     }
 
     static class MyExtensions
@@ -126,7 +124,7 @@ namespace eCombat.ViewModel
         public MainViewModel()
         {
             Messenger.Default.Register<string>(this, "PlayerName", SetPlayerName);
-            Messenger.Default.Register<bool>(this, "SetPlayersColors", SetPlayersColors);
+            Messenger.Default.Register<bool>(this, "EvalPlayersColors", EvalPlayersColors);
             Messenger.Default.Register<bool>(this, "EvalMatchTurn", EvalMatchTurn);
             Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
 
@@ -142,7 +140,7 @@ namespace eCombat.ViewModel
             this.PlayerName = name;
         }
 
-        private void SetPlayersColors(bool player2Color)
+        private void EvalPlayersColors(bool player2Color)
         {
             if (player2Color)
             {
@@ -163,9 +161,8 @@ namespace eCombat.ViewModel
 
         private void DesistirPartidaMethod()
         {
-            //NetMsg.NetMsgSend("g bye");
-            NetConnViewModel netConn = ServiceLocator.Current.GetInstance<NetConnViewModel>();
-            //netConn.Handler.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+            //TODO
+
             Messenger.Default.Send("Você desistiu!?", "SetEndMatchMessage");
 
             Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow)?.CallDesistir());
@@ -173,13 +170,18 @@ namespace eCombat.ViewModel
 
         private void ResetAll()
         {
+            //TODO
         }
 
         private void NetConnLost(NotificationMessage notificationMsg)
         {
+            //TODO
+
             Messenger.Default.Send("O outro jogador desistiu!", "SetEndMatchMessage");
+
             Application.Current.Dispatcher.Invoke(() =>
                 ((MainWindow)Application.Current.MainWindow)?.CallDesistir());
+
             ResetAll();
         }
     }

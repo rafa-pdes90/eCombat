@@ -10,12 +10,12 @@ namespace GameServer
 {
     public sealed class Player
     {
-        private static Queue<Player> WaitingPlayers { get; set; }
+        private static Queue<Player> WaitingPlayers { get; }
 
-        public Semaphore Locker { get; private set; }
+        public Semaphore Locker { get; }
 
         private GameMasterSvc GameSession { get; set; }
-        private string ClientId { get; set; }
+        private string ClientId { get; }
         private ICombateSvcChannel Client { get; set; }
         private EndpointDiscoveryMetadata RemoteMetadata { get; set; }
         private string DisplayName { get; set; }

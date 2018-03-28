@@ -92,6 +92,12 @@ namespace eCombat
             }
         }
 
+        public void StartNewMatch()
+        {
+            this.KeepOn = true;
+            this.DialogWindow.Close();
+        }
+
         // ReSharper disable once InconsistentNaming
         private void LoadCombateUIElements()
         {
@@ -212,13 +218,13 @@ namespace eCombat
 
                 while (r >= 0 && r < 10 && c >= 0 && c < 10)
                 {
-                    var coords = new Tuple<int, int>(r, c);
+                    var coords = new Tuple<int, int>(c, r);
                     if (tempMoveLog.Contains(coords))
                     {
                         moveLevel -= 1;
                         if (moveLevel == 0) break;
-                        r += incR;
                         c += incC;
+                        r += incR;
                         continue;
                     }
 
@@ -476,38 +482,35 @@ namespace eCombat
                                       x is BoardPiece) as BoardPiece ?? new BoardPiece();
             return piece.PowerLevel;
         }
-        
+
+        public void ChatScrollToEnd()
+        {
+            double pseudoEnd = this.ChatScrollViewer.ExtentHeight;
+            this.ChatScrollViewer.ScrollToVerticalOffset(pseudoEnd);
+        }
+
         private void CallVictory()
         {
+            //TODO
             Messenger.Default.Send("Parabéns pela vitória!", "SetEndMatchMessage");
             CallDesistir();
         }
 
         private void CallDefeat()
         {
+            //TODO
             Messenger.Default.Send("É, não foi dessa vez.", "SetEndMatchMessage");
             CallDesistir();
         }
 
         public void CallDesistir()
         {
+            //TODO
             this.DialogWindow = new Fin
             {
                 Owner = this
             };
             this.DialogWindow.ShowDialog();
-        }
-
-        public void StartNewMatch()
-        {
-            this.KeepOn = true;
-            this.DialogWindow.Close();
-        }
-
-        public void ChatScrollToEnd()
-        {
-            double pseudoEnd = this.ChatScrollViewer.ExtentHeight;
-            this.ChatScrollViewer.ScrollToVerticalOffset(pseudoEnd);
         }
     }
 }

@@ -4,11 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
-using System.ServiceModel.Description;
 using System.ServiceModel.Discovery;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace GameServer

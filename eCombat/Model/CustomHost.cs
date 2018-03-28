@@ -2,7 +2,6 @@
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Discovery;
-using System.Windows;
 using System.Xml.Linq;
 
 namespace eCombat.Model

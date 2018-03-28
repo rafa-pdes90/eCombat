@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
@@ -174,15 +173,14 @@ namespace eCombat.ViewModel
         /// </summary>
         public NetConnViewModel()
         {
-            Messenger.Default.Register<bool>(this, "RequestOrCancelState", ChangeRequestOrCancelState);
+            Messenger.Default.Register<bool>(this, "ChangeRequestOrCancelState", ChangeRequestOrCancelState);
         }
 
         private void ChangeRequestOrCancelState(bool value)
         {
             this.RequestOrCancelMatchIsEnabled = value;
 
-            Task.Run(() =>
-                Messenger.Default.Send(NicknameText, "PlayerName"));
+            Messenger.Default.Send(this.NicknameText, "PlayerName");
         }
     }
 }

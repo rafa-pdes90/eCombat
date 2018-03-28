@@ -43,12 +43,14 @@ namespace eCombat.ViewModel
 
         private static void ResetMethod()
         {
+            //TODO
             System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
             Application.Current.Shutdown();
         }
 
         private static void ExitMethod()
         {
+            //TODO
             Application.Current.Shutdown();
         }
     }

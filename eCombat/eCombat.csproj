@@ -134,7 +134,6 @@
     <Compile Include="ViewModel\FinViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NetConnViewModel.cs" />
-    <Compile Include="ViewModel\NetMsgViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="View\ConnectionWindow.xaml.cs">
       <DependentUpon>ConnectionWindow.xaml</DependentUpon>

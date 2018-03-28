@@ -31,12 +31,13 @@ namespace eCombat.ViewModel
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 
             SimpleIoc.Default.Register<MainViewModel>();
-            SimpleIoc.Default.Register<NetConnViewModel>();
             SimpleIoc.Default.Register<ChatMsgViewModel>();
+            SimpleIoc.Default.Register<FinViewModel>();
+            SimpleIoc.Default.Register<NetConnViewModel>();
         }
 
         /// <summary>
-        /// Gets the ViewModelPropertyName property.
+        /// Gets the MainViewModel property.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
             "CA1822:MarkMembersAsStatic",
@@ -47,7 +48,32 @@ namespace eCombat.ViewModel
         }
 
         /// <summary>
-        /// Gets the ViewModelPropertyName property.
+        /// Gets the ChatMsgViewModel property.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+            "CA1822:MarkMembersAsStatic",
+            Justification = "This non-static member is needed for data binding purposes.")]
+        public ChatMsgViewModel ChatMsg
+        {
+            get { return ServiceLocator.Current.GetInstance<ChatMsgViewModel>(); }
+        }   
+
+        /// <summary>
+        /// Gets the FinViewModel property.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+            "CA1822:MarkMembersAsStatic",
+            Justification = "This non-static member is needed for data binding purposes.")]
+        public FinViewModel Fin
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<FinViewModel>();
+            }
+        }
+
+        /// <summary>
+        /// Gets the NetConnViewModel property.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
             "CA1822:MarkMembersAsStatic",
@@ -57,22 +83,12 @@ namespace eCombat.ViewModel
             get { return ServiceLocator.Current.GetInstance<NetConnViewModel>(); }
         }
 
-        /// <summary>
-        /// Gets the ViewModelPropertyName property.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
-            "CA1822:MarkMembersAsStatic",
-            Justification = "This non-static member is needed for data binding purposes.")]
-        public ChatMsgViewModel ChatMsg
-        {
-            get { return ServiceLocator.Current.GetInstance<ChatMsgViewModel>(); }
-        }
-
         public static void Cleanup()
         {
             SimpleIoc.Default.Unregister<MainViewModel>();
-            SimpleIoc.Default.Unregister<NetConnViewModel>();
             SimpleIoc.Default.Unregister<ChatMsgViewModel>();
+            SimpleIoc.Default.Unregister<FinViewModel>();
+            SimpleIoc.Default.Unregister<NetConnViewModel>();
         }
     }
 }

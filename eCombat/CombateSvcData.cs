@@ -33,13 +33,5 @@ namespace eCombat
         public string MsgContent { get; set; }
 
         public bool IsSelfMessage { get; set; }
-
-
-        public ChatMsg(int id, bool isSelfMessage, string content)
-        {
-            this.MsgId = id;
-            this.MsgContent = content;
-            this.IsSelfMessage = isSelfMessage;
-        }
     }
 }
