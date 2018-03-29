@@ -18,5 +18,13 @@ namespace eCombat.Model
             this.PowerLevelIsPublic = !isEnemy;
             this.IsEnemy = isEnemy;
         }
+
+        public void Reset()
+        {
+            if (this.IsEnemy)
+            {
+                this.PowerLevelIsPublic = false;
+            }
+        }
     }
 }
