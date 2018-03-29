@@ -10,7 +10,7 @@ namespace eCombat
         void StartMatch(string opponentName, string opponentId, bool isOpponentTurn);
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = true)]
-        void CancelMatch(bool isWorthPoints);
+        void EndMatch(bool isWorthPoints);
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
         void MoveBoardPiece(int srcX, int srcY, int destX, int destY, bool isOpponentTurn);
@@ -24,5 +24,8 @@ namespace eCombat
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
         void WriteMessageToChat(ChatMsg chatMessage, bool isSelfMessage);
+
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
+        void Ping();
     }
 }

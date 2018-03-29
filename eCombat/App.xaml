@@ -5,28 +5,14 @@
              Startup="Application_Startup"
              DispatcherUnhandledException="Application_DispatcherUnhandledException"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             d1p1:Ignorable="d" 
-             xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:eCombat.ViewModel"
+             xmlns:ignore="http://www.galasoft.ch/ignore"
+             mc:Ignorable="d ignore" 
              ShutdownMode="OnMainWindowClose">
 
     <Application.Resources>
-        <ResourceDictionary>
-            <vm:ViewModelLocator x:Key="Locator" 
-                        d:IsDataSource="True" 
-                        xmlns:vm="clr-namespace:eCombat.ViewModel" />
-
-            <ResourceDictionary.MergedDictionaries>
-                <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
-                <!-- Accent and AppTheme setting -->
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Emerald.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
-                <!-- LoadingIndicators -->
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Colors.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+        <vm:ViewModelLocator x:Key="Locator" 
+                        d:IsDataSource="True" />
     </Application.Resources>
 </Application>

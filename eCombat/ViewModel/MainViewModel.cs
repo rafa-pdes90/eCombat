@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -10,6 +11,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
 using eCombat.Model;
+using eCombat.View;
 
 namespace eCombat.ViewModel
 {
@@ -43,6 +45,40 @@ namespace eCombat.ViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
+        /// <summary>
+        /// The <see cref="IsConnecting" /> property's name.
+        /// </summary>
+        public const string IsConnectingPropertyName = "IsConnecting";
+
+        private bool _isConnecting = false;
+
+        /// <summary>
+        /// Sets and gets the IsConnecting property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public bool IsConnecting
+        {
+            get => _isConnecting;
+            set => Set(() => IsConnecting, ref _isConnecting, value);
+        }
+
+        /// <summary>
+        /// The <see cref="IsPlaying" /> property's name.
+        /// </summary>
+        public const string IsPlayingPropertyName = "IsPlaying";
+
+        private bool _isPlaying = false;
+
+        /// <summary>
+        /// Sets and gets the IsPlaying property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public bool IsPlaying
+        {
+            get => _isPlaying;
+            set => Set(() => IsPlaying, ref _isPlaying, value);
+        }
+
         /// <summary>
         /// The <see cref="PlayerName" /> property's name.
         /// </summary>
@@ -123,16 +159,28 @@ namespace eCombat.ViewModel
         /// </summary>
         public MainViewModel()
         {
+            Messenger.Default.Register<bool>(this, "SetIsConnecting", SetIsConnecting);
             Messenger.Default.Register<string>(this, "PlayerName", SetPlayerName);
             Messenger.Default.Register<bool>(this, "EvalPlayersColors", EvalPlayersColors);
             Messenger.Default.Register<bool>(this, "EvalMatchTurn", EvalMatchTurn);
-            Messenger.Default.Register<NotificationMessage>(this, "NetConn_Lost", NetConnLost);
+            Messenger.Default.Register<string>(this, "LogIn", LogIn);
 
             DesistirPartidaCommand = new RelayCommand(DesistirPartidaMethod);
 
             this.EnemyList = Army.GetEnemyList();
             this.UnitList = Army.GetUnitlist();
             this.UnitList.Shuffle();
+        }
+
+        private void LogIn(string logEntry)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+                this.LogList.Add(logEntry));
+        }
+
+        private void SetIsConnecting(bool isConnecting)
+        {
+            this.IsConnecting = isConnecting;
         }
 
         private void SetPlayerName(string name)
@@ -157,32 +205,19 @@ namespace eCombat.ViewModel
         private void EvalMatchTurn(bool isOpponentTurn)
         {
             this.IsOpponentTurn = isOpponentTurn;
+
+            Messenger.Default.Send(isOpponentTurn ? "It's the opponent's turn!" : "It's your turn!", "LogIn");
         }
 
         private void DesistirPartidaMethod()
         {
-            //TODO
+            this.IsPlaying = false;
+            GameMaster.Client.CancelMatch();
 
-            Messenger.Default.Send("Você desistiu!?", "SetEndMatchMessage");
-
-            Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow)?.CallDesistir());
-        }
-
-        private void ResetAll()
-        {
-            //TODO
-        }
-
-        private void NetConnLost(NotificationMessage notificationMsg)
-        {
-            //TODO
-
-            Messenger.Default.Send("O outro jogador desistiu!", "SetEndMatchMessage");
+            Task.Run(() => Messenger.Default.Send(0, "ResetAll"));
 
             Application.Current.Dispatcher.Invoke(() =>
-                ((MainWindow)Application.Current.MainWindow)?.CallDesistir());
-
-            ResetAll();
+                ((MainWindow)Application.Current.MainWindow)?.LoadDialogWindow(new Fin("You gave up!?")));
         }
     }
 }

@@ -86,18 +86,18 @@ namespace GameServer
 public interface IGameMasterSvc
 {
     
-    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMasterSvc/MeetTheGameMaster", ReplyAction="http://tempuri.org/IGameMasterSvc/MeetTheGameMasterResponse")]
-    [System.ServiceModel.FaultContractAttribute(typeof(GameServer.GameMasterSvcFault), Action="http://tempuri.org/IGameMasterSvc/MeetTheGameMasterGameMasterSvcFaultFault", Name="GameMasterSvcFault", Namespace="http://schemas.datacontract.org/2004/07/GameServer")]
-    void MeetTheGameMaster(string clientId);
+    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMasterSvc/EnterGame", ReplyAction="http://tempuri.org/IGameMasterSvc/EnterGameResponse")]
+    [System.ServiceModel.FaultContractAttribute(typeof(GameServer.GameMasterSvcFault), Action="http://tempuri.org/IGameMasterSvc/EnterGameGameMasterSvcFaultFault", Name="GameMasterSvcFault", Namespace="http://schemas.datacontract.org/2004/07/GameServer")]
+    void EnterGame(string clientId);
     
-    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMasterSvc/MeetTheGameMaster", ReplyAction="http://tempuri.org/IGameMasterSvc/MeetTheGameMasterResponse")]
-    System.Threading.Tasks.Task MeetTheGameMasterAsync(string clientId);
+    [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IGameMasterSvc/EnterGame", ReplyAction="http://tempuri.org/IGameMasterSvc/EnterGameResponse")]
+    System.Threading.Tasks.Task EnterGameAsync(string clientId);
     
-    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/IntroduceToGameMaster")]
-    void IntroduceToGameMaster(string displayName);
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/FaceMatch")]
+    void FaceMatch(string displayName);
     
-    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/IntroduceToGameMaster")]
-    System.Threading.Tasks.Task IntroduceToGameMasterAsync(string displayName);
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/FaceMatch")]
+    System.Threading.Tasks.Task FaceMatchAsync(string displayName);
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/CancelMatch")]
     void CancelMatch();
@@ -122,6 +122,12 @@ public interface IGameMasterSvc
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/WriteMessageToChat")]
     System.Threading.Tasks.Task WriteMessageToChatAsync(string message);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/LeaveGame")]
+    void LeaveGame();
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/IGameMasterSvc/LeaveGame")]
+    System.Threading.Tasks.Task LeaveGameAsync();
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -158,24 +164,24 @@ public partial class GameMasterSvcClient : System.ServiceModel.ClientBase<IGameM
     {
     }
     
-    public void MeetTheGameMaster(string clientId)
+    public void EnterGame(string clientId)
     {
-        base.Channel.MeetTheGameMaster(clientId);
+        base.Channel.EnterGame(clientId);
     }
     
-    public System.Threading.Tasks.Task MeetTheGameMasterAsync(string clientId)
+    public System.Threading.Tasks.Task EnterGameAsync(string clientId)
     {
-        return base.Channel.MeetTheGameMasterAsync(clientId);
+        return base.Channel.EnterGameAsync(clientId);
     }
     
-    public void IntroduceToGameMaster(string displayName)
+    public void FaceMatch(string displayName)
     {
-        base.Channel.IntroduceToGameMaster(displayName);
+        base.Channel.FaceMatch(displayName);
     }
     
-    public System.Threading.Tasks.Task IntroduceToGameMasterAsync(string displayName)
+    public System.Threading.Tasks.Task FaceMatchAsync(string displayName)
     {
-        return base.Channel.IntroduceToGameMasterAsync(displayName);
+        return base.Channel.FaceMatchAsync(displayName);
     }
     
     public void CancelMatch()
@@ -216,5 +222,15 @@ public partial class GameMasterSvcClient : System.ServiceModel.ClientBase<IGameM
     public System.Threading.Tasks.Task WriteMessageToChatAsync(string message)
     {
         return base.Channel.WriteMessageToChatAsync(message);
+    }
+    
+    public void LeaveGame()
+    {
+        base.Channel.LeaveGame();
+    }
+    
+    public System.Threading.Tasks.Task LeaveGameAsync()
+    {
+        return base.Channel.LeaveGameAsync();
     }
 }

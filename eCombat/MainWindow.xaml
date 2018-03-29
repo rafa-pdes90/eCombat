@@ -5,11 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:eCombat"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-        mc:Ignorable="d"
+        xmlns:ignore="http://www.galasoft.ch/ignore"
+        mc:Ignorable="d ignore"
         Title="eCombat" Height="600" Width="1024" MaxHeight="600" MaxWidth="1024"
         WindowStartupLocation="CenterScreen" GlowBrush="{DynamicResource AccentColorBrush}"
         Background="Azure" WindowTransitionsEnabled="False"
-        DataContext="{Binding Main, Source={StaticResource Locator}}" ContentRendered="MetroWindow_ContentRendered">
+        ContentRendered="MetroWindow_ContentRendered"
+         DataContext="{Binding Main, Source={StaticResource Locator}}" >
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Skins/MainSkin.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -166,4 +177,3 @@
         </Grid>
     </Grid>
 </mah:MetroWindow>
-

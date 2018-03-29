@@ -5,6 +5,7 @@ using System.Windows;
 using CommonServiceLocator;
 using eCombat.Model;
 using eCombat.ViewModel;
+using GalaSoft.MvvmLight.Threading;
 using GameServer;
 
 namespace eCombat
@@ -15,6 +16,11 @@ namespace eCombat
     // ReSharper disable once RedundantExtendsListEntry
     public partial class App : Application
     {
+        static App()
+        {
+            DispatcherHelper.Initialize();
+        }
+
         private NetConnViewModel NetConn { get; set; }
 
         private void Application_Startup(object sender, StartupEventArgs e)
@@ -22,8 +28,9 @@ namespace eCombat
             var splashScreen = new SplashScreen("/Resources/SplashScreen.png");
             splashScreen.Show(false, true);
 
-            var dummy = new ViewModelLocator();
+            var dummy0 = new ViewModelLocator();
             this.NetConn = ServiceLocator.Current.GetInstance<NetConnViewModel>();
+            var dummy1 = ServiceLocator.Current.GetInstance<FinViewModel>();
 
             Task.Run(() => ConnectToGameMaster());
 

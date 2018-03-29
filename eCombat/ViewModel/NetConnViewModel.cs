@@ -153,7 +153,9 @@ namespace eCombat.ViewModel
                                    this.RequestOrCancelMatchLoadingVisibility = Visibility.Visible;
                                    this.RequestOrCancelMatchContent = "Cancel";
 
-                                   await GameMaster.Client.IntroduceToGameMasterAsync(NicknameText);
+                                   Messenger.Default.Send(true, "SetIsConnecting");
+
+                                   await GameMaster.Client.FaceMatchAsync(NicknameText);
                                }
                                else
                                {
@@ -161,7 +163,9 @@ namespace eCombat.ViewModel
                                    this.RequestOrCancelMatchLoadingVisibility = Visibility.Collapsed;
                                    this.RequestOrCancelMatchContent = "Ready to Play!";
 
-                                   await GameMaster.Client.CancelMatchAsync();
+                                   Messenger.Default.Send(false, "SetIsConnecting");
+
+                                   GameMaster.Client.CancelMatch();
                                }
                            }));
             }
@@ -174,6 +178,8 @@ namespace eCombat.ViewModel
         public NetConnViewModel()
         {
             Messenger.Default.Register<bool>(this, "ChangeRequestOrCancelState", ChangeRequestOrCancelState);
+            Messenger.Default.Register<int>(this, "RunRequestOrCancelCommand",
+                token => RunRequestOrCancelCommand());
         }
 
         private void ChangeRequestOrCancelState(bool value)
@@ -181,6 +187,15 @@ namespace eCombat.ViewModel
             this.RequestOrCancelMatchIsEnabled = value;
 
             Messenger.Default.Send(this.NicknameText, "PlayerName");
+        }
+
+        private async void RunRequestOrCancelCommand()
+        {
+            this.RequestOrCancelMatchIsEnabled = true;
+
+            Messenger.Default.Send(true, "SetIsConnecting");
+
+            await GameMaster.Client.FaceMatchAsync(NicknameText);
         }
     }
 }

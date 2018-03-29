@@ -1,8 +1,11 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
+using eCombat.View;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
+using MahApps.Metro.Controls;
 
 namespace eCombat.ViewModel
 {
@@ -13,7 +16,7 @@ namespace eCombat.ViewModel
         /// </summary>
         public const string EndMatchMessagePropertyName = "EndMatchMessage";
 
-        private string _endMatchMessage;
+        private string _endMatchMessage = "Fin";
 
         /// <summary>
         /// Sets and gets the EndMatchMessage property.
@@ -32,26 +35,23 @@ namespace eCombat.ViewModel
         {
             ResetCommand = new RelayCommand(ResetMethod);
             ExitCommand = new RelayCommand(ExitMethod);
-
-            Messenger.Default.Register<string>(this, "SetEndMatchMessage", SetEndMatchMessage);
-        }
-
-        private void SetEndMatchMessage(string message)
-        {
-            this.EndMatchMessage = message;
         }
 
         private static void ResetMethod()
         {
-            //TODO
-            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
-            Application.Current.Shutdown();
+            Application.Current.Dispatcher.Invoke(() =>
+                ((MainWindow)Application.Current.MainWindow)?.DialogWindow.Close());
+
+            Task.Run(() => Messenger.Default.Send(0, "RunRequestOrCancelCommand"));
+
+            Application.Current.Dispatcher.Invoke(() =>
+                ((MainWindow)Application.Current.MainWindow)?.LoadDialogWindow(new ConnectionWindow()));
         }
 
         private static void ExitMethod()
         {
-            //TODO
-            Application.Current.Shutdown();
+            Application.Current.Dispatcher.Invoke(() =>
+                ((MainWindow)Application.Current.MainWindow)?.DialogWindow.Close());
         }
     }
 }

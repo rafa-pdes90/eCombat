@@ -80,8 +80,10 @@ namespace eCombat.ViewModel
         private void ResetAll()
         {
             //TODO
-            Application.Current.Dispatcher.Invoke(() => this.SendTextContent = string.Empty);
-            Application.Current.Dispatcher.Invoke(() => this.ChatList.Clear());
+            Application.Current.Dispatcher.Invoke(() =>
+                this.SendTextContent = string.Empty);
+            Application.Current.Dispatcher.Invoke(() =>
+                this.ChatList.Clear());
         }
 
         private void NetConnLost(NotificationMessage notificationMsg)

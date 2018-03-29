@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 using GalaSoft.MvvmLight.Messaging;
 
 namespace eCombat
@@ -8,6 +9,7 @@ namespace eCombat
     {
         public void StartMatch(string opponentName, string opponentId, bool isOpponentTurn)
         {
+            Messenger.Default.Send("A game against " + opponentName + " has started!", "LogIn");
             Messenger.Default.Send(false, "ChangeRequestOrCancelState");
             Messenger.Default.Send(opponentName, "OpponentName");
             Messenger.Default.Send(opponentId, "OpponentId");
@@ -18,9 +20,11 @@ namespace eCombat
                 ((MainWindow)Application.Current.MainWindow)?.StartNewMatch());
         }
 
-        public void CancelMatch(bool isWorthPoints)
+        public void EndMatch(bool isWorthPoints)
         {
-            //TODO
+            Task.Run(() =>
+                Application.Current.Dispatcher.Invoke(() =>
+                    ((MainWindow)Application.Current.MainWindow)?.EvalPrematureMatchEnd(isWorthPoints)));
         }
 
         public void MoveBoardPiece(int srcX, int srcY, int destX, int destY, bool isOpponentTurn)
@@ -60,5 +64,7 @@ namespace eCombat
             Application.Current.Dispatcher.Invoke(() =>
                 ((MainWindow)Application.Current.MainWindow)?.ChatScrollToEnd());
         }
+
+        public void Ping() { }
     }
 }

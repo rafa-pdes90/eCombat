@@ -30,10 +30,29 @@ namespace eCombat.ViewModel
         {
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 
+            SimpleIoc.Default.Register<NetConnViewModel>(true);
             SimpleIoc.Default.Register<MainViewModel>();
             SimpleIoc.Default.Register<ChatMsgViewModel>();
-            SimpleIoc.Default.Register<FinViewModel>();
-            SimpleIoc.Default.Register<NetConnViewModel>();
+            SimpleIoc.Default.Register<FinViewModel>(true);
+        }
+
+        public static void Cleanup()
+        {
+            SimpleIoc.Default.Unregister<MainViewModel>();
+            SimpleIoc.Default.Unregister<ChatMsgViewModel>();
+            SimpleIoc.Default.Unregister<FinViewModel>();
+            SimpleIoc.Default.Unregister<NetConnViewModel>();
+        }
+
+        /// <summary>
+        /// Gets the NetConnViewModel property.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+            "CA1822:MarkMembersAsStatic",
+            Justification = "This non-static member is needed for data binding purposes.")]
+        public NetConnViewModel NetConn
+        {
+            get { return ServiceLocator.Current.GetInstance<NetConnViewModel>(); }
         }
 
         /// <summary>
@@ -70,25 +89,6 @@ namespace eCombat.ViewModel
             {
                 return ServiceLocator.Current.GetInstance<FinViewModel>();
             }
-        }
-
-        /// <summary>
-        /// Gets the NetConnViewModel property.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
-            "CA1822:MarkMembersAsStatic",
-            Justification = "This non-static member is needed for data binding purposes.")]
-        public NetConnViewModel NetConn
-        {
-            get { return ServiceLocator.Current.GetInstance<NetConnViewModel>(); }
-        }
-
-        public static void Cleanup()
-        {
-            SimpleIoc.Default.Unregister<MainViewModel>();
-            SimpleIoc.Default.Unregister<ChatMsgViewModel>();
-            SimpleIoc.Default.Unregister<FinViewModel>();
-            SimpleIoc.Default.Unregister<NetConnViewModel>();
         }
     }
 }

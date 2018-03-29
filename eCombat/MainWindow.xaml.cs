@@ -30,7 +30,7 @@ namespace eCombat
         /// </summary>
         private MainViewModel Vm => (MainViewModel)DataContext;
 
-        private MetroWindow DialogWindow { get; set; }
+        public MetroWindow DialogWindow { get; set; }
 
         private bool KeepOn { get; set; }
         
@@ -49,6 +49,8 @@ namespace eCombat
         {
             InitializeComponent();
 
+            this.Closing += MainWindow_Closing;
+
             BoardPieceSelectCommand = new RelayCommand<BoardPiece>(BoardPieceSelectMethod);
 
             this.DialogWindow = null;
@@ -59,11 +61,26 @@ namespace eCombat
             this.MoveLog = new Queue<Tuple<int, int>>(3);
 
             this.LogScrollViewer.ScrollToEnd();
+
+            Messenger.Default.Register<int>(this, "ResetAll", token => ResetAll());
+        }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (this.Vm.IsConnecting)
+            {
+                this.Vm.IsPlaying = false;
+                GameMaster.Client.CancelMatch();
+            }
+
+            GameMaster.Client.LeaveGame();
+
+            ViewModelLocator.Cleanup();
         }
 
         private void MetroWindow_ContentRendered(object sender, EventArgs e)
         {
-            LoadConnectionWindow();
+            LoadDialogWindow(new ConnectionWindow());
 
             if (!this.KeepOn) return;
 
@@ -71,15 +88,14 @@ namespace eCombat
             LoadCombateUIElements();
         }
 
-        public void LoadConnectionWindow()
+        public void LoadDialogWindow(MetroWindow dialog)
         {
+            this.DialogWindow = dialog;
+
             this.Effect = new BlurEffect();
 
-            this.DialogWindow = new ConnectionWindow
-            {
-                Owner = this
-            };
-            this.DialogWindow.ShowDialog();
+            dialog.Owner = this;
+            dialog.ShowDialog();
 
             if (this.KeepOn)
             {
@@ -87,13 +103,14 @@ namespace eCombat
             }
             else
             {
-                GameMaster.Client.CancelMatch();
                 this.Close();
             }
         }
 
         public void StartNewMatch()
         {
+            this.Vm.IsConnecting = false;
+            this.Vm.IsPlaying = true;
             this.KeepOn = true;
             this.DialogWindow.Close();
         }
@@ -465,15 +482,10 @@ namespace eCombat
             }
 
             if (!isBandeira) return;
-
-            if (this.Vm.IsOpponentTurn)
-            {
-                CallVictory();
-            }
-            else
-            {
-                CallDefeat();
-            }
+            
+            LoadDialogWindow(this.Vm.IsOpponentTurn
+                ? new Fin("You win! Congratulations!!")
+                : new Fin("You lose. Better luck next time!"));
         }
 
         public string ShowPowerLevel(int srcX, int srcY)
@@ -489,28 +501,22 @@ namespace eCombat
             this.ChatScrollViewer.ScrollToVerticalOffset(pseudoEnd);
         }
 
-        private void CallVictory()
+        public void EvalPrematureMatchEnd(bool isWorthPoints)
         {
-            //TODO
-            Messenger.Default.Send("Parabéns pela vitória!", "SetEndMatchMessage");
-            CallDesistir();
+            if (!this.Vm.IsPlaying) return;
+
+            this.Vm.IsPlaying = false;
+
+            Task.Run(() => Messenger.Default.Send(0, "ResetAll"));
+
+            LoadDialogWindow(isWorthPoints
+                ? new Fin("The opponent has given up! You win!")
+                : new Fin("The match has been cancelled."));
         }
 
-        private void CallDefeat()
+        private void ResetAll()
         {
-            //TODO
-            Messenger.Default.Send("É, não foi dessa vez.", "SetEndMatchMessage");
-            CallDesistir();
-        }
-
-        public void CallDesistir()
-        {
-            //TODO
-            this.DialogWindow = new Fin
-            {
-                Owner = this
-            };
-            this.DialogWindow.ShowDialog();
+            this.KeepOn = false;
         }
     }
 }
