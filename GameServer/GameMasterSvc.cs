@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Discovery;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace GameServer
@@ -54,40 +53,30 @@ namespace GameServer
 
         public void FaceMatch(string displayName)
         {
-            if (this.SessionPlayer.CurrentMatch != null) return;
-
             Task.Run(() =>
                 this.SessionPlayer.SeekMatch(displayName));
         }
 
         public void CancelMatch()
         {
-            if (this.SessionPlayer.CurrentMatch == null) return;
-
             Task.Run(() =>
-                this.SessionPlayer.EndCurrentMatch());
+                this.SessionPlayer.CancelCurrentMatch());
         }
 
         public void MoveBoardPiece(int srcX, int srcY, int destX, int destY)
         {
-            if (this.SessionPlayer.CurrentMatch == null) return;
-
             Task.Run(() =>
                 this.SessionPlayer.RelayOriginalAndMirroredMove(srcX, srcY, destX, destY));
         }
 
         public void AttackBoardPiece(int srcX, int srcY, int destX, int destY, string attackerPowerLevel)
         {
-            if (this.SessionPlayer.CurrentMatch == null) return;
-
             Task.Run(() => 
                 this.SessionPlayer.RelayOriginalAndMirroredAttack(srcX, srcY, destX, destY, attackerPowerLevel));
         }
 
         public void WriteMessageToChat(string message)
         {
-            if (this.SessionPlayer.CurrentMatch == null) return;
-
             Task.Run(() =>
                 this.SessionPlayer.RelayTaggedMessage(message));
         }

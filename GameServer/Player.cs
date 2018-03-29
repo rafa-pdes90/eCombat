@@ -12,24 +12,36 @@ namespace GameServer
     {
         private static Queue<Player> WaitingPlayers { get; }
 
-        public Semaphore Locker { get; }
-
+        private Semaphore Locker { get; }
+        private string ClientId { get; set; }
         private GameMasterSvc GameSession { get; set; }
-        private string ClientId { get; }
-        private ICombateSvcChannel Client { get; set; }
         private EndpointDiscoveryMetadata RemoteMetadata { get; set; }
+        private ICombateSvcChannel Client { get; set; }
         private string DisplayName { get; set; }
         private MatchInfo CurrentMatch { get; set; }
+        private Timer Pinger { get; set; }
 
         static Player()
         {
             WaitingPlayers = new Queue<Player>();
         }
 
+        private static void TryToRunIt(Action tryAction)
+        {
+            try
+            {
+                tryAction();
+            }
+            catch (Exception)
+            {
+                // Ignored
+            }
+        }
+
         ~Player()
         {
+            //TODO
             this.Locker.Close();
-            this.GameSession = null;
             
             try
             {
@@ -39,30 +51,88 @@ namespace GameServer
             {
                 this.Client?.Abort();
             }
-
-            //TODO CurrentMatch
-            CurrentMatch = null;
+            
+            this.CurrentMatch = null;
         }
 
         public Player(GameMasterSvc gameSession, string clientId, EndpointDiscoveryMetadata playerMetadata)
         {
             this.Locker = new Semaphore(1, 1);
-            this.GameSession = gameSession;
-            this.ClientId = clientId;
 
-            Locker.WaitOne();
-            Task.Run(() => Init(playerMetadata));
+            this.Locker.WaitOne();
+
+            Task.Run(() => Init(gameSession, clientId, playerMetadata));
         }
 
-        private void Init(EndpointDiscoveryMetadata playerMetadata)
+        private void Init(GameMasterSvc gameSession, string clientId, EndpointDiscoveryMetadata playerMetadata)
         {
+            Console.WriteLine("Player " + "(" + clientId + ") has logged in");
+            Console.WriteLine();
+
+            this.ClientId = clientId;
+            this.GameSession = gameSession;
             this.RemoteMetadata = playerMetadata;
             this.Client = null;
-            this.DisplayName = "";
+            this.DisplayName = null;
             this.CurrentMatch = null;
 
-            Console.WriteLine("Player " + "(" + this.ClientId + ") has logged in");
-            Console.WriteLine();
+            this.Locker.Release();
+        }
+
+        public void EndGame()
+        {
+            //TODO
+        }
+
+        private void PingPlayer(object param)
+        {
+            this.Locker.WaitOne();
+
+            if (this.Client == null)
+            {
+                this.Locker.Release();
+                return;
+            }
+
+            try
+            {
+                this.Client.Ping();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Player " + this.ClientId + " couldn't be reached");
+                Console.WriteLine();
+
+                this.Pinger.Dispose();
+
+                if (this.CurrentMatch != null)
+                {
+                    Player opponent = this.CurrentMatch.GetOpponent(this);
+
+                    opponent.Locker.WaitOne();
+
+                    lock (this.CurrentMatch.Winner)
+                    {
+                        if (this.CurrentMatch.Winner == "0")
+                        {
+                            this.CurrentMatch.SetWinner(opponent);
+
+                            opponent.InvokeEndMatch();
+                        }
+                    }
+
+                    opponent.Locker.Release();
+
+                    this.CurrentMatch = null;
+                }
+
+                this.Client.Abort();
+
+                this.Locker.Release();
+
+                Task.Run(() => this.GameSession.LeaveGame());
+            }
+
             this.Locker.Release();
         }
 
@@ -73,47 +143,72 @@ namespace GameServer
                 this.Client = GameMaster.NewClient(this.RemoteMetadata);
                 this.Client.StartMatch(opponentName, opponentId, isPlayer2);
             }
-            catch (EndpointNotFoundException)
+            catch (Exception)
             {
                 Console.WriteLine("Player " + this.ClientId + " couldn't be reached");
                 Console.WriteLine();
 
-                this.GameSession.SessionPlayer = null;
+                this.Client.Abort();
+
+                Task.Run(() => this.GameSession.LeaveGame());
+
                 throw;
             }
+
+            this.Pinger = new Timer(PingPlayer, null, 0, 15000); // 15s
         }
 
-        private void InvokeCancelMatch(bool isWorthPoints)
+        private void InvokeCancelMatch()  // Use if this is on WaitingPlayers queue
         {
             try
             {
-                this.Client.CancelMatch(isWorthPoints);
+                this.Client.EndMatch(this.CurrentMatch.MoveCount >= 2);
+                this.Pinger.Dispose();
+                this.Client.Close();
             }
-            catch (EndpointNotFoundException)
+            catch (Exception)
             {
                 Console.WriteLine("Player " + this.ClientId + " couldn't be reached");
                 Console.WriteLine();
 
-                this.GameSession.SessionPlayer = null;
+                this.Client.Abort();
+                this.Client = null;
+
+                Task.Run(() => this.GameSession.LeaveGame());
+
                 throw;
             }
+
+            this.Client = null;
         }
 
-        /// <summary>
-        /// Seek and starts a match or put player on the waiting list
-        /// </summary>
-        /// <exception cref="EndpointNotFoundException"></exception>
-        /// <param name="displayName"></param>
+        private void InvokeEndMatch() // Use if this is not on WaitingPlayers queue
+        {
+            var tryAction = new Action(() =>
+            {
+                this.Client.EndMatch(this.CurrentMatch.MoveCount >= 2);
+                this.Pinger.Dispose();
+                this.Client.Close();
+                this.Client = null;
+            });
+
+            TryToRunIt(tryAction);
+        }
+
         public void SeekMatch(string displayName)
         {
-            if (this.CurrentMatch != null) return;
-
-            this.Locker.WaitOne();
-
-            this.DisplayName = displayName;
-
             lock (WaitingPlayers)
             {
+                this.Locker.WaitOne();
+
+                if (this.CurrentMatch != null)
+                {
+                    this.Locker.Release();
+                    return;
+                }
+
+                this.DisplayName = displayName;
+
                 while (WaitingPlayers.Count > 0)
                 {
                     Player waitingPlayer = WaitingPlayers.Peek();
@@ -124,9 +219,11 @@ namespace GameServer
                     {
                         waitingPlayer.InvokeStartMatch(this.DisplayName, this.ClientId, false);
                     }
-                    catch (EndpointNotFoundException)
+                    catch (Exception)
                     {
                         WaitingPlayers.Dequeue();
+                        waitingPlayer.Locker.Release();
+
                         continue;
                     }
 
@@ -134,18 +231,19 @@ namespace GameServer
                     {
                         this.InvokeStartMatch(waitingPlayer.DisplayName, waitingPlayer.ClientId, true);
                     }
-                    catch (EndpointNotFoundException)
+                    catch (Exception)
                     {
                         try
                         {
-                            waitingPlayer.InvokeCancelMatch(false);
+                            waitingPlayer.InvokeCancelMatch();
                         }
-                        catch (EndpointNotFoundException)
+                        catch (Exception)
                         {
                             WaitingPlayers.Dequeue();
                         }
-
                         waitingPlayer.Locker.Release();
+
+                        this.Locker.Release();
                         return;
                     }
 
@@ -154,7 +252,7 @@ namespace GameServer
                     this.CurrentMatch = GameMaster.NewMatch(waitingPlayer, this);
                     this.Locker.Release();
 
-                    waitingPlayer.CurrentMatch = CurrentMatch;
+                    waitingPlayer.CurrentMatch = this.CurrentMatch;
                     waitingPlayer.Locker.Release();
 
                     Console.WriteLine("Game #" + CurrentMatch.Id + " has started between players " +
@@ -164,16 +262,16 @@ namespace GameServer
                     return;
                 }
 
-                this.Locker.Release();
-
                 WaitingPlayers.Enqueue(this);
+
+                this.Locker.Release();
             }
 
             Console.WriteLine("Player " + this.ClientId + " is waiting for an opponent");
             Console.WriteLine();
         }
 
-        public void FinishCurrentMatch()
+        public void CancelCurrentMatch()
         {
             lock (WaitingPlayers)
             {
@@ -201,72 +299,29 @@ namespace GameServer
 
                     opponent.Locker.WaitOne();
 
-                    try
-                    {
-                        opponent.InvokeCancelMatch(this.CurrentMatch.MoveCount >= 2);
-                        opponent.CurrentMatch = null;
-                    }
-                    catch
-                    {
-                        //ignored
-                    }
+                    opponent.InvokeEndMatch();
+                    opponent.CurrentMatch = null;
 
                     opponent.Locker.Release();
 
-                    try
-                    {
-                        this.InvokeCancelMatch(this.CurrentMatch.MoveCount >= 2);
-                        this.CurrentMatch = null;
-                    }
-                    catch
-                    {
-                        //ignored
-                    }
+                    this.InvokeEndMatch();
+                    this.CurrentMatch = null;
                 }
 
                 this.Locker.Release();
             }
         }
 
-        private void TryToRunIt(Action tryAction, Player opponent)
+        public void RelayOriginalAndMirroredMove(int srcX, int srcY, int destX, int destY)
         {
-            try
+            this.Locker.WaitOne();
+
+            if (this.CurrentMatch == null)
             {
-                tryAction();
+                this.Locker.Release();
+                return;
             }
-            catch (EndpointNotFoundException)
-            {
-                if (opponent.Client.State == CommunicationState.Faulted)
-                {
-                    Console.WriteLine("Player " + opponent.ClientId + " couldn't be reached");
-                    Console.WriteLine();
 
-                    opponent.GameSession.SessionPlayer = null;
-
-                    try { this.InvokeCancelMatch(true); }
-                    catch
-                    {
-                        // ignored
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Player " + this.ClientId + " couldn't be reached");
-                    Console.WriteLine();
-
-                    this.GameSession.SessionPlayer = null;
-
-                    try { opponent.InvokeCancelMatch(true); }
-                    catch
-                    {
-                        //ignored
-                    }
-                }
-            }
-        }
-
-        public void MakeOriginalAndMirroredMove(int srcX, int srcY, int destX, int destY)
-        {
             int mirroredSrcX = Math.Abs(srcX - 9);
             int mirroredSrcY = Math.Abs(srcY - 9);
             int mirroredDestX = Math.Abs(destX - 9);
@@ -276,42 +331,85 @@ namespace GameServer
 
             var tryAction = new Action(async () =>
             {
-                await Task.WhenAll(this.Client.MoveBoardPieceAsync(srcX, srcY, destX, destY, true),
-                    opponent.Client.MoveBoardPieceAsync(mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY, false));
+                await Task.WhenAll(
+                    this.Client.MoveBoardPieceAsync(srcX, srcY, destX, destY, true),
+                    opponent.Client.MoveBoardPieceAsync(
+                        mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY, false));
             });
 
-            TryToRunIt(tryAction, opponent);
+            TryToRunIt(tryAction);
 
             this.CurrentMatch.MoveCount++;
+
+            this.Locker.Release();
         }
 
-        public void MakeOriginalAndMirroredAttack(int srcX, int srcY, int destX, int destY,
+        public void RelayOriginalAndMirroredAttack(int srcX, int srcY, int destX, int destY,
             string attackerPowerLevel)
         {
+            this.Locker.WaitOne();
+
+            if (this.CurrentMatch == null)
+            {
+                this.Locker.Release();
+                return;
+            }
+
             int mirroredSrcX = Math.Abs(srcX - 9);
             int mirroredSrcY = Math.Abs(srcY - 9);
             int mirroredDestX = Math.Abs(destX - 9);
             int mirroredDestY = Math.Abs(destY - 9);
 
+            string defenderPowerLevel = null;
+
             Player opponent = this.CurrentMatch.GetOpponent(this);
 
             var tryAction = new Action(async () =>
             {
-                string defenderPowerLevel = opponent.Client.ShowPowerLevel(mirroredDestX, mirroredDestY);
+                defenderPowerLevel = opponent.Client.ShowPowerLevel(mirroredDestX, mirroredDestY);
 
-                await Task.WhenAll(this.Client.AttackBoardPieceAsync(srcX, srcY, destX, destY,
+                await Task.WhenAll(
+                    this.Client.AttackBoardPieceAsync(srcX, srcY, destX, destY,
                         attackerPowerLevel, defenderPowerLevel, true),
                     opponent.Client.AttackBoardPieceAsync(mirroredSrcX, mirroredSrcY, mirroredDestX, mirroredDestY,
                         attackerPowerLevel, defenderPowerLevel, false));
             });
 
-            TryToRunIt(tryAction, opponent);
+            TryToRunIt(tryAction);
 
             this.CurrentMatch.MoveCount++;
+
+            if (defenderPowerLevel == "*")
+            {
+                opponent.Locker.WaitOne();
+
+                lock (this.CurrentMatch.Winner)
+                {
+                    this.CurrentMatch.SetWinner(this);
+                }
+
+                opponent.InvokeEndMatch();
+                opponent.CurrentMatch = null;
+
+                opponent.Locker.Release();
+
+                this.InvokeEndMatch();
+                this.CurrentMatch = null;
+            }
+
+            this.Locker.Release();
         }
 
-        public void MakePlayersTalk(string message)
+        public void RelayTaggedMessage(string message)
         {
+            this.Locker.WaitOne();
+
+            if (this.CurrentMatch == null)
+            {
+                this.Locker.Release();
+                return;
+            }
+
             var msg = new ChatMsg
             {
                 MsgId = this.CurrentMatch.MsgCount,
@@ -322,13 +420,16 @@ namespace GameServer
 
             var tryAction = new Action(async () =>
             {
-                await Task.WhenAll(this.Client.WriteMessageToChatAsync(msg, true),
+                await Task.WhenAll(
+                    this.Client.WriteMessageToChatAsync(msg, true),
                     opponent.Client.WriteMessageToChatAsync(msg, false));
             });
 
-            TryToRunIt(tryAction, opponent);
+            TryToRunIt(tryAction);
 
             this.CurrentMatch.MsgCount++;
+
+            this.Locker.Release();
         }
     }
 }

@@ -11,11 +11,11 @@ namespace GameServer
     public sealed class MatchInfo
     {
         public int Id { get; set; }
-        public Player Player1 { get; set; }
-        public Player Player2 { get; set; }
-        public string Winner { get; set; }
+        public Player Player1 { get; }
+        public Player Player2 { get; }
         public int MoveCount { get; set; }
         public int MsgCount { get; set; }
+        public string Winner { get; private set; }
 
         public MatchInfo(Player p1, Player p2)
         {

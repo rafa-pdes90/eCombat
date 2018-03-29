@@ -77,11 +77,11 @@ public interface ICombateSvc
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ICombateSvc/StartMatch")]
     System.Threading.Tasks.Task StartMatchAsync(string opponentName, string opponentId, bool isOpponentTurn);
     
-    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/CancelMatch")]
-    void CancelMatch(bool isWorthPoints);
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/EndMatch")]
+    void EndMatch(bool isWorthPoints);
     
-    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/CancelMatch")]
-    System.Threading.Tasks.Task CancelMatchAsync(bool isWorthPoints);
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/EndMatch")]
+    System.Threading.Tasks.Task EndMatchAsync(bool isWorthPoints);
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/MoveBoardPiece")]
     void MoveBoardPiece(int srcX, int srcY, int destX, int destY, bool isOpponentTurn);
@@ -106,6 +106,12 @@ public interface ICombateSvc
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/WriteMessageToChat")]
     System.Threading.Tasks.Task WriteMessageToChatAsync(eCombat.ChatMsg chatMessage, bool isSelfMessage);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/Ping")]
+    void Ping();
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/Ping")]
+    System.Threading.Tasks.Task PingAsync();
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -152,14 +158,14 @@ public partial class CombateSvcClient : System.ServiceModel.ClientBase<ICombateS
         return base.Channel.StartMatchAsync(opponentName, opponentId, isOpponentTurn);
     }
     
-    public void CancelMatch(bool isWorthPoints)
+    public void EndMatch(bool isWorthPoints)
     {
-        base.Channel.CancelMatch(isWorthPoints);
+        base.Channel.EndMatch(isWorthPoints);
     }
     
-    public System.Threading.Tasks.Task CancelMatchAsync(bool isWorthPoints)
+    public System.Threading.Tasks.Task EndMatchAsync(bool isWorthPoints)
     {
-        return base.Channel.CancelMatchAsync(isWorthPoints);
+        return base.Channel.EndMatchAsync(isWorthPoints);
     }
     
     public void MoveBoardPiece(int srcX, int srcY, int destX, int destY, bool isOpponentTurn)
@@ -200,5 +206,15 @@ public partial class CombateSvcClient : System.ServiceModel.ClientBase<ICombateS
     public System.Threading.Tasks.Task WriteMessageToChatAsync(eCombat.ChatMsg chatMessage, bool isSelfMessage)
     {
         return base.Channel.WriteMessageToChatAsync(chatMessage, isSelfMessage);
+    }
+    
+    public void Ping()
+    {
+        base.Channel.Ping();
+    }
+    
+    public System.Threading.Tasks.Task PingAsync()
+    {
+        return base.Channel.PingAsync();
     }
 }
