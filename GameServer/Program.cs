@@ -1,21 +1,24 @@
 ﻿using System;
 using System.ServiceModel;
+using System.ServiceModel.Discovery;
 
 namespace GameServer
 {
     internal class Program
     {
-        // ReSharper disable once UnusedParameter.Local
-        private static void Main(string[] args)
+        private static void Main()
         {
             var proxyUri = new Uri("net.tcp://localhost:8001/Probe");
             var proxyBinding = new NetTcpBinding(SecurityMode.None);
+            var proxyEndpoint = new DiscoveryEndpoint(proxyBinding, new EndpointAddress(proxyUri));
+
             var svcBinding = new NetTcpBinding(SecurityMode.None);
             var svcFactory = new ChannelFactory<ICombateSvcChannel>(svcBinding);
 
-            GameMaster.Init(proxyUri, proxyBinding, svcFactory);
+            GameMaster.Init(proxyEndpoint, svcFactory);
 
             var selfHost = new ServiceHost(typeof(GameMasterSvc));
+
             try
             {
                 selfHost.Open();
@@ -57,6 +60,8 @@ namespace GameServer
             {
                 selfHost.Abort();
             }
+
+            GameMaster.ProbeClientReseter.Dispose();
         }
     }
 }

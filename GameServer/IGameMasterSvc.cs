@@ -6,12 +6,15 @@ namespace GameServer
     [ServiceContract(SessionMode = SessionMode.Required)]
     public interface IGameMasterSvc
     {
-        [OperationContract(IsInitiating = true, IsTerminating = false)]
+        [OperationContract(IsOneWay = false, IsInitiating = true, IsTerminating = false)]
         [FaultContract(typeof(GameMasterSvcFault))]
-        void MeetTheGameMaster(string clientId);
+        void EnterGame(string clientId);
+
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = true)]
+        void LeaveGame();
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
-        void IntroduceToGameMaster(string displayName);
+        void FaceMatch(string displayName);
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
         void CancelMatch();

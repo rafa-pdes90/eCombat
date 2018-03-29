@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Discovery;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GameServer
@@ -9,9 +10,9 @@ namespace GameServer
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "GameMasterSvc" in both code and config file together.
     public class GameMasterSvc : IGameMasterSvc
     {
-        public Player SessionPlayer { get; set; }
+        private Player SessionPlayer { get; set; }
 
-        public void MeetTheGameMaster(string clientId)
+        public void EnterGame(string clientId)
         {
             try
             {
@@ -44,35 +45,51 @@ namespace GameServer
             }
         }
 
-        public void IntroduceToGameMaster(string displayName)
+        public void LeaveGame()
         {
+            this.SessionPlayer.EndGame();
+
+            this.SessionPlayer = null;
+        }
+
+        public void FaceMatch(string displayName)
+        {
+            if (this.SessionPlayer.CurrentMatch != null) return;
+
             Task.Run(() =>
                 this.SessionPlayer.SeekMatch(displayName));
         }
 
         public void CancelMatch()
         {
+            if (this.SessionPlayer.CurrentMatch == null) return;
+
             Task.Run(() =>
-                this.SessionPlayer.FinishCurrentMatch());
+                this.SessionPlayer.EndCurrentMatch());
         }
 
         public void MoveBoardPiece(int srcX, int srcY, int destX, int destY)
         {
+            if (this.SessionPlayer.CurrentMatch == null) return;
+
             Task.Run(() =>
-                this.SessionPlayer.MakeOriginalAndMirroredMove(srcX, srcY, destX, destY));
+                this.SessionPlayer.RelayOriginalAndMirroredMove(srcX, srcY, destX, destY));
         }
 
-        public void AttackBoardPiece(int srcX, int srcY, int destX, int destY,
-            string attackerPowerLevel)
+        public void AttackBoardPiece(int srcX, int srcY, int destX, int destY, string attackerPowerLevel)
         {
+            if (this.SessionPlayer.CurrentMatch == null) return;
+
             Task.Run(() => 
-                this.SessionPlayer.MakeOriginalAndMirroredAttack(srcX, srcY, destX, destY, attackerPowerLevel));
+                this.SessionPlayer.RelayOriginalAndMirroredAttack(srcX, srcY, destX, destY, attackerPowerLevel));
         }
 
         public void WriteMessageToChat(string message)
         {
+            if (this.SessionPlayer.CurrentMatch == null) return;
+
             Task.Run(() =>
-                this.SessionPlayer.MakePlayersTalk(message));
+                this.SessionPlayer.RelayTaggedMessage(message));
         }
     }
 }
