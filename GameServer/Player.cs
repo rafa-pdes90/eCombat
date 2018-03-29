@@ -38,23 +38,6 @@ namespace GameServer
             }
         }
 
-        ~Player()
-        {
-            //TODO
-            this.Locker.Close();
-            
-            try
-            {
-                this.Client?.Close();
-            }
-            catch (Exception)
-            {
-                this.Client?.Abort();
-            }
-            
-            this.CurrentMatch = null;
-        }
-
         public Player(GameMasterSvc gameSession, string clientId, EndpointDiscoveryMetadata playerMetadata)
         {
             this.Locker = new Semaphore(1, 1);
@@ -81,7 +64,11 @@ namespace GameServer
 
         public void EndGame()
         {
-            //TODO
+            CancelCurrentMatch();
+
+            this.Locker.Close();
+
+            this.GameSession = null;
         }
 
         private void PingPlayer(object param)

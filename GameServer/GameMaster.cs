@@ -21,9 +21,9 @@ namespace GameServer
         {
             this.Player1 = p1;
             this.Player2 = p2;
-            this.Winner = "0";
             this.MoveCount = 0;
             this.MsgCount = 0;
+            this.Winner = "0";
         }
 
         /// <summary>
@@ -63,8 +63,8 @@ namespace GameServer
         /// <param name="newMatch"></param>
         public void AddToMatchList(MatchInfo newMatch)
         {
-            newMatch.Id = MatchCount;
-            MatchList.Add(this.MatchCount++, newMatch);
+            newMatch.Id = this.MatchCount;
+            this.MatchList.Add(this.MatchCount++, newMatch);
         }
     }
     
@@ -121,7 +121,7 @@ namespace GameServer
                 return SvcFactory.CreateChannel
                     (clientMetadata.Address, clientMetadata.ListenUris[0]);
             }
-
+            
             return SvcFactory.CreateChannel(clientMetadata.Address);
         }
 
