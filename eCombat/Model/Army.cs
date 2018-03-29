@@ -10,8 +10,8 @@ namespace eCombat.Model
 
             for (int i = 0; i < 40; i++)
             {
-                var novoInimigo = new BoardPiece(null, moveLevel: -1, powerLevelIsPublic: false, isEnemy: true);
-                enemyList.Add(novoInimigo);
+                var newEnemy = new BoardPiece(null, moveLevel: -1, isEnemy: true);
+                enemyList.Add(newEnemy);
             }
 
             return enemyList;

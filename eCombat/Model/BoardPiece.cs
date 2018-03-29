@@ -7,15 +7,15 @@ namespace eCombat.Model
         public string PowerLevel { get; set; }
         public int MoveLevel { get; set; }
         public bool PowerLevelIsPublic { get; set; }
-        public bool IsEnemy { get; set; }
+        public bool IsEnemy { get; }
 
         public BoardPiece() { }
 
-        public BoardPiece(string powerLevel, int moveLevel = 1, bool powerLevelIsPublic = true, bool isEnemy = false)
+        public BoardPiece(string powerLevel, int moveLevel = 1, bool isEnemy = false)
         {
             this.PowerLevel = powerLevel;
             this.MoveLevel = moveLevel;
-            this.PowerLevelIsPublic = powerLevelIsPublic;
+            this.PowerLevelIsPublic = !isEnemy;
             this.IsEnemy = isEnemy;
         }
     }

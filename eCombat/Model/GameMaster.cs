@@ -50,7 +50,7 @@ namespace eCombat.Model
 
                 try
                 {
-                    _client.MeetTheGameMaster(MyId);
+                    _client.EnterGame(MyId);
                 }
                 catch (FaultException<GameMasterSvcFault>)
                 {
