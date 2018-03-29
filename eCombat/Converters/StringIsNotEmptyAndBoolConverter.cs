@@ -4,7 +4,7 @@ using System.Windows.Data;
 
 namespace eCombat.Converters
 {
-    public class StringIsNotEmptyConverter : IMultiValueConverter
+    public class StringIsNotEmptyAndBoolConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
