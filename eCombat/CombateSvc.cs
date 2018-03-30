@@ -59,7 +59,7 @@ namespace eCombat
         {
             chatMessage.IsSelfMessage = isSelfMessage;
 
-            Messenger.Default.Send(chatMessage, "ChatIn");
+            Messenger.Default.Send(chatMessage, "NewChatMsg");
 
             Application.Current.Dispatcher.Invoke(() =>
                 ((MainWindow)Application.Current.MainWindow)?.ChatScrollToEnd());

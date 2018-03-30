@@ -92,7 +92,7 @@ namespace eCombat
         {
             this.DialogWindow = dialog;
 
-            this.Effect = new BlurEffect();
+            //this.Effect = new BlurEffect();
 
             dialog.Owner = this;
             dialog.ShowDialog();
@@ -140,7 +140,7 @@ namespace eCombat
                 unit.BorderThickness = new Thickness(3);
                 unit.BorderBrush = Brushes.Black;
                 unit.FontWeight = FontWeights.Bold;
-                unit.Style = Application.Current.FindResource("MetroCircleButtonStyle") as Style;
+                unit.Style = FindResource("MetroCircleButtonStyle") as Style;
 
                 var content = new Binding("PowerLevel")
                 {
@@ -148,7 +148,7 @@ namespace eCombat
                 };
                 BindingOperations.SetBinding(unit, ContentProperty, content);
 
-                if (unit.IsEnemy)
+                if (unit.IsOpponent)
                 {
                     unit.IsHitTestVisible = false;
                 }
@@ -170,7 +170,7 @@ namespace eCombat
             }
 
             List<BoardPiece> unitList = this.Vm.UnitList;
-            List<BoardPiece> enemyList = this.Vm.EnemyList;
+            List<BoardPiece> opponentList = this.Vm.OpponentList;
 
             int index = 0;
             for (int r = 0; r < 4; r++)
@@ -178,7 +178,7 @@ namespace eCombat
                 for (int c = 9; c >= 0; c--)
                 {
                     AddNewCell(r, c);
-                    AddNewBoardPiece(r, c, this.Vm.OpponentColor, enemyList[index]);
+                    AddNewBoardPiece(r, c, this.Vm.OpponentColor, opponentList[index]);
                     index += 1;
                 }
             }
@@ -197,7 +197,7 @@ namespace eCombat
                 for (int c = 0; c < 10; c++)
                 {
                     AddNewCell(r, c);
-                    AddNewBoardPiece(r, c, this.Vm.PlayerColor, unitList[index]);
+                    AddNewBoardPiece(r, c, this.Vm.SelfColor, unitList[index]);
                     index += 1;
                 }
             }
@@ -246,7 +246,7 @@ namespace eCombat
                     }
 
                     Rectangle moveRect = null;
-                    bool hasEnemy = false;
+                    bool hasOpponent = false;
 
                     foreach (UIElement element in GetCombateGridChildren(c, r))
                     {
@@ -256,9 +256,9 @@ namespace eCombat
                                 moveRect = rectangle;
                                 break;
                             case BoardPiece piece:
-                                if (!piece.IsEnemy || (moveLevelOriginal > 1 && moveLevel < 9))
+                                if (!piece.IsOpponent || (moveLevelOriginal > 1 && moveLevel < 9))
                                     return;
-                                hasEnemy = true;
+                                hasOpponent = true;
                                 break;
                             default:
                                 return;
@@ -267,7 +267,7 @@ namespace eCombat
 
                     if (moveRect == null) continue;
                     this.EnabledFields.Add(moveRect);
-                    if (hasEnemy)
+                    if (hasOpponent)
                     {
                         moveRect.Fill = Brushes.Red;
                         return;
@@ -497,8 +497,8 @@ namespace eCombat
 
         public void ChatScrollToEnd()
         {
-            double pseudoEnd = this.ChatScrollViewer.ExtentHeight;
-            this.ChatScrollViewer.ScrollToVerticalOffset(pseudoEnd);
+            //double pseudoEnd = this.ChatScrollViewer.ExtentHeight;
+            //this.ChatScrollViewer.ScrollToVerticalOffset(pseudoEnd);
         }
 
         public void EvalPrematureMatchEnd(bool isWorthPoints)

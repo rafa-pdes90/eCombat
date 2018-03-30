@@ -32,14 +32,14 @@ namespace eCombat.ViewModel
 
             SimpleIoc.Default.Register<NetConnViewModel>(true);
             SimpleIoc.Default.Register<MainViewModel>();
-            SimpleIoc.Default.Register<ChatMsgViewModel>();
+            SimpleIoc.Default.Register<ChatViewModel>();
             SimpleIoc.Default.Register<FinViewModel>(true);
         }
 
         public static void Cleanup()
         {
             SimpleIoc.Default.Unregister<MainViewModel>();
-            SimpleIoc.Default.Unregister<ChatMsgViewModel>();
+            SimpleIoc.Default.Unregister<ChatViewModel>();
             SimpleIoc.Default.Unregister<FinViewModel>();
             SimpleIoc.Default.Unregister<NetConnViewModel>();
         }
@@ -50,7 +50,7 @@ namespace eCombat.ViewModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
             "CA1822:MarkMembersAsStatic",
             Justification = "This non-static member is needed for data binding purposes.")]
-        public NetConnViewModel NetConn
+        public NetConnViewModel NetConnVm
         {
             get { return ServiceLocator.Current.GetInstance<NetConnViewModel>(); }
         }
@@ -61,20 +61,20 @@ namespace eCombat.ViewModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
             "CA1822:MarkMembersAsStatic",
             Justification = "This non-static member is needed for data binding purposes.")]
-        public MainViewModel Main
+        public MainViewModel MainVm
         {
             get { return ServiceLocator.Current.GetInstance<MainViewModel>(); }
         }
 
         /// <summary>
-        /// Gets the ChatMsgViewModel property.
+        /// Gets the ChatViewModel property.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
             "CA1822:MarkMembersAsStatic",
             Justification = "This non-static member is needed for data binding purposes.")]
-        public ChatMsgViewModel ChatMsg
+        public ChatViewModel ChatVm
         {
-            get { return ServiceLocator.Current.GetInstance<ChatMsgViewModel>(); }
+            get { return ServiceLocator.Current.GetInstance<ChatViewModel>(); }
         }   
 
         /// <summary>
@@ -83,12 +83,9 @@ namespace eCombat.ViewModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
             "CA1822:MarkMembersAsStatic",
             Justification = "This non-static member is needed for data binding purposes.")]
-        public FinViewModel Fin
+        public FinViewModel FinVm
         {
-            get
-            {
-                return ServiceLocator.Current.GetInstance<FinViewModel>();
-            }
+            get { return ServiceLocator.Current.GetInstance<FinViewModel>(); }
         }
     }
 }

@@ -14,7 +14,7 @@
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
         Background="#A8228B22" WindowTransitionsEnabled="False" ShowInTaskbar="False"
         BorderThickness="0" GlowBrush="Black" Icon="/eCombat;component/Resources/WindowIcon.png"
-        DataContext="{Binding NetConn, Source={StaticResource Locator}}" >
+        DataContext="{Binding NetConnVm, Source={StaticResource Locator}}" >
 
     <Window.Resources>
         <ResourceDictionary>

@@ -1,0 +1,93 @@
+﻿<UserControl x:Class="eCombat.Controls.Chat"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:eCombat.Controls"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:ignore="http://www.galasoft.ch/ignore"
+             xmlns:converters="clr-namespace:eCombat.Converters"
+             mc:Ignorable="d ignore"
+             Background="White"
+             DataContext="{Binding ChatVm, Source={StaticResource Locator}}"
+             d:DesignHeight="450" d:DesignWidth="300">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converters:StringIsNotEmptyConverter x:Key="StringIsNotEmptyConverter"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/eCombat;component/Skins/ChatSkin.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0" AcceptsReturn="False" TextWrapping="Wrap" BorderThickness="1"
+                     mah:TextBoxHelper.ClearTextButton="True"
+                     mah:TextBoxHelper.Watermark="{Binding TypingBoxWatermark}"
+                     Text="{Binding TypingBoxText, UpdateSourceTrigger=PropertyChanged}"
+                     MaxLength="{Binding TypingBoxTextLimit}">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Return"
+                                Command="{Binding SendCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
+
+            <Button Grid.Column="1" HorizontalAlignment="Right" Width="60"
+                    Command="{Binding SendCommand}"
+                    IsEnabled="{Binding TypingBoxText, Converter={StaticResource StringIsNotEmptyConverter}}"
+                    Style="{DynamicResource AccentedSquareButtonStyle}">
+                <Button.Content>
+                    <Label Content="Send" BorderThickness="0" Padding="0"/>
+                </Button.Content>
+            </Button>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Border BorderBrush="LightGray" BorderThickness="1">
+                <ScrollViewer x:Name="ChatScrollViewer" ScrollChanged="ChatScrollViewer_ScrollChanged">
+                    <ItemsControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="5"
+                                  ItemsSource="{Binding ChatMsgList}">
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border x:Name="MsgBorder" BorderThickness="1" BorderBrush="Black" CornerRadius="5" Margin="0,0,0,5" MaxWidth="200">
+                                    <TextBlock HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Padding="5" TextWrapping="Wrap"
+                                           Text="{Binding MsgContent}"/>
+                                </Border>
+
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsSelfMessage}" Value="false">
+                                        <Setter TargetName="MsgBorder" Property="HorizontalAlignment" Value="Left"/>
+                                        <Setter TargetName="MsgBorder" Property="Background"
+                                            Value="{Binding DataContext.OpponentColor,
+                                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsSelfMessage}" Value="true">
+                                        <Setter TargetName="MsgBorder" Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter TargetName="MsgBorder" Property="Background"
+                                            Value="{Binding DataContext.SelfColor,
+                                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

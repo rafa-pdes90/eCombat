@@ -15,7 +15,7 @@ namespace eCombat.Converters
                 switch (value)
                 {
                     case string v:
-                        result = result && v.Length > 0;
+                        result = result && !string.IsNullOrEmpty(v);
                         break;
                     case bool v:
                         result = result && v;

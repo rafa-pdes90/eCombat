@@ -114,20 +114,20 @@ namespace eCombat.ViewModel
         }
 
         /// <summary>
-        /// The <see cref="PlayerColor" /> property's name.
+        /// The <see cref="SelfColor" /> property's name.
         /// </summary>
-        public const string PlayerColorPropertyName = "PlayerColor";
+        public const string SelfColorPropertyName = "SelfColor";
 
-        private SolidColorBrush _playerColor;
+        private SolidColorBrush _selfColor;
 
         /// <summary>
-        /// Sets and gets the PlayerColor property.
+        /// Sets and gets the SelfColor property.
         /// Changes to that property's value raise the PropertyChanged event. 
         /// </summary>
-        public SolidColorBrush PlayerColor
+        public SolidColorBrush SelfColor
         {
-            get => _playerColor;
-            set => Set(() => PlayerColor, ref _playerColor, value);
+            get => _selfColor;
+            set => Set(() => SelfColor, ref _selfColor, value, true);
         }
 
         /// <summary>
@@ -144,10 +144,10 @@ namespace eCombat.ViewModel
         public SolidColorBrush OpponentColor
         {
             get => _opponentColor;
-            set => Set(() => OpponentColor, ref _opponentColor, value);
+            set => Set(() => OpponentColor, ref _opponentColor, value, true);
         }
         
-        public List<BoardPiece> EnemyList { get; set; }
+        public List<BoardPiece> OpponentList { get; set; }
         public List<BoardPiece> UnitList { get; set; }
         public ObservableCollection<string> LogList { get; } = new ObservableCollection<string>();
 
@@ -167,7 +167,7 @@ namespace eCombat.ViewModel
 
             DesistirPartidaCommand = new RelayCommand(DesistirPartidaMethod);
 
-            this.EnemyList = Army.GetEnemyList();
+            this.OpponentList = Army.GetOpponentList();
             this.UnitList = Army.GetUnitlist();
             this.UnitList.Shuffle();
         }
@@ -192,12 +192,12 @@ namespace eCombat.ViewModel
         {
             if (player2Color)
             {
-                this.PlayerColor = Brushes.CornflowerBlue;
+                this.SelfColor = Brushes.CornflowerBlue;
                 this.OpponentColor = Brushes.Orange;
             }
             else
             {
-                this.PlayerColor = Brushes.Orange;
+                this.SelfColor = Brushes.Orange;
                 this.OpponentColor = Brushes.CornflowerBlue;
             }
         }

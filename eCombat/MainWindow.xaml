@@ -6,12 +6,13 @@
         xmlns:local="clr-namespace:eCombat"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:ignore="http://www.galasoft.ch/ignore"
+        xmlns:controls="clr-namespace:eCombat.Controls"
         mc:Ignorable="d ignore"
         Title="eCombat" Height="600" Width="1024" MaxHeight="600" MaxWidth="1024"
         WindowStartupLocation="CenterScreen" GlowBrush="{DynamicResource AccentColorBrush}"
         Background="Azure" WindowTransitionsEnabled="False"
         ContentRendered="MetroWindow_ContentRendered"
-         DataContext="{Binding Main, Source={StaticResource Locator}}" >
+        DataContext="{Binding MainVm, Source={StaticResource Locator}}" >
 
     <Window.Resources>
         <ResourceDictionary>
@@ -103,72 +104,8 @@
                 </Border>
             </Grid>
 
-            <Grid Grid.Row="1" Margin="5" DataContext="{Binding ChatMsg, Source={StaticResource Locator}}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBox Text="{Binding SendTextContent, UpdateSourceTrigger=PropertyChanged}"
-                             mah:TextBoxHelper.Watermark="140 caracteres"
-                             mah:TextBoxHelper.ClearTextButton="True"
-                             MaxLength="140" Grid.Column="0" AcceptsReturn="False" TextWrapping="Wrap">
-                        <TextBox.InputBindings>
-                            <KeyBinding
-                                Key="Return" 
-                                Command="{Binding SendButtonCommand}"/>
-                        </TextBox.InputBindings>
-                    </TextBox>
-
-                    <!-- ReSharper disable once Xaml.StaticResourceNotResolved -->
-                    <Button Grid.Column="1" x:Name="Button" Content="Enviar" HorizontalAlignment="Right" Width="60" Command="{Binding SendButtonCommand}"
-                            Style="{StaticResource AccentedSquareButtonStyle}"/>
-                </Grid>
-
-                <Grid Grid.Row="1" Background="White">
-                    <ScrollViewer x:Name="ChatScrollViewer">
-                        <ItemsControl HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Stretch"
-                                      BorderThickness="1"
-                                      BorderBrush="DimGray"
-                                      x:Name="ChatItemsControl"
-                                      Padding="5"
-                                      ItemsSource="{Binding ChatList}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border x:Name="Para" BorderThickness="1" BorderBrush="Black" CornerRadius="5" Margin="0,0,0,5"
-                                            MaxWidth="200">
-                                        <TextBlock HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Padding="5" TextWrapping="Wrap"
-                                                   Text="{Binding MsgContent}"/>
-                                    </Border>
-
-                                    <DataTemplate.Triggers>
-                                        <DataTrigger Binding="{Binding IsSelfMessage}" Value="false">
-                                            <Setter TargetName="Para" Property="HorizontalAlignment" Value="Left"/>
-                                            <Setter TargetName="Para" Property="Background" 
-                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, 
-                                                Path=DataContext.OpponentColor}"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsSelfMessage}" Value="true">
-                                            <Setter TargetName="Para" Property="HorizontalAlignment" Value="Right"/>
-                                            <Setter TargetName="Para" Property="Background"
-                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, 
-                                                Path=DataContext.PlayerColor}"/>
-                                        </DataTrigger>
-                                    </DataTemplate.Triggers>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
+            <Grid Grid.Row="1" Margin="5">
+                <controls:Chat/>
             </Grid>
 
             <Grid Grid.Row="2" Margin="5">

@@ -11,7 +11,7 @@
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
         Background="#A8228B22" WindowTransitionsEnabled="False" ShowInTaskbar="False"
         BorderThickness="0" GlowBrush="Black"
-        DataContext="{Binding Fin, Source={StaticResource Locator}}" >
+        DataContext="{Binding FinVm, Source={StaticResource Locator}}" >
 
     <Window.Resources>
         <ResourceDictionary>

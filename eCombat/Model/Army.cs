@@ -4,17 +4,17 @@ namespace eCombat.Model
 {
     public class Army
     {
-        public static List<BoardPiece> GetEnemyList()
+        public static List<BoardPiece> GetOpponentList()
         {
-            var enemyList = new List<BoardPiece>();
+            var opponentList = new List<BoardPiece>();
 
             for (int i = 0; i < 40; i++)
             {
-                var newEnemy = new BoardPiece(null, moveLevel: -1, isEnemy: true);
-                enemyList.Add(newEnemy);
+                var newOpponent = new BoardPiece(null, moveLevel: -1, isOpponent: true);
+                opponentList.Add(newOpponent);
             }
 
-            return enemyList;
+            return opponentList;
         }
 
         public static List<BoardPiece> GetUnitlist()

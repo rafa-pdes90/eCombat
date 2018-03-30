@@ -123,14 +123,18 @@
     </ApplicationDefinition>
     <Compile Include="CombateSvc.cs" />
     <Compile Include="CombateSvcData.cs" />
+    <Compile Include="Controls\Chat.xaml.cs">
+      <DependentUpon>Chat.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\StringIsNotEmptyAndBoolConverter.cs" />
+    <Compile Include="Converters\StringIsNotEmptyConverter.cs" />
     <Compile Include="GameMasterSvc.cs" />
     <Compile Include="ICombateSvc.cs" />
     <Compile Include="Model\Army.cs" />
     <Compile Include="Model\BoardPiece.cs" />
     <Compile Include="Model\CustomHost.cs" />
     <Compile Include="Model\GameMaster.cs" />
-    <Compile Include="ViewModel\ChatMsgViewModel.cs" />
+    <Compile Include="ViewModel\ChatViewModel.cs" />
     <Compile Include="ViewModel\FinViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NetConnViewModel.cs" />
@@ -141,6 +145,10 @@
     <Compile Include="View\Fin.xaml.cs">
       <DependentUpon>Fin.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\Chat.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -153,6 +161,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Skins\ChatSkin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Skins\FinSkin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
