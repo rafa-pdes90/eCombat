@@ -73,13 +73,13 @@
                                     <DataTrigger Binding="{Binding IsSelfMessage}" Value="false">
                                         <Setter TargetName="MsgBorder" Property="HorizontalAlignment" Value="Left"/>
                                         <Setter TargetName="MsgBorder" Property="Background"
-                                            Value="{Binding DataContext.OpponentColor,
+                                            Value="{Binding DataContext.Opponent.Color,
                                             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding IsSelfMessage}" Value="true">
                                         <Setter TargetName="MsgBorder" Property="HorizontalAlignment" Value="Right"/>
                                         <Setter TargetName="MsgBorder" Property="Background"
-                                            Value="{Binding DataContext.SelfColor,
+                                            Value="{Binding DataContext.SelfPlayer.Color,
                                             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"/>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>

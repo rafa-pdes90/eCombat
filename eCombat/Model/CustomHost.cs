@@ -6,7 +6,7 @@ using System.Xml.Linq;
 
 namespace eCombat.Model
 {
-    public class CustomHost : ServiceHost
+    public sealed class CustomHost : ServiceHost
     {
         public CustomHost(Type serviceType) : base(serviceType)
         {

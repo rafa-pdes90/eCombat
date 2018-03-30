@@ -10,6 +10,9 @@ namespace eCombat.ViewModel
 {
     public class ChatViewModel : ViewModelBase
     {
+        public SelfPlayer SelfPlayer => SelfPlayer.Instance;
+        public Opponent Opponent => Opponent.Instance;
+
         /// <summary>
         /// The <see cref="TypingBoxText" /> property's name.
         /// </summary>
@@ -78,40 +81,6 @@ namespace eCombat.ViewModel
             set => Set(() => this.ChatMsgList, ref this._chatMsgList, value);
         }
 
-        /// <summary>
-        /// The <see cref="SelfColor" /> property's name.
-        /// </summary>
-        public const string SelfColorPropertyName = "SelfColor";
-
-        private SolidColorBrush _selfColor;
-
-        /// <summary>
-        /// Sets and gets the SelfColor property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public SolidColorBrush SelfColor
-        {
-            get => this._selfColor;
-            set => Set(() => this.SelfColor, ref this._selfColor, value);
-        }
-
-        /// <summary>
-            /// The <see cref="OpponentColor" /> property's name.
-            /// </summary>
-        public const string OpponentColorPropertyName = "OpponentColor";
-
-        private SolidColorBrush _opponentColor;
-
-        /// <summary>
-        /// Sets and gets the OpponentColor property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public SolidColorBrush OpponentColor
-        {
-            get => this._opponentColor;
-            set => Set(() => this.OpponentColor, ref this._opponentColor, value);
-        }
-
 
         private RelayCommand _sendCommand;
 
@@ -139,8 +108,7 @@ namespace eCombat.ViewModel
         {
             Messenger.Default.Register<PropertyChangedMessage<int>>(this,
                 x => this.TypingBoxWatermark = x.NewValue + " characters");
-
-            Messenger.Default.Register<PropertyChangedMessage<SolidColorBrush>>(this, SetColors);
+            
             Messenger.Default.Register<ChatMsg>(this, "NewChatMsg", AddToChatMsgList);
             Messenger.Default.Register<char>(this, "HardReset", x => HardReset());
 
@@ -152,21 +120,6 @@ namespace eCombat.ViewModel
             this.ChatMsgList = new ObservableCollection<ChatMsg>();
             this.TypingBoxText = string.Empty;
             this.TypingBoxTextLimit = 140;
-        }
-
-        private void SetColors(PropertyChangedMessage<SolidColorBrush> x)
-        {
-            if (x.PropertyName != "SelfColor")
-            {
-                if (x.PropertyName == "OpponentColor")
-                {
-                    this.OpponentColor = x.NewValue;
-                }
-            }
-            else
-            {
-                this.SelfColor = x.NewValue;
-            }
         }
 
         private void AddToChatMsgList(ChatMsg chatMessage)
