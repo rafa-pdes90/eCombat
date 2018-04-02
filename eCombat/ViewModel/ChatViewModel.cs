@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows.Media;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using eCombat.Model;
@@ -11,120 +10,82 @@ namespace eCombat.ViewModel
     public class ChatViewModel : ViewModelBase
     {
         public SelfPlayer SelfPlayer => SelfPlayer.Instance;
+
         public Opponent Opponent => Opponent.Instance;
 
         /// <summary>
-        /// The <see cref="TypingBoxText" /> property's name.
+        /// The <see cref="PostText" /> property's name.
         /// </summary>
-        public const string TypingBoxTextPropertyName = "TypingBoxText";
+        public const string PostTextPropertyName = "PostText";
 
-        private string _typingBoxText;
+        private string _postText;
 
         /// <summary>
-        /// Sets and gets the TypingBoxText property.
+        /// Sets and gets the PostText property.
         /// Changes to that property's value raise the PropertyChanged event. 
         /// </summary>
-        public string TypingBoxText
+        public string PostText
         {
-            get => this._typingBoxText;
-            set => Set(() => this.TypingBoxText, ref this._typingBoxText, value);
+            get => this._postText;
+            set => Set(() => this.PostText, ref this._postText, value);
         }
 
         /// <summary>
-        /// The <see cref="TypingBoxTextLimit" /> property's name.
+        /// The <see cref="PostSizeLimit" /> property's name.
         /// </summary>
-        public const string TypingBoxTextLimitPropertyName = "TypingBoxTextLimit";
+        public const string PostSizeLimitPropertyName = "PostSizeLimit";
 
-        private int _typingBoxTextLimit;
+        private int _postSizeLimit;
 
         /// <summary>
-        /// Sets and gets the TypingBoxTextLimit property.
+        /// Sets and gets the PostSizeLimit property.
         /// Changes to that property's value raise the PropertyChanged event. 
         /// </summary>
-        public int TypingBoxTextLimit
+        public int PostSizeLimit
         {
-            get => this._typingBoxTextLimit;
-            set => Set(() => this.TypingBoxTextLimit, ref this._typingBoxTextLimit, value, true);
+            get => this._postSizeLimit;
+            set => Set(() => this.PostSizeLimit, ref this._postSizeLimit, value, true);
         }
 
+        public ObservableCollection<ChatMsg> ChatMsgList { get; set; }
+
+        private RelayCommand _postCommand;
+
         /// <summary>
-        /// The <see cref="TypingBoxWatermark" /> property's name.
+        /// Gets the PostCommand.
         /// </summary>
-        public const string TypingBoxWatermarkPropertyName = "TypingBoxWatermark";
-
-        private string _typingBoxWatermark;
-
-        /// <summary>
-        /// Sets and gets the TypingBoxWatermark property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public string TypingBoxWatermark
-        {
-            get => this._typingBoxWatermark;
-            set => Set(() => this.TypingBoxWatermark, ref this._typingBoxWatermark, value);
-        }
-
-        /// <summary>
-            /// The <see cref="ChatMsgList" /> property's name.
-            /// </summary>
-        public const string ChatMsgListPropertyName = "ChatMsgList";
-
-        private ObservableCollection<ChatMsg> _chatMsgList;
-
-        /// <summary>
-        /// Sets and gets the ChatMsgList property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public ObservableCollection<ChatMsg> ChatMsgList
-        {
-            get => this._chatMsgList;
-            set => Set(() => this.ChatMsgList, ref this._chatMsgList, value);
-        }
-
-
-        private RelayCommand _sendCommand;
-
-        /// <summary>
-        /// Gets the SendCommand.
-        /// </summary>
-        public RelayCommand SendCommand
-        {
-            get
-            {
-                return this._sendCommand
-                       ?? (this._sendCommand = new RelayCommand(
-                           () =>
-                           {
-                               GameMaster.Client.WriteMessageToChat(this.TypingBoxText);
-
-                               this.TypingBoxText = string.Empty;
-                           },
-                           () => !string.IsNullOrEmpty(this.TypingBoxText)));
-            }
-        }
-
+        public RelayCommand PostCommand =>
+            this._postCommand ?? (this._postCommand = new RelayCommand(PostMethod,
+                () => !string.IsNullOrEmpty(this.PostText)));
+        
 
         public ChatViewModel()
         {
-            Messenger.Default.Register<PropertyChangedMessage<int>>(this,
-                x => this.TypingBoxWatermark = x.NewValue + " characters");
-            
             Messenger.Default.Register<ChatMsg>(this, "NewChatMsg", AddToChatMsgList);
-            Messenger.Default.Register<char>(this, "HardReset", x => HardReset());
+            Messenger.Default.Register<int>(this, "HardReset", x => HardReset());
+
+            this.ChatMsgList = new ObservableCollection<ChatMsg>();
 
             HardReset();
         }
 
         private void HardReset()
         {
-            this.ChatMsgList = new ObservableCollection<ChatMsg>();
-            this.TypingBoxText = string.Empty;
-            this.TypingBoxTextLimit = 140;
+            this.PostText = string.Empty;
+            this.PostSizeLimit = 140;
+            this.ChatMsgList.Clear();
         }
 
         private void AddToChatMsgList(ChatMsg chatMessage)
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() => this.ChatMsgList.Add(chatMessage));
+        }
+
+        private void PostMethod()
+        {
+            GameMaster.Client.WriteMessageToChat(this.PostText);
+
+            this.PostText = string.Empty;
         }
     }
 }

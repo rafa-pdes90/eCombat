@@ -15,29 +15,6 @@ using eCombat.View;
 
 namespace eCombat.ViewModel
 {
-    public static class ThreadSafeRandom
-    {
-        [ThreadStatic] private static Random _local;
-
-        public static Random ThisThreadsRandom =>
-            _local ?? (_local = new Random(unchecked(Environment.TickCount * 31 + Thread.CurrentThread.ManagedThreadId)));
-    }
-
-    static class MyExtensions
-    {
-        public static void Shuffle<T>(this IList<T> list)
-        {
-            int n = list.Count;
-            while (n > 1)
-            {
-                n--;
-                int k = ThreadSafeRandom.ThisThreadsRandom.Next(n + 1);
-                T value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-            }
-        }
-    }
 
     /// <inheritdoc />
     /// <summary>
@@ -112,44 +89,9 @@ namespace eCombat.ViewModel
             get => _isOpponentTurn;
             set => Set(() => IsOpponentTurn, ref _isOpponentTurn, value);
         }
-
-        /// <summary>
-        /// The <see cref="SelfColor" /> property's name.
-        /// </summary>
-        public const string SelfColorPropertyName = "SelfColor";
-
-        private SolidColorBrush _selfColor;
-
-        /// <summary>
-        /// Sets and gets the SelfColor property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public SolidColorBrush SelfColor
-        {
-            get => _selfColor;
-            set => Set(() => SelfColor, ref _selfColor, value, true);
-        }
-
-        /// <summary>
-        /// The <see cref="OpponentColor" /> property's name.
-        /// </summary>
-        public const string OpponentColorPropertyName = "OpponentColor";
-
-        private SolidColorBrush _opponentColor;
-
-        /// <summary>
-        /// Sets and gets the OpponentColor property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public SolidColorBrush OpponentColor
-        {
-            get => _opponentColor;
-            set => Set(() => OpponentColor, ref _opponentColor, value, true);
-        }
         
-        public List<BoardPiece> OpponentList { get; set; }
-        public List<BoardPiece> UnitList { get; set; }
-        public ObservableCollection<string> LogList { get; } = new ObservableCollection<string>();
+        public ObservableCollection<BoardPiece> OpponentList { get; set; }
+        public ObservableCollection<BoardPiece> UnitList { get; set; }
 
         public ICommand DesistirPartidaCommand { get; }
 
@@ -161,21 +103,9 @@ namespace eCombat.ViewModel
         {
             Messenger.Default.Register<bool>(this, "SetIsConnecting", SetIsConnecting);
             Messenger.Default.Register<string>(this, "PlayerName", SetPlayerName);
-            Messenger.Default.Register<bool>(this, "EvalPlayersColors", EvalPlayersColors);
-            Messenger.Default.Register<bool>(this, "EvalMatchTurn", EvalMatchTurn);
-            Messenger.Default.Register<string>(this, "LogIn", LogIn);
+            Messenger.Default.Register<bool>(this, "SetPlayersColors", SetPlayersColors);
 
             DesistirPartidaCommand = new RelayCommand(DesistirPartidaMethod);
-
-            this.OpponentList = Army.GetOpponentList();
-            this.UnitList = Army.GetUnitlist();
-            this.UnitList.Shuffle();
-        }
-
-        private void LogIn(string logEntry)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-                this.LogList.Add(logEntry));
         }
 
         private void SetIsConnecting(bool isConnecting)
@@ -188,25 +118,10 @@ namespace eCombat.ViewModel
             this.PlayerName = name;
         }
 
-        private void EvalPlayersColors(bool player2Color)
+        private void SetPlayersColors(bool isPlayer2)
         {
-            if (player2Color)
-            {
-                this.SelfColor = Brushes.CornflowerBlue;
-                this.OpponentColor = Brushes.Orange;
-            }
-            else
-            {
-                this.SelfColor = Brushes.Orange;
-                this.OpponentColor = Brushes.CornflowerBlue;
-            }
-        }
-
-        private void EvalMatchTurn(bool isOpponentTurn)
-        {
-            this.IsOpponentTurn = isOpponentTurn;
-
-            Messenger.Default.Send(isOpponentTurn ? "It's the opponent's turn!" : "It's your turn!", "LogIn");
+            SelfPlayer.Instance.IsPlayer2 = isPlayer2;
+            Opponent.Instance.IsPlayer2 = !isPlayer2;
         }
 
         private void DesistirPartidaMethod()

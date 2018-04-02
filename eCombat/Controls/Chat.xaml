@@ -6,7 +6,6 @@
              xmlns:local="clr-namespace:eCombat.Controls"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:ignore="http://www.galasoft.ch/ignore"
-             xmlns:converters="clr-namespace:eCombat.Converters"
              mc:Ignorable="d ignore"
              Background="White"
              DataContext="{Binding ChatVm, Source={StaticResource Locator}}"
@@ -14,7 +13,6 @@
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <converters:StringIsNotEmptyConverter x:Key="StringIsNotEmptyConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/eCombat;component/Skins/ChatSkin.xaml"/>
             </ResourceDictionary.MergedDictionaries>
@@ -35,21 +33,20 @@
 
             <TextBox Grid.Column="0" AcceptsReturn="False" TextWrapping="Wrap" BorderThickness="1"
                      mah:TextBoxHelper.ClearTextButton="True"
-                     mah:TextBoxHelper.Watermark="{Binding TypingBoxWatermark}"
-                     Text="{Binding TypingBoxText, UpdateSourceTrigger=PropertyChanged}"
-                     MaxLength="{Binding TypingBoxTextLimit}">
+                     mah:TextBoxHelper.Watermark="{Binding PostSizeLimit, StringFormat={}{0} characters}"
+                     Text="{Binding PostText, UpdateSourceTrigger=PropertyChanged}"
+                     MaxLength="{Binding PostSizeLimit}">
                 <TextBox.InputBindings>
                     <KeyBinding Key="Return"
-                                Command="{Binding SendCommand}"/>
+                                Command="{Binding PostCommand}"/>
                 </TextBox.InputBindings>
             </TextBox>
 
             <Button Grid.Column="1" HorizontalAlignment="Right" Width="60"
-                    Command="{Binding SendCommand}"
-                    IsEnabled="{Binding TypingBoxText, Converter={StaticResource StringIsNotEmptyConverter}}"
+                    Command="{Binding PostCommand}"
                     Style="{DynamicResource AccentedSquareButtonStyle}">
                 <Button.Content>
-                    <Label Content="Send" BorderThickness="0" Padding="0"/>
+                    <Label Content="Post" BorderThickness="0" Padding="0"/>
                 </Button.Content>
             </Button>
         </Grid>
@@ -70,18 +67,46 @@
                                 </Border>
 
                                 <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsSelfMessage}" Value="false">
-                                        <Setter TargetName="MsgBorder" Property="HorizontalAlignment" Value="Left"/>
-                                        <Setter TargetName="MsgBorder" Property="Background"
-                                            Value="{Binding DataContext.Opponent.Color,
-                                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsSelfMessage}" Value="true">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsSelfMessage}" Value="true"/>
+                                            <Condition Value="false"
+                                                       Binding="{Binding DataContext.SelfPlayer.IsPlayer2,
+                                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"/>
+                                        </MultiDataTrigger.Conditions>
                                         <Setter TargetName="MsgBorder" Property="HorizontalAlignment" Value="Right"/>
-                                        <Setter TargetName="MsgBorder" Property="Background"
-                                            Value="{Binding DataContext.SelfPlayer.Color,
-                                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"/>
-                                    </DataTrigger>
+                                        <Setter TargetName="MsgBorder" Property="Background" Value="{StaticResource Player1Brush}"/>
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsSelfMessage}" Value="true"/>
+                                            <Condition Value="true"
+                                                Binding="{Binding DataContext.SelfPlayer.IsPlayer2,
+                                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter TargetName="MsgBorder" Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter TargetName="MsgBorder" Property="Background" Value="{StaticResource Player2Brush}"/>
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsSelfMessage}" Value="false"/>
+                                            <Condition Value="false"
+                                                       Binding="{Binding DataContext.Opponent.IsPlayer2,
+                                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter TargetName="MsgBorder" Property="HorizontalAlignment" Value="Left"/>
+                                        <Setter TargetName="MsgBorder" Property="Background" Value="{StaticResource Player1Brush}"/>
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsSelfMessage}" Value="false"/>
+                                            <Condition Value="true"
+                                                       Binding="{Binding DataContext.Opponent.IsPlayer2,
+                                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter TargetName="MsgBorder" Property="HorizontalAlignment" Value="Left"/>
+                                        <Setter TargetName="MsgBorder" Property="Background" Value="{StaticResource Player2Brush}"/>
+                                    </MultiDataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

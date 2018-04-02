@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Windows;
+using eCombat.Model;
 using GalaSoft.MvvmLight.Messaging;
 
 namespace eCombat
@@ -9,12 +10,13 @@ namespace eCombat
     {
         public void StartMatch(string opponentName, string opponentId, bool isOpponentTurn)
         {
-            Messenger.Default.Send("A game against " + opponentName + " has started!", "LogIn");
+            Messenger.Default.Send("A game against " + opponentName + " has started!", "NewLogEntry");
             Messenger.Default.Send(false, "ChangeRequestOrCancelState");
             Messenger.Default.Send(opponentName, "OpponentName");
             Messenger.Default.Send(opponentId, "OpponentId");
-            Messenger.Default.Send(isOpponentTurn, "EvalPlayersColors");
-            Messenger.Default.Send(isOpponentTurn, "EvalMatchTurn");
+            Messenger.Default.Send(isOpponentTurn, "SetPlayersColors");
+            Messenger.Default.Send(0, "LoadBoard");
+            Messenger.Default.Send(isOpponentTurn, "SetMatchTurn");
 
             Application.Current.Dispatcher.Invoke(() =>
                 ((MainWindow)Application.Current.MainWindow)?.StartNewMatch());
@@ -29,30 +31,23 @@ namespace eCombat
 
         public void MoveBoardPiece(int srcX, int srcY, int destX, int destY, bool isOpponentTurn)
         {
-            Application.Current.Dispatcher.Invoke(() =>
-                ((MainWindow)Application.Current.MainWindow)?.MoveBoardPiece(srcX, srcY, destX, destY));
+            Messenger.Default.Send(new[] {srcX, srcY, destX, destY}, "MoveBoardPiece");
 
-            Messenger.Default.Send(isOpponentTurn, "EvalMatchTurn");
+            Messenger.Default.Send(isOpponentTurn, "SetMatchTurn");
         }
 
         public void AttackBoardPiece(int srcX, int srcY, int destX, int destY,
             string attackerPowerLevel, string defenderPowerLevel, bool isOpponentTurn)
         {
-            Application.Current.Dispatcher.Invoke(() =>
-                ((MainWindow)Application.Current.MainWindow)?.AttackBoardPiece(
-                    srcX, srcY, destX, destY, attackerPowerLevel, defenderPowerLevel));
+            Messenger.Default.Send(new object[] {srcX, srcY, destX, destY, attackerPowerLevel, defenderPowerLevel},
+                "AttackBoardPiece");
 
-            Messenger.Default.Send(isOpponentTurn, "EvalMatchTurn");
+            Messenger.Default.Send(isOpponentTurn, "SetMatchTurn");
         }
 
         public string ShowPowerLevel(int srcX, int srcY)
         {
-            string powerLevel = null;
-
-            Application.Current.Dispatcher.Invoke(() =>
-                powerLevel = ((MainWindow) Application.Current.MainWindow)?.ShowPowerLevel(srcX, srcY));
-
-            return powerLevel;
+            return Board.Layout[srcX, srcY].PieceOnTop.PowerLevel;
         }
 
         public void WriteMessageToChat(ChatMsg chatMessage, bool isSelfMessage)
@@ -60,9 +55,6 @@ namespace eCombat
             chatMessage.IsSelfMessage = isSelfMessage;
 
             Messenger.Default.Send(chatMessage, "NewChatMsg");
-
-            Application.Current.Dispatcher.Invoke(() =>
-                ((MainWindow)Application.Current.MainWindow)?.ChatScrollToEnd());
         }
 
         public void Ping() { }

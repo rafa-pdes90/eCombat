@@ -8,7 +8,6 @@
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:loadin="clr-namespace:LoadingIndicators.WPF;assembly=LoadingIndicators.WPF"
         xmlns:ignore="http://www.galasoft.ch/ignore"
-        xmlns:conv="clr-namespace:eCombat.Converters"
         mc:Ignorable="d ignore"
         Title="eCombat - Stratego Game" TitleCharacterCasing="Normal" Height="300" Width="600"
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
@@ -18,7 +17,6 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <conv:StringIsNotEmptyAndBoolConverter x:Key="StringIsNotEmptyAndBoolConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/eCombat;component/Skins/NetConnSkin.xaml" />
             </ResourceDictionary.MergedDictionaries>
@@ -71,12 +69,6 @@
         <Grid Grid.Row="2" Margin="0,10,0,10" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Button Command="{Binding RequestOrCancelMatchCommand}"
                     MinHeight="60" MinWidth="240" VerticalContentAlignment="Center">
-                <Button.IsEnabled>
-                    <MultiBinding Converter="{StaticResource StringIsNotEmptyAndBoolConverter}">
-                        <Binding Path="RequestOrCancelMatchIsEnabled"/>
-                        <Binding Path="NicknameText"/>
-                    </MultiBinding>
-                </Button.IsEnabled>
                 <StackPanel Orientation="Horizontal">
                     <loadin:LoadingIndicator Style="{DynamicResource LoadingIndicatorRingStyle}"
                                              Visibility="{Binding RequestOrCancelMatchLoadingVisibility, FallbackValue=Visible}"/>

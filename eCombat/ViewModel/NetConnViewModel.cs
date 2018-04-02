@@ -167,7 +167,8 @@ namespace eCombat.ViewModel
 
                                    GameMaster.Client.CancelMatch();
                                }
-                           }));
+                           },
+                           () => this.RequestOrCancelMatchIsEnabled && !string.IsNullOrEmpty(this.NicknameText)));
             }
         }
 

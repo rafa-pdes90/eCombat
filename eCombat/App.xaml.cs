@@ -26,7 +26,7 @@ namespace eCombat
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             var splashScreen = new SplashScreen("/Resources/SplashScreen.png");
-            splashScreen.Show(false, true);
+            splashScreen.Show(false, false);
 
             var dummy0 = new ViewModelLocator();
             this.NetConn = ServiceLocator.Current.GetInstance<NetConnViewModel>();
