@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -80,7 +81,13 @@ namespace eCombat.ViewModel
             (this._fieldClickDownCommand = new RelayCommand<BoardField>(FieldClickDownMethod,
                 field => field != null && (field.IsEnabled || field.IsAttackable)));
 
-        public ObservableCollection<BoardPiece> SelfArmy { get; set; }
+        private ObservableCollection<BoardPiece> _selfArmy;
+
+        public ObservableCollection<BoardPiece> SelfArmy
+        {
+            get => this._selfArmy;
+            set => Set(() => this.SelfArmy, ref this._selfArmy, value);
+        }
 
         public BoardPiece LastSelectedPiece { get; private set; }
         public BoardPiece LastMovedPiece { get; private set; }
@@ -93,13 +100,13 @@ namespace eCombat.ViewModel
 
         public PlayBoardViewModel()
         {
-            Messenger.Default.Register<int>(this, "LoadBoard", token => LoadBoard());
+            Messenger.Default.Register<int>(this, "StartNewMatch", x => LoadBoard());
             Messenger.Default.Register<bool>(this, "SetMatchTurn", SetMatchTurn);
             Messenger.Default.Register<int[]>(this, "MoveBoardPiece", InvokePieceMoveMethod);
-            Messenger.Default.Register<int>(this, "MovePieceCompleted", token => CompletePieceMove());
+            Messenger.Default.Register<int>(this, "MovePieceCompleted", x => CompletePieceMove());
             Messenger.Default.Register<object[]>(this, "AttackBoardPiece", InvokePieceAttackMethod);
             Messenger.Default.Register<int>(this, "AttackPieceCompleted", token => CompletePieceAttack());
-            Messenger.Default.Register<int>(this, "SoftReset", token => SoftReset());
+            Messenger.Default.Register<int>(this, "SoftReset", x => SoftReset());
             
             this.EnabledFields = new List<BoardField>();
             this.LastFighters = new Queue<BoardPiece>(2);
@@ -223,6 +230,14 @@ namespace eCombat.ViewModel
                 }
 
                 this.SelfArmy.Clear();
+
+                //RANDOM ONLY MODE//
+                foreach (BoardPiece piece in SelfPlayer.SpecialUnits)
+                {
+                    piece.IsSelectable = false;
+                }
+
+                this.IsMatchOn = true;
             }
         }
 
@@ -430,8 +445,7 @@ namespace eCombat.ViewModel
 
             if (!isBandeira) return;
 
-            string finResult = this.IsOpponentTurn ? "Victory" : "Defeat";
-            Messenger.Default.Send(finResult, "EndMatchResult");
+            Messenger.Default.Send(defender.IsOpponent, "FlagCaptured");
         }
 
         private void CompletePieceAttack()

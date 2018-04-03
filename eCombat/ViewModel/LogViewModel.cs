@@ -7,7 +7,13 @@ namespace eCombat.ViewModel
 {
     public class LogViewModel : ViewModelBase
     {
-        public ObservableCollection<string> LogList { get; set; }
+        private ObservableCollection<string> _logList;
+
+        public ObservableCollection<string> LogList
+        {
+            get => this._logList;
+            set => Set(() => this.LogList, ref this._logList, value);
+        }
 
         public LogViewModel()
         {

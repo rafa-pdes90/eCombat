@@ -47,7 +47,13 @@ namespace eCombat.ViewModel
             set => Set(() => this.PostSizeLimit, ref this._postSizeLimit, value, true);
         }
 
-        public ObservableCollection<ChatMsg> ChatMsgList { get; set; }
+        private ObservableCollection<ChatMsg> _chatMsgList;
+
+        public ObservableCollection<ChatMsg> ChatMsgList
+        {
+            get => this._chatMsgList;
+            set => Set(() => this.ChatMsgList, ref this._chatMsgList, value);
+        }
 
         private RelayCommand _postCommand;
 

@@ -1,17 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using CommonServiceLocator;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
 using eCombat.Model;
-using eCombat.View;
 
 namespace eCombat.ViewModel
 {
@@ -56,44 +47,14 @@ namespace eCombat.ViewModel
             set => Set(() => IsPlaying, ref _isPlaying, value);
         }
 
-        /// <summary>
-        /// The <see cref="PlayerName" /> property's name.
-        /// </summary>
-        public const string PlayerNamePropertyName = "PlayerName";
-
-        private string _playerName = "";
+        private RelayCommand _giveUpCommand;
 
         /// <summary>
-        /// Sets and gets the PlayerName property.
-        /// Changes to that property's value raise the PropertyChanged event. 
+        /// Gets the GiveUpCommand.
         /// </summary>
-        public string PlayerName
-        {
-            get => _playerName;
-            set => Set(() => PlayerName, ref _playerName, value);
-        }
-
-        /// <summary>
-        /// The <see cref="IsOpponentTurn" /> property's name.
-        /// </summary>
-        public const string IsOpponentTurnPropertyName = "IsOpponentTurn";
-
-        private bool _isOpponentTurn;
-
-        /// <summary>
-        /// Sets and gets the IsOpponentTurn property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public bool IsOpponentTurn
-        {
-            get => _isOpponentTurn;
-            set => Set(() => IsOpponentTurn, ref _isOpponentTurn, value);
-        }
-        
-        public ObservableCollection<BoardPiece> OpponentList { get; set; }
-        public ObservableCollection<BoardPiece> UnitList { get; set; }
-
-        public ICommand DesistirPartidaCommand { get; }
+        public RelayCommand GiveUpCommand =>
+            this._giveUpCommand ?? (this._giveUpCommand = new RelayCommand(GiveUpMethod,
+                () => this.IsPlaying));
 
         /// <inheritdoc />
         /// <summary>
@@ -101,11 +62,28 @@ namespace eCombat.ViewModel
         /// </summary>
         public MainViewModel()
         {
+            Messenger.Default.Register<int>(this, "StartNewMatch", token => StartNewMatch());
             Messenger.Default.Register<bool>(this, "SetIsConnecting", SetIsConnecting);
-            Messenger.Default.Register<string>(this, "PlayerName", SetPlayerName);
-            Messenger.Default.Register<bool>(this, "SetPlayersColors", SetPlayersColors);
+            Messenger.Default.Register<string>(this, "SetPlayerName", SetPlayerName);
+            Messenger.Default.Register<string>(this, "SetOpponentName", SetOpponentName);
+            Messenger.Default.Register<bool>(this, "SetPlayersOrder", SetPlayersOrder);
+            Messenger.Default.Register<bool>(this, "EndMatch", EndMatch);
+            Messenger.Default.Register<bool>(this, "FlagCaptured", SetWinner);
+            Messenger.Default.Register<int>(this, "HardReset", x => HardReset());
 
-            DesistirPartidaCommand = new RelayCommand(DesistirPartidaMethod);
+            HardReset();
+        }
+
+        private void HardReset()
+        {
+            this.IsConnecting = true;
+            this.IsPlaying = false;
+        }
+
+        private void StartNewMatch()
+        {
+            this.IsConnecting = false;
+            this.IsPlaying = true;
         }
 
         private void SetIsConnecting(bool isConnecting)
@@ -115,24 +93,46 @@ namespace eCombat.ViewModel
 
         private void SetPlayerName(string name)
         {
-            this.PlayerName = name;
+            SelfPlayer.Instance.Name = name;
         }
 
-        private void SetPlayersColors(bool isPlayer2)
+        private void SetOpponentName(string name)
+        {
+            Opponent.Instance.Name = name;
+        }
+
+        private void SetPlayersOrder(bool isPlayer2)
         {
             SelfPlayer.Instance.IsPlayer2 = isPlayer2;
             Opponent.Instance.IsPlayer2 = !isPlayer2;
         }
 
-        private void DesistirPartidaMethod()
+        private void GiveUpMethod()
         {
             this.IsPlaying = false;
+
+            Messenger.Default.Send("GiveUp", "EndMatchResult");
+
             GameMaster.Client.CancelMatch();
+        }
+        private void SetWinner(bool IsWinner)
+        {
+            this.IsPlaying = false;
+            string finResult = IsWinner ? "Victory" : "Defeat";
+            Messenger.Default.Send(finResult, "EndMatchResult");
+        }
 
-            Task.Run(() => Messenger.Default.Send(0, "ResetAll"));
+        private void EndMatch(bool isWorthPoints)
+        {
+            if (this.IsPlaying)
+            {
+                this.IsPlaying = false;
 
-            Application.Current.Dispatcher.Invoke(() =>
-                ((MainWindow)Application.Current.MainWindow)?.LoadDialogWindow(new Fin("You gave up!?")));
+                string finResult = isWorthPoints ? "LeftWin" : "Cancelled";
+                Messenger.Default.Send(finResult, "EndMatchResult");
+            }
+
+            Messenger.Default.Send(0, "LoadFin");
         }
     }
 }

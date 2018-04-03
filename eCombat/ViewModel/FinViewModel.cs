@@ -35,23 +35,50 @@ namespace eCombat.ViewModel
         {
             ResetCommand = new RelayCommand(ResetMethod);
             ExitCommand = new RelayCommand(ExitMethod);
+
+            Messenger.Default.Register<string>(this, "EndMatchResult", SetEndMatchMessage);
         }
 
         private static void ResetMethod()
         {
-            Application.Current.Dispatcher.Invoke(() =>
-                ((MainWindow)Application.Current.MainWindow)?.DialogWindow.Close());
+            Messenger.Default.Send(0, "HardReset");
+            Messenger.Default.Send(0, "SoftReset");
+
+            Messenger.Default.Send(0, "FinClose");
 
             Task.Run(() => Messenger.Default.Send(0, "RunRequestOrCancelCommand"));
 
-            Application.Current.Dispatcher.Invoke(() =>
-                ((MainWindow)Application.Current.MainWindow)?.LoadDialogWindow(new ConnectionWindow()));
+            Messenger.Default.Send(0, "OpenConnection");
         }
 
         private static void ExitMethod()
         {
-            Application.Current.Dispatcher.Invoke(() =>
-                ((MainWindow)Application.Current.MainWindow)?.DialogWindow.Close());
+            Messenger.Default.Send(0, "FinishGame");
+        }
+
+        private void SetEndMatchMessage(string result)
+        {
+            switch (result)
+            {
+                case "Victory":
+                    this.EndMatchMessage = "You win! Congratulations!";
+                    break;
+                case "Defeat":
+                    this.EndMatchMessage = "You lose! Better luck next time!";
+                    break;
+                case "LeftWin":
+                    this.EndMatchMessage = "The opponent surrendered! You win!";
+                    break;
+                case "Cancelled":
+                    this.EndMatchMessage = "The match has been cancelled.";
+                    break;
+                case "GiveUp":
+                    this.EndMatchMessage = "You gave up!? What a pity!";
+                    break;
+                default:
+                    this.EndMatchMessage = "Fin";
+                    break;
+            }
         }
     }
 }

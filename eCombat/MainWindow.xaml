@@ -30,7 +30,7 @@
 
         <Grid Grid.Column="0" Margin="5">
             <controls:PlayBoard>
-                <Button Content="Options"/>
+                <Button Content="Options" IsEnabled="False"/>
             </controls:PlayBoard>
         </Grid>
 
@@ -50,7 +50,7 @@
             </Grid>
 
             <Grid Grid.Row="2">
-                <Button Content="Desistir da partida" Command="{Binding DesistirPartidaCommand}"/>
+                <Button Content="Surrender Match" Command="{Binding GiveUpCommand}"/>
             </Grid>
         </Grid>
     </Grid>

@@ -187,7 +187,7 @@ namespace eCombat.ViewModel
         {
             this.RequestOrCancelMatchIsEnabled = value;
 
-            Messenger.Default.Send(this.NicknameText, "PlayerName");
+            Messenger.Default.Send(this.NicknameText, "SetPlayerName");
         }
 
         private async void RunRequestOrCancelCommand()

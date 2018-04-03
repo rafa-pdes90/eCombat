@@ -12,21 +12,16 @@ namespace eCombat
         {
             Messenger.Default.Send("A game against " + opponentName + " has started!", "NewLogEntry");
             Messenger.Default.Send(false, "ChangeRequestOrCancelState");
-            Messenger.Default.Send(opponentName, "OpponentName");
-            Messenger.Default.Send(opponentId, "OpponentId");
-            Messenger.Default.Send(isOpponentTurn, "SetPlayersColors");
-            Messenger.Default.Send(0, "LoadBoard");
+            Messenger.Default.Send(opponentId, "SetOpponentId");
+            Messenger.Default.Send(opponentName, "SetOpponentName");
+            Messenger.Default.Send(isOpponentTurn, "SetPlayersOrder");
+            Messenger.Default.Send(0, "StartNewMatch");
             Messenger.Default.Send(isOpponentTurn, "SetMatchTurn");
-
-            Application.Current.Dispatcher.Invoke(() =>
-                ((MainWindow)Application.Current.MainWindow)?.StartNewMatch());
         }
 
         public void EndMatch(bool isWorthPoints)
         {
-            Task.Run(() =>
-                Application.Current.Dispatcher.Invoke(() =>
-                    ((MainWindow)Application.Current.MainWindow)?.EvalPrematureMatchEnd(isWorthPoints)));
+            Messenger.Default.Send(isWorthPoints, "EndMatch");
         }
 
         public void MoveBoardPiece(int srcX, int srcY, int destX, int destY, bool isOpponentTurn)

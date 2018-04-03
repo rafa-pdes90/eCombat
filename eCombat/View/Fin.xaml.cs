@@ -1,5 +1,7 @@
 ﻿using CommonServiceLocator;
 using eCombat.ViewModel;
+using GalaSoft.MvvmLight.Messaging;
+using GalaSoft.MvvmLight.Threading;
 using MahApps.Metro.Controls;
 
 namespace eCombat.View
@@ -9,18 +11,14 @@ namespace eCombat.View
     /// </summary>
     public partial class Fin : MetroWindow
     {
-        private static FinViewModel Vm { get; }
+        /// <summary>
+        /// Gets the view's ViewModel.
+        /// </summary>
+        public FinViewModel Vm => (FinViewModel)this.DataContext;
 
-        static Fin()
-        {
-            Vm = ServiceLocator.Current.GetInstance<FinViewModel>();
-        }
-
-        public Fin(string headerMessage)
+        public Fin()
         {
             InitializeComponent();
-
-            Vm.EndMatchMessage = headerMessage;
         }
     }
 }

@@ -1,22 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
-using System.Windows.Shapes;
-using GalaSoft.MvvmLight.CommandWpf;
 using MahApps.Metro.Controls;
 using eCombat.Model;
 using eCombat.View;
 using eCombat.ViewModel;
 using GalaSoft.MvvmLight.Messaging;
+using GalaSoft.MvvmLight.Threading;
 
 namespace eCombat
 {
@@ -31,9 +21,8 @@ namespace eCombat
         /// </summary>
         private MainViewModel Vm => (MainViewModel)this.DataContext;
 
-        public MetroWindow DialogWindow { get; set; }
-
         private bool KeepOn { get; set; }
+        private MetroWindow DialogWindow { get; set; }
 
         public MainWindow()
         {
@@ -41,10 +30,14 @@ namespace eCombat
 
             this.Closing += MainWindow_Closing;
 
-            this.DialogWindow = null;
             this.KeepOn = false;
+            this.DialogWindow = null;
 
-            Messenger.Default.Register<int>(this, "ResetAll", token => ResetAll());
+            Messenger.Default.Register<int>(this, "StartNewMatch", token => StartNewMatch());
+            Messenger.Default.Register<int>(this, "LoadFin", x => LoadFin());
+            Messenger.Default.Register<int>(this, "FinClose", x => FinClose());
+            Messenger.Default.Register<int>(this, "OpenConnection", x => OpenConnection());
+            Messenger.Default.Register<int>(this, "FinishGame", x => FinishGame());
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -90,28 +83,44 @@ namespace eCombat
 
         public void StartNewMatch()
         {
-            this.Vm.IsConnecting = false;
-            this.Vm.IsPlaying = true;
-            this.KeepOn = true;
-            this.DialogWindow.Close();
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+            {
+                this.KeepOn = true;
+                this.DialogWindow.Close();
+            });
         }
 
-        public void EvalPrematureMatchEnd(bool isWorthPoints)
+        private void LoadFin()
         {
-            if (!this.Vm.IsPlaying) return;
-
-            this.Vm.IsPlaying = false;
-
-            Task.Run(() => Messenger.Default.Send(0, "ResetAll"));
-
-            LoadDialogWindow(isWorthPoints
-                ? new Fin("The opponent has given up! You win!")
-                : new Fin("The match has been cancelled."));
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+            {
+                LoadDialogWindow(new Fin());
+            });
         }
 
-        private void ResetAll()
+        private void FinClose()
         {
-            this.KeepOn = false;
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+            {
+                this.KeepOn = true;
+                this.DialogWindow.Close();
+            });
+        }
+
+        private void OpenConnection()
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+            {
+                LoadDialogWindow(new ConnectionWindow());
+            });
+        }
+
+        private void FinishGame()
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+            {
+                this.DialogWindow.Close();
+            });
         }
     }
 }
