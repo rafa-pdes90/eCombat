@@ -2,12 +2,11 @@
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Discovery;
-using System.Windows;
 using System.Xml.Linq;
 
 namespace eCombat.Model
 {
-    public class CustomHost : ServiceHost
+    public sealed class CustomHost : ServiceHost
     {
         public CustomHost(Type serviceType) : base(serviceType)
         {

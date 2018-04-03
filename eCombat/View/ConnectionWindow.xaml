@@ -7,16 +7,23 @@
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:loadin="clr-namespace:LoadingIndicators.WPF;assembly=LoadingIndicators.WPF"
-        xmlns:conv="clr-namespace:eCombat.Converters"
-        mc:Ignorable="d"
+        xmlns:ignore="http://www.galasoft.ch/ignore"
+        mc:Ignorable="d ignore"
         Title="eCombat - Stratego Game" TitleCharacterCasing="Normal" Height="300" Width="600"
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
         Background="#A8228B22" WindowTransitionsEnabled="False" ShowInTaskbar="False"
-        BorderThickness="0" GlowBrush="Black" Icon="/eCombat;component/Resources/WindowIcon.png" >
+        BorderThickness="0" GlowBrush="Black" Icon="/eCombat;component/Resources/WindowIcon.png"
+        DataContext="{Binding NetConnVm, Source={StaticResource Locator}}" >
+
     <Window.Resources>
-        <conv:StringIsNotEmptyConverter x:Key="StringIsNotEmptyConverter"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/eCombat;component/Skins/NetConnSkin.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
-    <Grid DataContext="{Binding Source={StaticResource Locator}, Path=NetConn}">
+
+    <Grid>
         <Grid.Background>
             <ImageBrush ImageSource="/Resources/WelcomeBackground.jpg" Opacity="0.66" Stretch="UniformToFill"/>
         </Grid.Background>
@@ -62,12 +69,6 @@
         <Grid Grid.Row="2" Margin="0,10,0,10" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Button Command="{Binding RequestOrCancelMatchCommand}"
                     MinHeight="60" MinWidth="240" VerticalContentAlignment="Center">
-                <Button.IsEnabled>
-                    <MultiBinding Converter="{StaticResource StringIsNotEmptyConverter}">
-                        <Binding Path="RequestOrCancelMatchIsEnabled"/>
-                        <Binding Path="NicknameText"/>
-                    </MultiBinding>
-                </Button.IsEnabled>
                 <StackPanel Orientation="Horizontal">
                     <loadin:LoadingIndicator Style="{DynamicResource LoadingIndicatorRingStyle}"
                                              Visibility="{Binding RequestOrCancelMatchLoadingVisibility, FallbackValue=Visible}"/>

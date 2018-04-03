@@ -123,21 +123,31 @@
     </ApplicationDefinition>
     <Compile Include="CombateSvc.cs" />
     <Compile Include="CombateSvcData.cs" />
-    <Compile Include="Converters\StringIsNotEmptyConverter.cs" />
+    <Compile Include="Controls\Chat.xaml.cs">
+      <DependentUpon>Chat.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Log.xaml.cs">
+      <DependentUpon>Log.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PlayBoard.xaml.cs">
+      <DependentUpon>PlayBoard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Extensions\ListShuffle.cs" />
     <Compile Include="GameMasterSvc.cs" />
     <Compile Include="ICombateSvc.cs" />
-    <Compile Include="Model\Army.cs" />
+    <Compile Include="Model\Board.cs" />
+    <Compile Include="Model\BoardField.cs" />
     <Compile Include="Model\BoardPiece.cs" />
-    <Compile Include="Model\ChatMsg.cs" />
     <Compile Include="Model\CustomHost.cs" />
     <Compile Include="Model\GameMaster.cs" />
-    <Compile Include="Model\NetMsg.cs" />
-    <Compile Include="ViewModel\ChatMsgViewModel.cs" />
-    <Compile Include="ViewModel\ClientConnViewModel.cs" />
+    <Compile Include="Model\Opponent.cs" />
+    <Compile Include="Model\SelfPlayer.cs" />
+    <Compile Include="ViewModel\ChatViewModel.cs" />
+    <Compile Include="ViewModel\FinViewModel.cs" />
+    <Compile Include="ViewModel\LogViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NetConnViewModel.cs" />
-    <Compile Include="ViewModel\NetMsgViewModel.cs" />
-    <Compile Include="ViewModel\ServerConnViewModel.cs" />
+    <Compile Include="ViewModel\PlayBoardViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="View\ConnectionWindow.xaml.cs">
       <DependentUpon>ConnectionWindow.xaml</DependentUpon>
@@ -145,6 +155,18 @@
     <Compile Include="View\Fin.xaml.cs">
       <DependentUpon>Fin.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\Chat.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Log.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\PlayBoard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -157,6 +179,30 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Skins\ChatSkin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\FinSkin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\LogSkin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\MainSkin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\NetConnSkin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\PlayBoardSkin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\ConnectionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

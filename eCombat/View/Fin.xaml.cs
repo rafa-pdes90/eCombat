@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using CommonServiceLocator;
+using eCombat.ViewModel;
+using GalaSoft.MvvmLight.Messaging;
+using GalaSoft.MvvmLight.Threading;
 using MahApps.Metro.Controls;
 
 namespace eCombat.View
@@ -20,6 +11,11 @@ namespace eCombat.View
     /// </summary>
     public partial class Fin : MetroWindow
     {
+        /// <summary>
+        /// Gets the view's ViewModel.
+        /// </summary>
+        public FinViewModel Vm => (FinViewModel)this.DataContext;
+
         public Fin()
         {
             InitializeComponent();

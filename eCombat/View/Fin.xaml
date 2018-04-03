@@ -5,24 +5,38 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:eCombat.View"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-        mc:Ignorable="d"
-        Title="Fin" Height="300" Width="724"
-        WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
-        Background="Azure" WindowTransitionsEnabled="False"
+        xmlns:ignore="http://www.galasoft.ch/ignore"
+        mc:Ignorable="d ignore"
+        Title="Fin" TitleCharacterCasing="Normal" Height="300" Width="600"
+        ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
+        Background="#A8228B22" WindowTransitionsEnabled="False" ShowInTaskbar="False"
         BorderThickness="0" GlowBrush="Black"
-        ShowInTaskbar="False">
-    <mah:MetroWindow.OverlayBrush>
-        <!--<SolidColorBrush Opacity="0.8" Color="{StaticResource Gray2}" />-->
-        <SolidColorBrush Opacity="0.7" Color="{StaticResource BlackColor}"/>
-    </mah:MetroWindow.OverlayBrush>
-    <Grid Background="Green"  DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
+        DataContext="{Binding FinVm, Source={StaticResource Locator}}" >
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/eCombat;component/Skins/FinSkin.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="/Resources/WelcomeBackground.jpg" Opacity="0.66" Stretch="UniformToFill"/>
+        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="0,10,0,10" HorizontalAlignment="Center">
-            <Label Content="{Binding MensagemFinal}" FontSize="50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding EndMatchMessage, FallbackValue='Fin'}" TextWrapping="Wrap"
+                   FontSize="42" FontFamily="Segoe Print" FontWeight="Bold" Foreground="Red">
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="Black"/>
+                </TextBlock.Effect>
+            </TextBlock>
         </Grid>
 
         <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -31,12 +45,12 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" Command="{Binding ResetCommand}" Content="Retornar à tela de login"
-                    FontSize="20" MinHeight="50" MinWidth="200" Margin="10"
+            <Button Grid.Column="0" Command="{Binding ResetCommand}" Content="Rematch"
+                    FontSize="21" MinHeight="50" MinWidth="200" Margin="10"
                     VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
 
-            <Button Grid.Column="1" Command="{Binding ExitCommand}" Content="Sair"
-                    FontSize="20" MinHeight="50" MinWidth="200" Margin="10"
+            <Button Grid.Column="1" Command="{Binding ExitCommand}" Content="Exit"
+                    FontSize="21" MinHeight="50" MinWidth="200" Margin="10"
                     VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
         </Grid>
     </Grid>

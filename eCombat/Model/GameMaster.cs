@@ -4,11 +4,21 @@ using GameServer;
 
 namespace eCombat.Model
 {
-    public sealed class GameMaster
+    public static class GameMaster
     {
-        private static string MyId { get; set; }
+        private static string _myId;
+
+        public static string MyId
+        {
+            get => SelfHost.State != CommunicationState.Opened ? null : _myId;
+
+            private set => _myId = value;
+        }
+
+        public static string OpponentId { get; set; }
 
         private static CustomHost _selfHost;
+
         private static CustomHost SelfHost
         {
             get
@@ -35,6 +45,7 @@ namespace eCombat.Model
         }
 
         private static GameMasterSvcClient _client;
+
         public static GameMasterSvcClient Client
         {
             get
@@ -50,7 +61,7 @@ namespace eCombat.Model
 
                 try
                 {
-                    _client.MeetTheGameMaster(MyId);
+                    _client.EnterGame(MyId);
                 }
                 catch (FaultException<GameMasterSvcFault>)
                 {

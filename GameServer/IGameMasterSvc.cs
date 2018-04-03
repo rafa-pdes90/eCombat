@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
+﻿using System.ServiceModel;
 
 namespace GameServer
 {
@@ -11,11 +6,26 @@ namespace GameServer
     [ServiceContract(SessionMode = SessionMode.Required)]
     public interface IGameMasterSvc
     {
-        [OperationContract(IsInitiating = true, IsTerminating = false)]
+        [OperationContract(IsOneWay = false, IsInitiating = true, IsTerminating = false)]
         [FaultContract(typeof(GameMasterSvcFault))]
-        void MeetTheGameMaster(string clientId);
+        void EnterGame(string clientId);
+
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = true)]
+        void LeaveGame();
 
         [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
-        void IntroduceToGameMaster(string displayName);
+        void FaceMatch(string displayName);
+
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
+        void CancelMatch();
+
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
+        void MoveBoardPiece(int srcX, int srcY, int destX, int destY);
+
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
+        void AttackBoardPiece(int srcX, int srcY, int destX, int destY, string attackerPowerLevel);
+
+        [OperationContract(IsOneWay = true, IsInitiating = false, IsTerminating = false)]
+        void WriteMessageToChat(string message);
     }
 }

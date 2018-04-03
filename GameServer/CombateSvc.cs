@@ -8,6 +8,62 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+namespace eCombat
+{
+    using System.Runtime.Serialization;
+    
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ChatMsg", Namespace="http://schemas.datacontract.org/2004/07/eCombat")]
+    public partial class ChatMsg : object, System.Runtime.Serialization.IExtensibleDataObject
+    {
+        
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private string MsgContentField;
+        
+        private int MsgIdField;
+        
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string MsgContent
+        {
+            get
+            {
+                return this.MsgContentField;
+            }
+            set
+            {
+                this.MsgContentField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int MsgId
+        {
+            get
+            {
+                return this.MsgIdField;
+            }
+            set
+            {
+                this.MsgIdField = value;
+            }
+        }
+    }
+}
 
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -16,16 +72,46 @@ public interface ICombateSvc
 {
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ICombateSvc/StartMatch")]
-    void StartMatch(string opponentName, string opponentId, bool isPlayer1);
+    void StartMatch(string opponentName, string opponentId, bool isOpponentTurn);
     
     [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ICombateSvc/StartMatch")]
-    System.Threading.Tasks.Task StartMatchAsync(string opponentName, string opponentId, bool isPlayer1);
+    System.Threading.Tasks.Task StartMatchAsync(string opponentName, string opponentId, bool isOpponentTurn);
     
-    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/CancelMatch")]
-    void CancelMatch();
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/EndMatch")]
+    void EndMatch(bool isWorthPoints);
     
-    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/CancelMatch")]
-    System.Threading.Tasks.Task CancelMatchAsync();
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/EndMatch")]
+    System.Threading.Tasks.Task EndMatchAsync(bool isWorthPoints);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/MoveBoardPiece")]
+    void MoveBoardPiece(int srcX, int srcY, int destX, int destY, bool isOpponentTurn);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/MoveBoardPiece")]
+    System.Threading.Tasks.Task MoveBoardPieceAsync(int srcX, int srcY, int destX, int destY, bool isOpponentTurn);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/AttackBoardPiece")]
+    void AttackBoardPiece(int srcX, int srcY, int destX, int destY, string attackerPowerLevel, string defenderPowerLevel, bool isOpponentTurn);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/AttackBoardPiece")]
+    System.Threading.Tasks.Task AttackBoardPieceAsync(int srcX, int srcY, int destX, int destY, string attackerPowerLevel, string defenderPowerLevel, bool isOpponentTurn);
+    
+    [System.ServiceModel.OperationContractAttribute(IsInitiating=false, Action="http://tempuri.org/ICombateSvc/ShowPowerLevel", ReplyAction="http://tempuri.org/ICombateSvc/ShowPowerLevelResponse")]
+    string ShowPowerLevel(int srcX, int srcY);
+    
+    [System.ServiceModel.OperationContractAttribute(IsInitiating=false, Action="http://tempuri.org/ICombateSvc/ShowPowerLevel", ReplyAction="http://tempuri.org/ICombateSvc/ShowPowerLevelResponse")]
+    System.Threading.Tasks.Task<string> ShowPowerLevelAsync(int srcX, int srcY);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/WriteMessageToChat")]
+    void WriteMessageToChat(eCombat.ChatMsg chatMessage, bool isSelfMessage);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/WriteMessageToChat")]
+    System.Threading.Tasks.Task WriteMessageToChatAsync(eCombat.ChatMsg chatMessage, bool isSelfMessage);
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/Ping")]
+    void Ping();
+    
+    [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsInitiating=false, Action="http://tempuri.org/ICombateSvc/Ping")]
+    System.Threading.Tasks.Task PingAsync();
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -62,23 +148,73 @@ public partial class CombateSvcClient : System.ServiceModel.ClientBase<ICombateS
     {
     }
     
-    public void StartMatch(string opponentName, string opponentId, bool isPlayer1)
+    public void StartMatch(string opponentName, string opponentId, bool isOpponentTurn)
     {
-        base.Channel.StartMatch(opponentName, opponentId, isPlayer1);
+        base.Channel.StartMatch(opponentName, opponentId, isOpponentTurn);
     }
     
-    public System.Threading.Tasks.Task StartMatchAsync(string opponentName, string opponentId, bool isPlayer1)
+    public System.Threading.Tasks.Task StartMatchAsync(string opponentName, string opponentId, bool isOpponentTurn)
     {
-        return base.Channel.StartMatchAsync(opponentName, opponentId, isPlayer1);
+        return base.Channel.StartMatchAsync(opponentName, opponentId, isOpponentTurn);
     }
     
-    public void CancelMatch()
+    public void EndMatch(bool isWorthPoints)
     {
-        base.Channel.CancelMatch();
+        base.Channel.EndMatch(isWorthPoints);
     }
     
-    public System.Threading.Tasks.Task CancelMatchAsync()
+    public System.Threading.Tasks.Task EndMatchAsync(bool isWorthPoints)
     {
-        return base.Channel.CancelMatchAsync();
+        return base.Channel.EndMatchAsync(isWorthPoints);
+    }
+    
+    public void MoveBoardPiece(int srcX, int srcY, int destX, int destY, bool isOpponentTurn)
+    {
+        base.Channel.MoveBoardPiece(srcX, srcY, destX, destY, isOpponentTurn);
+    }
+    
+    public System.Threading.Tasks.Task MoveBoardPieceAsync(int srcX, int srcY, int destX, int destY, bool isOpponentTurn)
+    {
+        return base.Channel.MoveBoardPieceAsync(srcX, srcY, destX, destY, isOpponentTurn);
+    }
+    
+    public void AttackBoardPiece(int srcX, int srcY, int destX, int destY, string attackerPowerLevel, string defenderPowerLevel, bool isOpponentTurn)
+    {
+        base.Channel.AttackBoardPiece(srcX, srcY, destX, destY, attackerPowerLevel, defenderPowerLevel, isOpponentTurn);
+    }
+    
+    public System.Threading.Tasks.Task AttackBoardPieceAsync(int srcX, int srcY, int destX, int destY, string attackerPowerLevel, string defenderPowerLevel, bool isOpponentTurn)
+    {
+        return base.Channel.AttackBoardPieceAsync(srcX, srcY, destX, destY, attackerPowerLevel, defenderPowerLevel, isOpponentTurn);
+    }
+    
+    public string ShowPowerLevel(int srcX, int srcY)
+    {
+        return base.Channel.ShowPowerLevel(srcX, srcY);
+    }
+    
+    public System.Threading.Tasks.Task<string> ShowPowerLevelAsync(int srcX, int srcY)
+    {
+        return base.Channel.ShowPowerLevelAsync(srcX, srcY);
+    }
+    
+    public void WriteMessageToChat(eCombat.ChatMsg chatMessage, bool isSelfMessage)
+    {
+        base.Channel.WriteMessageToChat(chatMessage, isSelfMessage);
+    }
+    
+    public System.Threading.Tasks.Task WriteMessageToChatAsync(eCombat.ChatMsg chatMessage, bool isSelfMessage)
+    {
+        return base.Channel.WriteMessageToChatAsync(chatMessage, isSelfMessage);
+    }
+    
+    public void Ping()
+    {
+        base.Channel.Ping();
+    }
+    
+    public System.Threading.Tasks.Task PingAsync()
+    {
+        return base.Channel.PingAsync();
     }
 }
