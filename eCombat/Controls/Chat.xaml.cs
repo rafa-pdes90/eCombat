@@ -21,6 +21,8 @@ namespace eCombat.Controls
 
         private void ChatScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
+            if (Math.Abs(e.VerticalChange) > 0) return;
+            
             ChatMsg newChatMessage = this.Vm.ChatMsgList.LastOrDefault();
 
             if (newChatMessage == null || !newChatMessage.IsSelfMessage) return;
